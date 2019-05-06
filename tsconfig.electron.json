@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    // "lib": ["es7", "dom"],
+    "outDir": "./dist/main",
+    "target": "es2016",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    // "isolatedModules": true,
+    "paths": {
+      "@": ["src"]
+    },
+    "types": ["node"]
+  },
+  "include": ["src/main/*"],
+  "exclude": ["node_modules"],
+  "files": [".d.ts"]
+}

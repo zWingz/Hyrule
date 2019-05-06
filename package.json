@@ -4,7 +4,6 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn dev:web & yarn dev:main",
     "dev:web": "node ./build/devServer.js",
     "dev:main": "yarn build:main --watch & yarn electron",
     "build:main": "tsc -p tsconfig.electron.json",
@@ -29,6 +28,7 @@
     "babel-loader": "^8.0.5",
     "css-loader": "^2.1.1",
     "electron-reload": "^1.4.0",
+    "electron-reloader": "^0.2.0",
     "fork-ts-checker-notifier-webpack-plugin": "^1.0.0",
     "fork-ts-checker-webpack-plugin": "^1.3.0",
     "html-webpack-plugin": "^3.2.0",

@@ -1,12 +1,13 @@
 import React from 'react'
 import { hot } from 'react-hot-loader/root'
 import electron from 'electron'
+import './logger'
 const ipcRenderer = electron.ipcRenderer
-ipcRenderer.on('main-process-messages', function(event, message){
-    alert(message)
-})
+console.log(ipcRenderer);
+
 const App = () => (
-  <div>dfs</div>
+  <div>test</div>
+
 )
 
 function isHot() {

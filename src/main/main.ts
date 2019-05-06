@@ -1,16 +1,21 @@
-const { BrowserWindow, app } = require('electron')
-const { join } = require('path')
-const Reload = require('electron-reload')
-Reload(__dirname, {
-  electron: join(__dirname, '../../', 'node_modules', '.bin', 'electron')
-})
+import { BrowserWindow, app, ipcMain } from 'electron'
+import { join } from 'path'
+import { setWebcontent, logger } from './logger';
+// import * as Reload from 'electron-reload'
+// Reload(__dirname, {
+//   electron: require(`${__dirname}/../../node_modules/electron`),
 
+// })
+try {
+	require('electron-reloader')(module);
+} catch (err) {}
+
+let win: BrowserWindow
 function createWindow() {
-  let win
   // 创建浏览器窗口
   win = new BrowserWindow({
-    width: 800,
-    height: 999,
+    width: 1080,
+    height: 750,
     webPreferences: {
       nodeIntegration: true
     }
@@ -18,7 +23,13 @@ function createWindow() {
   // 然后加载 app 的 index.html.
   win.loadURL('http://localhost:8989/')
   win.webContents.openDevTools()
-  win.webContents.send('main-process-messages', 'main-process-messages show')
+  setWebcontent(win.webContents)
+  win.on('close', () => {
+    win = null
+  })
 }
 
 app.on('ready', createWindow)
+app.on('window-all-closed', () => {
+  app.quit()
+})

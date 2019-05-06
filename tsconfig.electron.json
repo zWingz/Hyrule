@@ -4,6 +4,7 @@
     // "lib": ["es7", "dom"],
     "outDir": "./dist/main",
     "target": "es2016",
+    "module": "commonjs",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,

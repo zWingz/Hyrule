@@ -1,11 +1,15 @@
-declare module "*.svg" {
-  const content: any;
-  export default content;
+declare module '*.svg' {
+  const content: any
+  export default content
 }
 
-declare type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+declare type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
 declare const isProduction: boolean
+
+declare type PlainObj = {
+  [k: string]: any
+}
 
 // type Readonly<T> = {
 //   readonly [P in keyof T]: T[P];

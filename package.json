@@ -12,7 +12,8 @@
   "dependencies": {
     "electron": "^5.0.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "url-join": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",
@@ -27,6 +28,8 @@
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.5",
     "css-loader": "^2.1.1",
+    "electron-debug": "^2.2.0",
+    "electron-is-dev": "^1.1.0",
     "electron-reload": "^1.4.0",
     "electron-reloader": "^0.2.0",
     "fork-ts-checker-notifier-webpack-plugin": "^1.0.0",

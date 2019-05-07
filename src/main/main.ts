@@ -1,14 +1,21 @@
 import { BrowserWindow, app, ipcMain } from 'electron'
-import { join } from 'path'
-import { setWebcontent, logger } from './logger';
+import * as isDev from 'electron-is-dev'
+import Debug from 'electron-debug'
+import { setWebcontent, logger } from './logger'
 // import * as Reload from 'electron-reload'
 // Reload(__dirname, {
 //   electron: require(`${__dirname}/../../node_modules/electron`),
 
 // })
-try {
-	require('electron-reloader')(module);
-} catch (err) {}
+// try {
+//   require('electron-reloader')(module)
+// } catch (err) {}
+if (isDev) {
+  console.log('Running in development')
+  Debug({ showDevTools: true })
+} else {
+  console.log('Running in production')
+}
 
 let win: BrowserWindow
 function createWindow() {

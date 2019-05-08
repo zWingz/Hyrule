@@ -10,9 +10,15 @@
     "electron": "electron ./dist/main/main.js"
   },
   "dependencies": {
+    "antd": "^3.17.0",
     "electron": "^5.0.1",
+    "electron-store": "^3.2.0",
+    "electron-util": "^0.11.0",
+    "node-fetch": "^2.5.0",
+    "qs": "^6.7.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
     "url-join": "^4.0.0"
   },
   "devDependencies": {
@@ -27,6 +33,7 @@
     "autoprefixer": "^9.5.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.5",
+    "babel-plugin-import": "^1.11.0",
     "css-loader": "^2.1.1",
     "electron-debug": "^2.2.0",
     "electron-is-dev": "^1.1.0",
@@ -40,8 +47,10 @@
     "mini-css-extract-plugin": "^0.6.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "post-loader": "^2.0.0",
+    "postcss-loader": "^3.0.0",
     "react-dev-utils": "^9.0.0",
     "react-hot-loader": "^4.8.4",
+    "style-loader": "^0.23.1",
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-eslint-rules": "^5.4.0",

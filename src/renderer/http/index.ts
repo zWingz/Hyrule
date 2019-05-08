@@ -1,19 +1,32 @@
 import join from 'url-join'
-import { RestConfig } from '../utils/interface'
 import { pick, pickArray } from '../utils/helper'
-
+import {
+  RequestParams,
+  GitBlob,
+  GitFile,
+  GitIssue,
+  GitRepo,
+  GitTree,
+  GitUser,
+  CreateFileParams,
+  CreateIssueParams,
+  DeleteFileParams
+} from './types'
+import qs from 'qs'
 class Rest {
   base = 'https://api.github.com'
-  headers = {}
+  headers = {
+    'content-type': 'application/json'
+  } as any
   token: string = ''
   repo: string = ''
   owner: string = ''
-  constructor({ token }: RestConfig) {
+  setToken(token: string) {
+    this.headers.Authorization = `token ${token}`
     this.token = token
-    this.headers = {
-      Authorization: `token ${token}`,
-      'content-type': 'application/json'
-    }
+  }
+  setRepo(repo) {
+    this.repo = repo
   }
   parseUrl(url: string, params = {}) {
     const map = {
@@ -24,9 +37,6 @@ class Rest {
     return url.replace(/(:\w+)/g, (match, $1) => {
       return map[$1.slice(1)]
     })
-  }
-  setRepo(repo) {
-    this.repo = repo
   }
   /**
    * 封装github api
@@ -43,22 +53,21 @@ class Rest {
    * @returns
    * @memberof Rest
    */
-  request({ url = '', body = {}, method = 'GET' }: RequestParams) {
-    return fetch(join(this.base, url), {
+  request({ url = '', body, params, method = 'GET' }: RequestParams) {
+    return fetch(join(this.base, url, params ? `?${qs.stringify(params)}` : ''), {
       headers: this.headers,
       method,
       body
+    }).then(res => {
+      const { status } = res
+      const data = res.json()
+      if (status === 401) {
+        throw new Error('登录验证出错了, 请修改后重试!')
+      } else if (status !== 200) {
+        throw new Error((data as any).message)
+      }
+      return data
     })
-      .then(res => res.json())
-      .then(res => {
-        const { statusCode, data } = res
-        if (statusCode === 401) {
-          throw new Error('Token验证出错了, 请修改后重试!')
-        } else if (statusCode >= 300) {
-          throw new Error(data.message)
-        }
-        return data
-      })
   }
   /**
    * 获取用户信息接口
@@ -69,10 +78,10 @@ class Rest {
   async getUser() {
     const url = `user`
     const data = await this.request({ url })
-    const { login: username, avatar_url: avatar } = data
-    this.owner = username
+    const { login: owner, avatar_url: avatar } = data
+    this.owner = owner
     return {
-      username,
+      owner,
       avatar
     } as GitUser
   }
@@ -80,12 +89,12 @@ class Rest {
     const url = '/user/repos'
     const data: GitRepo[] = await this.request({
       url,
-      body: {
+      params: {
         type: 'owner',
         sort: 'updated'
       }
     })
-    return pickArray(data, ['name', 'id', 'description'])
+    return pickArray(data, ['name', 'id', 'description', 'private'])
   }
   async getIssues() {
     const url = this.parseUrl(`/repos/:owner/:repo/issues`)
@@ -195,4 +204,4 @@ class Rest {
   }
 }
 
-export { Rest }
+export default new Rest()

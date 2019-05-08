@@ -4,14 +4,14 @@ module.exports = {
     "@babel/preset-react"
   ],
   "plugins": [
-    // [
-    //   "import",
-    //   {
-    //     "libraryName": "antd",
-    //     "libraryDirectory": "es",
-    //     "style": "css"
-    //   }
-    // ],
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "libraryDirectory": "es",
+        "style": "css"
+      }
+    ],
     // "@babel/plugin-syntax-dynamic-import",
     // "@babel/plugin-proposal-class-properties",
     // [

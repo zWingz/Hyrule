@@ -1,0 +1,6 @@
+
+export const GITHUB_APP = {
+  CLIENT_ID: '7b1eb9f19a3d908981cd',
+  SECRET: '',
+  scope: ['repo']
+}

@@ -1,18 +1,21 @@
 type Methdos = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 
-interface RequestParams {
+export interface RequestParams {
   url?: string
-    body?: any
-    method?: Methdos
+  body?: any
+  method?: Methdos
+  params?: {
+    [k: string]: string | number | boolean
+  }
 }
 
-interface CreateIssueParams {
+export interface CreateIssueParams {
   title: string
   body: string
   labels?: string[]
 }
 
-interface GitIssue {
+export interface GitIssue {
   id: number
   number: number
   html_url: string
@@ -28,43 +31,44 @@ interface GitIssue {
   updated_at: string
 }
 
-interface GitRepo {
+export interface GitRepo {
   name: string
   id: string
+  private: boolean
   description: string
 }
 
-interface GitTree {
+export interface GitTree {
   path: string
   sha: string
   type: string
 }
 
-interface GitFile {
+export interface GitFile {
   name: string
   sha: string
   path: string
 }
 
-interface GitBlob {
+export interface GitBlob {
   content: string
   encoding: string
   sha: string
   size: number
 }
-interface GitUser {
-  username: string
+export interface GitUser {
+  owner: string
   avatar: string
 }
 
-interface DeleteFileParams {
+export interface DeleteFileParams {
   path: string
-    message: string
-    sha: string
+  message: string
+  sha: string
 }
 
-interface CreateFileParams {
+export interface CreateFileParams {
   path: string
-    content: string
-    message: string
+  content: string
+  message: string
 }

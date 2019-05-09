@@ -1,3 +1,8 @@
+import dayjs from 'dayjs'
+export function getNow () {
+  return dayjs().format('YYYY-MM-DD hh:mm:ss')
+}
+
 export function pick<T = PlainObj>(obj: T, keys: Array<keyof T>) {
   const ret = {} as any
   keys.forEach(each => {

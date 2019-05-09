@@ -1,0 +1,60 @@
+.flex {
+  display: flex;
+}
+.flex-column {
+  flex-direction: column;
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+
+// colors
+@marginNum: 10 20;
+
+.generatePadding(@num) {
+  .pt@{num} {
+    padding-top: @num + px;
+  }
+  .pb@{num} {
+    padding-bottom: @num + px;
+  }
+}
+.generateMargin(@num) {
+  .mt@{num} {
+    margin-top: @num + px;
+  }
+  .mb@{num} {
+    margin-bottom: @num + px;
+  }
+}
+
+// loop definition
+.margin(@marginNum, @i: 1) when (@i <= length(@marginNum)) {
+  // extract the right color from the margin
+  @num: extract(@marginNum, @i);
+
+  // apply the background to the selector
+  .generateMargin(@num);
+  .generatePadding(@num);
+
+  // recursive call for the next color
+  .margin(@marginNum, @i + 1);
+}
+
+// application
+.margin(@marginNum);

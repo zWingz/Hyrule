@@ -1,7 +1,12 @@
-import { Rest } from '../http'
+import http from '../http'
 import { getNow } from './helper'
-import { Config, ImgType } from './interface'
 import join from 'url-join'
+
+export type ImgType = {
+  name: string
+  url?: string
+  sha: string
+}
 
 export function clone(obj) {
   return JSON.parse(JSON.stringify(obj))
@@ -59,30 +64,15 @@ const cache = new Cache()
 const ImageRegExg = /\.(jpg|jpeg|png)$/
 
 export class Octo {
-  owner: string = ''
-  repo: string = ''
-  branch: string = ''
-  customUrl: string = ''
-  api: Rest
-  constructor({ repo, branch, token, customUrl = '' }: Config) {
-    const [owner, r] = repo.split('/')
-    if (!r) throw new Error('Error in repo name')
-    this.api = new Rest({
-      token,
-      repo,
-      branch
-    })
-    this.owner = owner
-    this.repo = r
-    this.branch = branch || 'master'
-    this.customUrl = customUrl
-  }
   getRootPath(): Promise<{ path: string; sha: string }[]> {
-    return this.api.getTree(this.branch)
+    return http.getTree('master')
+  }
+  setRepo(arg: string) {
+    http.setRepo(arg)
   }
   async getTree(
     pathName: string = '',
-    pathSha: string = this.branch
+    pathSha: string = 'master'
   ): Promise<DataJsonType> {
     const c = cache.get(pathName)
     if (c) {
@@ -93,7 +83,7 @@ export class Octo {
       images: []
     }
     if (pathSha) {
-      const data = await this.api.getTree(pathSha)
+      const data = await http.getTree(pathSha)
       const dir = {}
       const images = []
       data.forEach(each => {
@@ -124,7 +114,7 @@ export class Octo {
 
   async uploadImage(path: string, img: UploadImageType) {
     const { filename } = img
-    const d = await this.api.createFile({
+    const d = await http.createFile({
       path: join(path, filename),
       message: `Upload ${filename} by Koopa - ${getNow()}`,
       content: img.base64
@@ -144,7 +134,7 @@ export class Octo {
     throw d
   }
   async removeFile(path, img: ImgType) {
-    await this.api.deleteFile({
+    await http.deleteFile({
       path: join(path, img.name),
       message: `Deleted ${img.name} by Koopa - ${getNow()}`,
       sha: img.sha
@@ -152,18 +142,15 @@ export class Octo {
     cache.delImg(path, img)
   }
   getUser() {
-    return this.api.getUser()
+    return http.getUser()
   }
   parseUrl(path, fileName) {
-    const { owner, repo, customUrl, branch } = this
-    if (customUrl) {
-      return join(customUrl, path, fileName)
-    }
+    const { repo, owner } = http
     return join(
       `https://raw.githubusercontent.com/`,
       owner,
       repo,
-      branch,
+      'master',
       path,
       fileName
     )
@@ -173,16 +160,5 @@ export class Octo {
   }
 }
 
-let ins: Octo
-
-export function getIns(config: Config): Octo {
-  if (ins) return ins
-  ins = new Octo(config)
-  return ins
-}
-
-/* istanbul ignore next */
-export function clearIns() {
-  // just for test
-  ins = null
-}
+const octo = new Octo()
+export { octo }

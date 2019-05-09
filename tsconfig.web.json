@@ -20,5 +20,5 @@
   },
   "include": ["src/renderer/*"],
   "exclude": ["node_modules", "**/*.spec.ts", "src/**/demo.js"],
-  "files": [".d.ts"]
+  "files": ["global.d.ts"]
 }

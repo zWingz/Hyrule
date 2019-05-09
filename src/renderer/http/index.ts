@@ -25,7 +25,7 @@ class Rest {
     this.headers.Authorization = `token ${token}`
     this.token = token
   }
-  setRepo(repo) {
+  setRepo(repo: string) {
     this.repo = repo
   }
   parseUrl(url: string, params = {}) {

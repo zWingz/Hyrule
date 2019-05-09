@@ -6,6 +6,7 @@ import './style.less'
 import { Icon } from 'antd'
 import { RepoSelectModal } from './RepoSelectModal'
 import { getCacheRepos, store, setCacheRepos } from '../../../utils/store'
+import { NavLink } from 'react-router-dom';
 
 const TYPE_IMG = 'images'
 const TYPE_ISSUES = 'issues'
@@ -69,7 +70,9 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
               <ul className='repo-list'>
                 {this.state[each].map((repo: GitRepo) => (
                   <li className='repo-list-item' key={repo.id}>
-                    {repo.name}
+                    <NavLink to={`/images/${repo.name}`} activeClassName='nav-active'>
+                      {repo.name}
+                    </NavLink>
                   </li>
                 ))}
                 <li

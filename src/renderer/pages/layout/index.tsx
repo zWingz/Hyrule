@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import './style.less'
-import { Sidebar } from './sidebar'
+import { Sidebar } from './Sidebar'
 
 export class Layout extends PureComponent {
   render() {

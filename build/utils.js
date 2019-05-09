@@ -9,7 +9,7 @@ exports.styleLoader = function(production) {
       use.unshift('style-loader')
   }
   return {
-    test: /\.less$/,
+    test: /\.(less|css)$/,
     use
   }
 }

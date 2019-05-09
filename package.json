@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev:web": "node ./build/devServer.js",
-    "dev:main": "yarn build:main --watch & yarn electron",
+    "dev:main": "yarn build:main --watch",
     "build:main": "tsc -p tsconfig.electron.json",
     "electron": "electron ./dist/main/main.js"
   },

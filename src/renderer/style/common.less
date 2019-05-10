@@ -24,22 +24,28 @@
 
 
 // colors
-@marginNum: 10 20;
+@marginNum: 5 10 20;
 
 .generatePadding(@num) {
   .pt@{num} {
-    padding-top: @num + px;
+    padding-top: @num*1px;
   }
   .pb@{num} {
-    padding-bottom: @num + px;
+    padding-bottom: @num*1px;
   }
 }
 .generateMargin(@num) {
   .mt@{num} {
-    margin-top: @num + px;
+    margin-top: @num*1px;
+  }
+  .mr@{num} {
+    margin-right: @num*1px;
+  }
+  .ml@{num} {
+    margin-left: @num*1px;
   }
   .mb@{num} {
-    margin-bottom: @num + px;
+    margin-bottom: @num*1px;
   }
 }
 
@@ -53,7 +59,7 @@
   .generatePadding(@num);
 
   // recursive call for the next color
-  .margin(@marginNum, @i + 1);
+  .margin(@marginNum, @i+1);
 }
 
 // application

@@ -3,15 +3,14 @@ import { hot } from 'react-hot-loader/root'
 import { ipcRenderer } from 'electron'
 import { store } from './utils/store'
 import http from './http'
-import './utils/logger'
-import './style.less'
 import { Provider } from './context/UserContext'
 import { HashRouter } from 'react-router-dom'
 import { Layout } from './pages/layout'
-
-function click() {
-  ipcRenderer.send('open-auth-window')
-}
+import { Spin, Icon } from 'antd'
+import './utils/logger'
+import './style/index.less'
+const antIcon = <Icon type='loading' style={{ fontSize: 24 }} spin />
+Spin.setDefaultIndicator(antIcon)
 
 class App extends PureComponent {
   state = {

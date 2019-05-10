@@ -9,7 +9,7 @@ export class Layout extends PureComponent {
     return (
       <div className='main flex'>
         <Sidebar />
-        <div className='main-container flex-grow'>
+        <div className='route-container flex-grow'>
           <Switch>
             <Route path='/images/:repo' component={ImagesPage}/>
             <Route render={() => <div>Not Found</div>} />

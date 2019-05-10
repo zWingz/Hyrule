@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "antd": "^3.17.0",
+    "classnames": "^2.2.6",
     "dayjs": "^1.8.14",
     "electron": "^5.0.1",
     "electron-store": "^3.2.0",
@@ -52,6 +53,7 @@
     "react-dev-utils": "^9.0.0",
     "react-hot-loader": "^4.8.4",
     "style-loader": "^0.23.1",
+    "style-resources-loader": "^1.2.1",
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-eslint-rules": "^5.4.0",

@@ -57,13 +57,13 @@ class Rest {
     return fetch(join(this.base, url, params ? `?${qs.stringify(params)}` : ''), {
       headers: this.headers,
       method,
-      body
+      body: body && JSON.stringify(body)
     }).then(res => {
       const { status } = res
       const data = res.json()
       if (status === 401) {
         throw new Error('登录验证出错了, 请修改后重试!')
-      } else if (status !== 200) {
+      } else if (status >= 300) {
         throw new Error((data as any).message)
       }
       return data

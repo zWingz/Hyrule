@@ -1,0 +1,109 @@
+.album {
+  &-container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-grow: 1;
+  }
+  &-title {
+    font-size: 36px;
+    border-bottom: 1px solid @border-color;
+    margin-bottom: 10px;
+  }
+}
+
+.album-type {
+  display: flex;
+  align-items: center;
+  color: #dadada;
+  font-size: 13px;
+  margin: 20px 0 10px;
+  &::before,
+  &::after {
+    content: '';
+    // position: absolute;
+    height: 1px;
+    background: currentColor;
+  }
+  &::before {
+    width: 10px;
+    margin-right: 5px;
+  }
+  &::after {
+    margin-left: 5px;
+    flex-grow: 1;
+  }
+}
+
+.album-images {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  flex-grow: 1;
+  align-content: flex-start;
+  &-item {
+    width: 150px;
+    height: 120px;
+    object-fit: cover;
+    margin: 5px;
+  }
+}
+.album-path {
+  &-wrapper {
+    flex-shrink: 0;
+    // font-size: 32px;
+    display: flex;
+    align-items: center;
+    // padding: 5px 0px;
+    // margin: 10px 10px;
+    padding-bottom: 10px;
+    // border-bottom: 1px solid @border-color;
+  }
+  &-item {
+    padding: 0 4px;
+    // max-width: 80px;
+    // max-width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    &.active {
+      // color: rgba(0, 0, 0, 0.65);
+      color: #1890ff;
+    }
+    &:not(.active) {
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  &-split {
+    margin: 0 5px;
+  }
+}
+
+.album-folder {
+  display: flex;
+  flex-wrap: wrap;
+  // font-size: 14px;
+  // justify-content: space-evenly;
+  &-item {
+    width: 100px;
+    margin: 5px 0px;
+    &:hover {
+      text-decoration: underline;
+      color: #1890ff;
+      cursor: pointer;
+    }
+  }
+  &-icon {
+    // color:
+    font-size: 16px;
+  }
+}
+
+.create-folder-tips {
+  font-size: 13px;
+  color: @tips-text-color;
+  margin-top: 10px;
+}

@@ -26,7 +26,6 @@ export class RepoSelectModal extends PureComponent<Prop, State> {
   getOptions() {
     const { repos } = this.props
     const disabled = this.props.disabled.map(each => each.name)
-    console.log(disabled);
     return repos.map(each => ({
       name: each.name,
       disabled: disabled.includes(each.name)

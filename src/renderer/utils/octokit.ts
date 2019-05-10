@@ -144,7 +144,7 @@ export class Octo {
   getUser() {
     return http.getUser()
   }
-  parseUrl(path, fileName) {
+  parseUrl(path, fileName): string {
     const { repo, owner } = http
     return join(
       `https://raw.githubusercontent.com/`,

@@ -1,14 +1,39 @@
+@padding: 20px;
+
 .album {
   &-container {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    padding-left: @padding;
     flex-grow: 1;
   }
   &-title {
-    font-size: 36px;
-    border-bottom: 1px solid @border-color;
+    // border-bottom: 1px solid @border-color;
     margin-bottom: 10px;
+    &-text {
+      font-size: 32px;
+      display: inline-block;
+      text-shadow: rgb(255, 255, 255) -2px 2px 0px, rgb(174, 255, 206) -4px 4px 0px;
+      color: rgb(112, 55, 213);
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        bottom: 0px;
+        width: calc(15% + 40px);
+        margin-left: -@padding;
+        z-index: -1;
+        background: linear-gradient(
+          90deg,
+          rgb(222, 209, 255),
+          rgb(128, 255, 249)
+        );
+        border-radius: 3px;
+      }
+    }
   }
 }
 
@@ -42,9 +67,9 @@
   flex-grow: 1;
   align-content: flex-start;
   &-item {
-    width: 150px;
-    height: 120px;
-    object-fit: cover;
+    // width: 150px;
+    // height: 120px;
+    // object-fit: cover;
     margin: 5px;
   }
 }

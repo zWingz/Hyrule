@@ -9,7 +9,7 @@ import { Folder } from './Folder'
 import { readAsBase64 } from './helper'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-
+import { Image } from '@zzwing/react-image'
 interface RouteProp {
   repo: string
 }
@@ -216,7 +216,9 @@ export class ImagesPage extends PureComponent<Prop, State> {
     return (
       <div className='album-container'>
         <div className='album-title flex align-center'>
-          <div className='flex-grow'>{this.props.match.params.repo}</div>
+          <div className='flex-grow'>
+            <div className='album-title-text'>{this.props.match.params.repo}</div>
+          </div>
           <Button
             icon='folder-add'
             className='mr10'
@@ -254,8 +256,11 @@ export class ImagesPage extends PureComponent<Prop, State> {
           <div className='album-images'>
             {images.length ? (
               images.map(each => (
-                <img
+                <Image
                   className='album-images-item'
+                  width={150}
+                  height={120}
+                  objectFit='cover'
                   key={each.name}
                   src={each.url}
                 />

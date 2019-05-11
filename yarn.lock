@@ -974,10 +974,10 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@zzwing/react-image@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@zzwing/react-image/-/react-image-1.1.4.tgz#e4d4273e88204d05b84c43f5bc97c3db5333a0b2"
-  integrity sha512-bM5GCHqlNf6D6mCPJPBYiQXLHddEhv99aHa2dt3EvvnWumwmMDo8nM7uis2Cc7lGAyYPCl4XfAvkbLgRgSgW0A==
+"@zzwing/react-image@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@zzwing/react-image/-/react-image-1.1.7.tgz#decac8c1eee1afd11e05b2f3ba99996fa6f98c68"
+  integrity sha512-SdtM6BRDbfqJtK9vaFuwV8ATHRjvcBZ4A4P+mbNSE2QNF2m/k0la1TmnB9LEcMPHJM2nA1G6CWrlAAwTj+o9mg==
 
 abbrev@1:
   version "1.1.1"

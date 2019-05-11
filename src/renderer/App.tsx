@@ -20,10 +20,14 @@ class App extends PureComponent {
   }
   componentDidMount() {
     const token = store.get('token')
-    this.valid(token)
     ipcRenderer.on('set-access-token', async (e, t) => {
       this.valid(t)
     })
+    if(token) {
+      this.valid(token)
+    } else {
+      ipcRenderer.send('open-auth-window')
+    }
   }
   async valid(t) {
     store.set('token', t)

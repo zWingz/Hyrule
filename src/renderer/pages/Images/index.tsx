@@ -9,7 +9,7 @@ import { Folder } from './Folder'
 import { readAsBase64 } from './helper'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-import { Image } from '@zzwing/react-image'
+import { Image, createObserver } from '@zzwing/react-image'
 interface RouteProp {
   repo: string
 }
@@ -39,6 +39,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
     // newPathName: '',
     // edit: false
   }
+  _observer: IntersectionObserver
   componentDidUpdate(prevProps: Prop, prevState) {
     const repo = getRepo(this.props)
     if (getRepo(prevProps) !== repo) {
@@ -47,6 +48,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
   }
   componentDidMount() {
     this.init()
+    this._observer = createObserver(document.querySelector('.album-images'))
   }
   init() {
     octo.setRepo(getRepo(this.props))
@@ -217,7 +219,9 @@ export class ImagesPage extends PureComponent<Prop, State> {
       <div className='album-container'>
         <div className='album-title flex align-center'>
           <div className='flex-grow'>
-            <div className='album-title-text'>{this.props.match.params.repo}</div>
+            <div className='album-title-text'>
+              {this.props.match.params.repo}
+            </div>
           </div>
           <Button
             icon='folder-add'
@@ -252,27 +256,26 @@ export class ImagesPage extends PureComponent<Prop, State> {
           </>
         )}
         <div className='album-type'>图片</div>
-        <Spin spinning={loading} delay={500}>
-          <div className='album-images'>
-            {images.length ? (
-              images.map(each => (
-                <Image
-                  className='album-images-item'
-                  width={150}
-                  height={120}
-                  objectFit='cover'
-                  key={each.name}
-                  src={each.url}
-                />
-              ))
-            ) : (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                style={{ flexGrow: 1 }}
+        <Spin spinning={loading} delay={500} />
+        <div className='album-images'>
+          {images.length ? (
+            images.map(each => (
+              <Image
+                className='album-images-item'
+                width={150}
+                height={120}
+                objectFit='cover'
+                key={each.name}
+                src={each.url}
               />
-            )}
-          </div>
-        </Spin>
+            ))
+          ) : (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              style={{ flexGrow: 1 }}
+            />
+          )}
+        </div>
       </div>
     )
   }

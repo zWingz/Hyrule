@@ -5,6 +5,7 @@ import { setWebcontent, logger } from './logger'
 import { GITHUB_APP } from './config'
 import * as qs from 'qs'
 import * as fetch from 'node-fetch'
+import { porxy } from './proxy';
 // import * as Reload from 'electron-reload'
 // Reload(__dirname, {
 //   electron: require(`${__dirname}/../../node_modules/electron`),
@@ -40,6 +41,7 @@ function createWindow() {
     win = null
   })
   registerAuthListener()
+  registerProxyListener()
 }
 
 function registerAuthListener() {
@@ -59,6 +61,13 @@ function registerAuthListener() {
     authWindow.webContents.on('will-redirect', handleOauth)
     authWindow.webContents.on('will-navigate', handleOauth)
     authWindow.show()
+  })
+}
+
+function registerProxyListener() {
+  ipcMain.on('proxy', async (event, url, options, callback) => {
+    const data = await porxy(url, options)
+    callback(data)
   })
 }
 

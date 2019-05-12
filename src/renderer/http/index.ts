@@ -13,6 +13,7 @@ import {
   DeleteFileParams
 } from './types'
 import qs from 'qs'
+import { ipcRenderer } from 'electron';
 class Rest {
   base = 'https://api.github.com'
   headers = {
@@ -146,7 +147,7 @@ class Rest {
    * @memberof Rest
    */
   getBlob(sha: string): Promise<GitBlob> {
-    const url = this.parseUrl('/repos/:repo/git/blobs/:sha', { sha })
+    const url = this.parseUrl('/repos/:owner/:repo/git/blobs/:sha', { sha })
     return this.request({ url })
   }
   /**
@@ -200,6 +201,17 @@ class Rest {
         message,
         sha
       }
+    })
+  }
+
+  async getPrivateImage(src): Promise<string> {
+    return new Promise((res, rej) => {
+      ipcRenderer.send('proxy', src, {
+        method: 'GET'
+      }, d => {
+        console.log(d)
+        res(d)
+      })
     })
   }
 }

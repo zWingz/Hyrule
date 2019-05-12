@@ -9,7 +9,8 @@ import { Folder } from './Folder'
 import { readAsBase64 } from './helper'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-import { Image, createObserver } from '@zzwing/react-image'
+import { Image as Red, createObserver } from '@zzwing/react-image'
+import { Image } from './Image'
 interface RouteProp {
   repo: string
 }
@@ -51,6 +52,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
     this._observer = createObserver(document.querySelector('.album-images'))
   }
   init() {
+    octo.clearCache()
     octo.setRepo(getRepo(this.props))
     this.getData()
   }
@@ -261,12 +263,15 @@ export class ImagesPage extends PureComponent<Prop, State> {
           {images.length ? (
             images.map(each => (
               <Image
+                isPrivate
                 className='album-images-item'
                 width={150}
                 height={120}
                 objectFit='cover'
                 key={each.name}
                 src={each.url}
+                sha={each.sha}
+                name={each.name}
               />
             ))
           ) : (

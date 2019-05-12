@@ -13,7 +13,8 @@ import {
   DeleteFileParams
 } from './types'
 import qs from 'qs'
-import { ipcRenderer } from 'electron';
+import { Cache } from '../utils/cache'
+
 class Rest {
   base = 'https://api.github.com'
   headers = {
@@ -55,11 +56,14 @@ class Rest {
    * @memberof Rest
    */
   request({ url = '', body, params, method = 'GET' }: RequestParams) {
-    return fetch(join(this.base, url, params ? `?${qs.stringify(params)}` : ''), {
-      headers: this.headers,
-      method,
-      body: body && JSON.stringify(body)
-    }).then(res => {
+    return fetch(
+      join(this.base, url, params ? `?${qs.stringify(params)}` : ''),
+      {
+        headers: this.headers,
+        method,
+        body: body && JSON.stringify(body)
+      }
+    ).then(res => {
       const { status } = res
       const data = res.json()
       if (status === 401) {
@@ -201,17 +205,6 @@ class Rest {
         message,
         sha
       }
-    })
-  }
-
-  async getPrivateImage(src): Promise<string> {
-    return new Promise((res, rej) => {
-      ipcRenderer.send('proxy', src, {
-        method: 'GET'
-      }, d => {
-        console.log(d)
-        res(d)
-      })
     })
   }
 }

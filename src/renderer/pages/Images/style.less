@@ -14,7 +14,8 @@
     &-text {
       font-size: 32px;
       display: inline-block;
-      text-shadow: rgb(255, 255, 255) -2px 2px 0px, rgb(174, 255, 206) -4px 4px 0px;
+      text-shadow: rgb(255, 255, 255) -2px 2px 0px,
+        rgb(174, 255, 206) -4px 4px 0px;
       color: rgb(112, 55, 213);
       position: relative;
       &::before {
@@ -63,15 +64,31 @@
 .album-images {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
   flex-grow: 1;
   align-content: flex-start;
   overflow: auto;
+  position: relative;
   &-item {
-    // width: 150px;
-    // height: 120px;
-    // object-fit: cover;
-    margin: 5px;
+    margin: 3px;
+  }
+  &-loading {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    display: flex;
+    justify-content: center;
+    padding-top: 60px;
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      bottom: 0px;
+      right: 0px;
+      background: rgba(0, 0, 0, 0.1);
+    }
   }
 }
 .album-path {
@@ -132,4 +149,10 @@
   font-size: 13px;
   color: @tips-text-color;
   margin-top: 10px;
+}
+
+.private-iamge-placeholder {
+  width: 150px;
+  height: 120px;
+  border: 1px solid @border-color;
 }

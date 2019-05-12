@@ -9,7 +9,7 @@ import { Layout } from './pages/layout'
 import { Spin, Icon } from 'antd'
 import './utils/logger'
 import './style/index.less'
-const antIcon = <Icon type='loading' style={{ fontSize: 24 }} spin />
+const antIcon = <Icon type='loading' style={{ fontSize: 32 }} spin />
 Spin.setDefaultIndicator(antIcon)
 
 class App extends PureComponent {

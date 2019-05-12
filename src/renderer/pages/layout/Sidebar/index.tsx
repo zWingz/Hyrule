@@ -70,7 +70,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
               <ul className='repo-list'>
                 {this.state[each].map((repo: GitRepo) => (
                   <li className='repo-list-item' key={repo.id}>
-                    <NavLink to={`/images/${repo.name}`} activeClassName='nav-active'>
+                    <NavLink to={{pathname: `/images/${repo.name}`, search: repo.private ? 'private' : ''}} activeClassName='nav-active'>
                       {repo.name}
                     </NavLink>
                   </li>
@@ -78,7 +78,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
                 <li
                   className='repo-add'
                   onClick={() => this.openSelectRepo(each)}>
-                  添加
+                  编辑
                 </li>
               </ul>
             </div>

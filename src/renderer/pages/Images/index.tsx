@@ -11,6 +11,7 @@ import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
 import { Image as Red, createObserver } from '@zzwing/react-image'
 import { Image } from './Image'
+import { store, getCacheRepos } from '../../utils/store'
 interface RouteProp {
   repo: string
 }
@@ -20,6 +21,7 @@ type State = {
   images: ImgType[]
   dir: DirType
   loading: boolean
+  isPrivate: boolean
   // error: string
   // modalShow: boolean
   // newPathName: string
@@ -35,7 +37,8 @@ export class ImagesPage extends PureComponent<Prop, State> {
     pathArr: [],
     images: [],
     dir: {},
-    loading: true
+    loading: true,
+    isPrivate: false
     // modalShow: false,
     // newPathName: '',
     // edit: false
@@ -52,9 +55,17 @@ export class ImagesPage extends PureComponent<Prop, State> {
     this._observer = createObserver(document.querySelector('.album-images'))
   }
   init() {
-    octo.clearCache()
-    octo.setRepo(getRepo(this.props))
-    this.getData()
+    const name = getRepo(this.props)
+    const repo = getCacheRepos('all').filter(each => each.name === name)[0]
+    if (repo) {
+      octo.clearCache()
+      octo.setRepo(name)
+      this.setState({
+        pathArr: [],
+        isPrivate: repo.private
+      })
+      this.getImage()
+    }
   }
   /**
    * 获取拼接后的path
@@ -81,9 +92,6 @@ export class ImagesPage extends PureComponent<Prop, State> {
       url: octo.parseUrl(this.path, img.name)
     }
   }
-  async getData() {
-    this.getImage()
-  }
   /**
    * 获取当前路径图片列表
    *
@@ -92,24 +100,19 @@ export class ImagesPage extends PureComponent<Prop, State> {
    */
   async getImage(sha?: string) {
     if (!this.state.loading) {
-      this.setState({ loading: true })
+      this.setState({ loading: true, images: [], dir: {} })
     }
     try {
       const dataJson = await octo.getTree(this.path, sha)
       const { images, dir } = dataJson
-      this.setState(
-        {
-          // images: [],
-          images: images.map(each => this.parse(each)),
-          dir,
-          // dir: { ...dir },
-          loading: false
-        },
-        () => {
-          console.log(this.state)
-        }
-      )
+      this.setState({
+        // images: [],
+        images: images.map(each => this.parse(each)),
+        dir,
+        loading: false
+      })
     } catch (e) {
+      console.error(e)
       this.setState({
         // error: e.message,
         loading: false
@@ -215,7 +218,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
     render()
   }
   render() {
-    const { images, pathArr, dir, loading } = this.state
+    const { images, pathArr, dir, loading, isPrivate } = this.state
     const keys = Object.keys(dir)
     return (
       <div className='album-container'>
@@ -258,12 +261,11 @@ export class ImagesPage extends PureComponent<Prop, State> {
           </>
         )}
         <div className='album-type'>图片</div>
-        <Spin spinning={loading} delay={500} />
         <div className='album-images'>
           {images.length ? (
             images.map(each => (
               <Image
-                isPrivate
+                isPrivate={isPrivate}
                 className='album-images-item'
                 width={150}
                 height={120}
@@ -272,14 +274,16 @@ export class ImagesPage extends PureComponent<Prop, State> {
                 src={each.url}
                 sha={each.sha}
                 name={each.name}
+                observer={this._observer}
               />
             ))
-          ) : (
+          ) : !loading ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               style={{ flexGrow: 1 }}
             />
-          )}
+          ) : null}
+          <Spin spinning={loading} delay={500} className='album-images-loading' />
         </div>
       </div>
     )

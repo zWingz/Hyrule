@@ -1,6 +1,7 @@
 import http from '../http'
 import { getNow } from './helper'
 import join from 'url-join'
+import { Cache } from './cache';
 
 export type ImgType = {
   name: string
@@ -37,29 +38,16 @@ const DEFAULT_DATA_JSON: DataJsonType = {
  *
  * @class Cache
  */
-class Cache {
-  path: {
-    [k: string]: DataJsonType
-  } = {}
-  create(path: string, data: DataJsonType) {
-    this.path[path] = data
-  }
+class ImageCache extends Cache<DataJsonType> {
   addImg(path: string, img: ImgType) {
-    this.path[path].images.push(img)
+    this.get(path).images.push(img)
   }
   delImg(path: string, img: ImgType) {
-    const cac = this.path[path]
+    const cac = this.get(path)
     cac.images = cac.images.filter(each => each.sha !== img.sha)
   }
-  get(path: string) {
-    const ret = this.path[path]
-    return ret
-  }
-  clear() {
-    this.path = {}
-  }
 }
-const cache = new Cache()
+const cache = new ImageCache()
 
 const ImageRegExg = /\.(jpg|jpeg|png)$/
 
@@ -102,14 +90,14 @@ export class Octo {
         images
       }
     }
-    cache.create(pathName, ret)
+    cache.set(pathName, ret)
     return ret
   }
 
   createPath(absolute: string, pathName: string) {
     const parent = cache.get(absolute)
     parent.dir[pathName] = ''
-    cache.create(join(absolute, pathName), clone(DEFAULT_DATA_JSON))
+    cache.set(join(absolute, pathName), clone(DEFAULT_DATA_JSON))
   }
 
   async uploadImage(path: string, img: UploadImageType) {

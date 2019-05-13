@@ -58,7 +58,7 @@ function createWindow() {
     fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`, {
       headers: {
         'Authorization': `token ${_token}`,
-    'content-type': 'application/json'
+        'content-type': 'application/json'
       }
     })
     .then(async (res) => {
@@ -72,6 +72,8 @@ function createWindow() {
         statusCode: res.status,
         data: read,
         headers: {
+          // ...res.headers.raw(),
+          'content-length': data.size,
           'content-type': "image/jpg"
         },
       })

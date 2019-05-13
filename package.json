@@ -10,6 +10,7 @@
     "electron": "electron ./dist/main/main.js"
   },
   "dependencies": {
+    "@types/node-fetch": "^2.3.3",
     "@zzwing/react-image": "^1.1.7",
     "antd": "^3.17.0",
     "classnames": "^2.2.6",

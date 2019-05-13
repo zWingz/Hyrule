@@ -12,6 +12,7 @@ interface Prop extends iImageProp {
   isPrivate: boolean
   sha?: string
   name: string
+  repo: string
 }
 
 interface State {
@@ -43,39 +44,48 @@ export class Image extends PureComponent<Prop, State> {
     const { src, isPrivate, sha, name } = this.props
     const has = cache.has(sha)
     let url = src
-    let {loaded} = this.state
+    // let {loaded} = this.state
+    if(isPrivate) {
+      url = src.replace('https', 'github')
+    }
     if(has) {
-      url = cache.get(sha)
+      // url = cache.get(sha)
     } else if (isPrivate) {
       if(cache.has(sha)) {
-        url = cache.get(sha)
+        // url = cache.get(sha)
       } else {
         const { content } = await http.getBlob(sha)
-        const [, ext] = name.split('.')
-        try {
-          const blob = await b64toBlob(content, `image/${ext}`)
-          url = URL.createObjectURL(blob)
-          cache.set(sha, url)
-        } catch (e) {
-          url = ''
-        }
+        // const [, ext] = name.split('.')
+        // try {
+        //   const blob = await b64toBlob(content, `image/${ext}`)
+        //   // url = URL.createObjectURL(blob)
+        //   // cache.set(sha, url)
+        // } catch (e) {
+        //   // url = ''
+        // }
       }
-      loaded = true
+      // loaded = true
     }
     if (!this._isMounted) {
       return
     }
-    this.setState({ url, loaded })
+    this.setState({ url })
   }
   componentWillUnmount() {
     this._isMounted = false
   }
   render() {
-    const { url, loaded } = this.state
-    return loaded ? (
-      <ReactImage {...this.props} src={url} />
-    ) : (
-      <div className='private-iamge-placeholder' />
-    )
+    const { src, isPrivate, sha, repo } = this.props
+    // let url = src
+    // if(isPrivate) {
+    //   url = url.replace('https', 'github')
+    // }
+    let url = `github://${repo}/${sha}`
+    return <ReactImage {...this.props} src={url} />
+    // return loaded ? (
+    //   <ReactImage {...this.props} src={url} />
+    // ) : (
+    //   <div className='private-iamge-placeholder' />
+    // )
   }
 }

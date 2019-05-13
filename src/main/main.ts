@@ -1,16 +1,22 @@
-import { BrowserWindow, app, ipcMain } from 'electron'
+import { BrowserWindow, app, ipcMain, protocol } from 'electron'
 import * as isDev from 'electron-is-dev'
 import Debug from 'electron-debug'
 import { setWebcontent, logger } from './logger'
 import { GITHUB_APP } from './config'
 import * as qs from 'qs'
-import * as fetch from 'node-fetch'
+import fetch from 'node-fetch'
 import { porxy } from './proxy';
+import { Writable, Readable } from 'stream'
+import * as Store from 'electron-store'
+import { createReadStream } from 'fs';
+const store = new Store()
 // import * as Reload from 'electron-reload'
 // Reload(__dirname, {
 //   electron: require(`${__dirname}/../../node_modules/electron`),
 
+
 // })
+let _token = store.get('token')
 if (isDev) {
   console.log('Running in development')
   try {
@@ -42,6 +48,39 @@ function createWindow() {
   })
   registerAuthListener()
   registerProxyListener()
+  // protocol.registerHttpProtocol('github', (request, callback) => {
+  protocol.registerStreamProtocol('github', (request, callback) => {
+    const { url } = request
+    const [,src] = url.split('//')
+    // /repos/:owner/:repo/git/blobs/:sha
+    const [owner, repo, sha] = src.split('/')
+    console.log(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`);
+    fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`, {
+      headers: {
+        'Authorization': `token ${_token}`,
+    'content-type': 'application/json'
+      }
+    })
+    .then(async (res) => {
+      const data = await res.json() as any
+      const buf = Buffer.from(data.content, 'base64');
+      console.log(buf);
+      const read = new Readable()
+      read.push(buf)
+      read.push(null)
+      callback({
+        statusCode: res.status,
+        data: read,
+        headers: {
+          'content-type': "image/jpg"
+        },
+      })
+    })
+        // callback({
+        //   url,
+        //   method: 'get'
+        // })
+  })
 }
 
 function registerAuthListener() {
@@ -94,6 +133,7 @@ function handleOauth(event, url) {
     .then(res => res.json())
     .then(r => {
       if (code) {
+        _token = r.access_token
         // Close the browser if code found or error
         win.webContents.send('set-access-token', r.access_token)
         // authWindow.webContents.session.clearStorageData()

@@ -12,6 +12,7 @@ import { CreateFolderModal } from './CreateFolderModal'
 import { Image as Red, createObserver } from '@zzwing/react-image'
 import { Image } from './Image'
 import { store, getCacheRepos } from '../../utils/store'
+import http from '../../http';
 interface RouteProp {
   repo: string
 }
@@ -274,6 +275,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
                 src={each.url}
                 sha={each.sha}
                 name={each.name}
+                repo={`${http.owner}/${http.repo}`}
                 observer={this._observer}
               />
             ))

@@ -5,18 +5,18 @@ import { setWebcontent, logger } from './logger'
 import { GITHUB_APP } from './config'
 import * as qs from 'qs'
 import fetch from 'node-fetch'
-import { porxy } from './proxy';
+import { porxy, getImageByApi } from './proxy'
 import { Writable, Readable } from 'stream'
 import * as Store from 'electron-store'
-import { createReadStream } from 'fs';
+import { createReadStream } from 'fs'
+import * as request from 'request'
 const store = new Store()
 // import * as Reload from 'electron-reload'
 // Reload(__dirname, {
 //   electron: require(`${__dirname}/../../node_modules/electron`),
 
-
 // })
-let _token = store.get('token')
+let _token: string = store.get('token') as string
 if (isDev) {
   console.log('Running in development')
   try {
@@ -48,40 +48,17 @@ function createWindow() {
   })
   registerAuthListener()
   registerProxyListener()
-  // protocol.registerHttpProtocol('github', (request, callback) => {
-  protocol.registerStreamProtocol('github', (request, callback) => {
-    const { url } = request
-    const [,src] = url.split('//')
-    // /repos/:owner/:repo/git/blobs/:sha
-    const [owner, repo, sha] = src.split('/')
-    console.log(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`);
-    fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`, {
-      headers: {
-        'Authorization': `token ${_token}`,
-        'content-type': 'application/json'
-      }
-    })
-    .then(async (res) => {
-      const data = await res.json() as any
-      const buf = Buffer.from(data.content, 'base64');
-      console.log(buf);
-      const read = new Readable()
-      read.push(buf)
-      read.push(null)
-      callback({
-        statusCode: res.status,
-        data: read,
-        headers: {
-          // ...res.headers.raw(),
-          'content-length': data.size,
-          'content-type': "image/jpg"
-        },
-      })
-    })
-        // callback({
-        //   url,
-        //   method: 'get'
-        // })
+  registerStreamProtocol()
+}
+
+function registerStreamProtocol() {
+  protocol.registerStreamProtocol('github', (req, callback) => {
+    const { url } = req
+    getImageByApi(url, _token, callback)
+    // callback({
+    //   url,
+    //   method: 'get'
+    // })
   })
 }
 
@@ -129,7 +106,10 @@ function handleOauth(event, url) {
     }),
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Referer: 'https://github.com/',
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
     }
   })
     .then(res => res.json())

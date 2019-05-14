@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@types/node-fetch": "^2.3.3",
+    "@types/request": "^2.48.1",
     "@zzwing/react-image": "^1.1.7",
     "antd": "^3.17.0",
     "classnames": "^2.2.6",
@@ -23,6 +24,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
+    "request": "^2.88.0",
     "url-join": "^4.0.0"
   },
   "devDependencies": {

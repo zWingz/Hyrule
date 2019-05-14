@@ -9,7 +9,7 @@ import { Folder } from './Folder'
 import { readAsBase64 } from './helper'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-import { Image as Red, createObserver } from '@zzwing/react-image'
+import { createObserver } from '@zzwing/react-image'
 import { Image } from './Image'
 import { store, getCacheRepos } from '../../utils/store'
 import http from '../../http';
@@ -274,7 +274,6 @@ export class ImagesPage extends PureComponent<Prop, State> {
                 key={each.name}
                 src={each.url}
                 sha={each.sha}
-                name={each.name}
                 repo={`${http.owner}/${http.repo}`}
                 observer={this._observer}
               />

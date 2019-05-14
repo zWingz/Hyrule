@@ -2,6 +2,7 @@ import http from '../http'
 import { getNow } from './helper'
 import join from 'url-join'
 import { Cache } from './cache';
+import { XhrRequestParams } from '../http/types';
 
 export type ImgType = {
   name: string
@@ -100,16 +101,17 @@ export class Octo {
     cache.set(join(absolute, pathName), clone(DEFAULT_DATA_JSON))
   }
 
-  async uploadImage(path: string, img: UploadImageType) {
+  async uploadImage(path: string, img: UploadImageType, onProgress?: XhrRequestParams['onProgress']) {
     const { filename } = img
     const d = await http.createFile({
       path: join(path, filename),
       message: `Upload ${filename} by Koopa - ${getNow()}`,
-      content: img.base64
+      content: img.base64,
+      onProgress
     })
     if (d) {
       const dataJson = cache.get(path)
-      dataJson.images.push({
+      dataJson.images.unshift({
         name: filename,
         sha: d.sha
       })

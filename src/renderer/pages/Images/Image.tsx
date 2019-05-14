@@ -10,6 +10,7 @@ interface Prop extends iImageProp {
 export function Image(p: Prop) {
   const { src, sha, repo, isPrivate } = p
   let url = src
+  if(!src) return null
   if (isPrivate) {
     const name = src.split('/').pop()
     url = `github://${repo}/${sha}/${name}`

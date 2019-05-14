@@ -9,6 +9,10 @@ export interface RequestParams {
   }
 }
 
+export interface XhrRequestParams extends RequestParams {
+  onProgress?: (pro: number) => void
+}
+
 export interface CreateIssueParams {
   title: string
   body: string
@@ -71,4 +75,5 @@ export interface CreateFileParams {
   path: string
   content: string
   message: string
+  onProgress?: XhrRequestParams['onProgress']
 }

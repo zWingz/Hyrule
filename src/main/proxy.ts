@@ -16,6 +16,7 @@ export function getImageByApi(
   ) => void
 ) {
   const [, src] = url.split('//')
+  if(!src) return
   const [owner, repo, sha, name] = src.split('/')
   const [, ext] = name.split('.')
   fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`, {

@@ -70,6 +70,9 @@
   position: relative;
   &-item {
     margin: 3px;
+    &.uploading {
+      position: relative;
+    }
   }
   &-loading {
     position: absolute;
@@ -80,15 +83,6 @@
     display: flex;
     justify-content: center;
     padding-top: 60px;
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0px;
-      top: 0px;
-      bottom: 0px;
-      right: 0px;
-      background: rgba(0, 0, 0, 0.1);
-    }
   }
 }
 .album-path {

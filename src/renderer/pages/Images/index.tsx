@@ -12,7 +12,8 @@ import { CreateFolderModal } from './CreateFolderModal'
 import { createObserver } from '@zzwing/react-image'
 import { Image } from './Image'
 import { store, getCacheRepos } from '../../utils/store'
-import http from '../../http';
+import http from '../../http'
+import { Uploading } from './Uploading'
 interface RouteProp {
   repo: string
 }
@@ -20,6 +21,7 @@ type Prop = RouteComponentProps<RouteProp>
 type State = {
   pathArr: string[]
   images: ImgType[]
+  uploading: File[]
   dir: DirType
   loading: boolean
   isPrivate: boolean
@@ -39,6 +41,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
     images: [],
     dir: {},
     loading: true,
+    uploading: [],
     isPrivate: false
     // modalShow: false,
     // newPathName: '',
@@ -101,7 +104,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
    */
   async getImage(sha?: string) {
     if (!this.state.loading) {
-      this.setState({ loading: true, images: [], dir: {} })
+      this.setState({ loading: true, images: [], dir: {}, uploading: [] })
     }
     try {
       const dataJson = await octo.getTree(this.path, sha)
@@ -125,18 +128,21 @@ export class ImagesPage extends PureComponent<Prop, State> {
     if (!file) {
       return
     }
-    const ext = file.name.split('.').pop()
-    let base64 = await readAsBase64(file)
-    base64 = base64.split(',').pop()
-    await octo
-      .uploadImage(this.path, {
-        base64,
-        filename: `${new Date().getTime()}.${ext}`
-      })
-      .catch(e => {
-        Message.error(`Upload error ${e.message}`)
-      })
-    this.getImage()
+    this.setState({
+      uploading: this.state.uploading.concat([file])
+    })
+    // const ext = file.name.split('.').pop()
+    // let base64 = await readAsBase64(file)
+    // base64 = base64.split(',').pop()
+    // await octo
+    //   .uploadImage(this.path, {
+    //     base64,
+    //     filename: `${new Date().getTime()}.${ext}`
+    //   })
+    //   .catch(e => {
+    //     Message.error(`Upload error ${e.message}`)
+    //   })
+    // this.getImage()
   }
   /**
    * 回到某个目录
@@ -219,8 +225,9 @@ export class ImagesPage extends PureComponent<Prop, State> {
     render()
   }
   render() {
-    const { images, pathArr, dir, loading, isPrivate } = this.state
+    const { images, pathArr, dir, loading, isPrivate, uploading } = this.state
     const keys = Object.keys(dir)
+    const empty = !(uploading.length || images.length)
     return (
       <div className='album-container'>
         <div className='album-title flex align-center'>
@@ -263,28 +270,42 @@ export class ImagesPage extends PureComponent<Prop, State> {
         )}
         <div className='album-type'>图片</div>
         <div className='album-images'>
-          {images.length ? (
-            images.map(each => (
-              <Image
-                isPrivate={isPrivate}
-                className='album-images-item'
-                width={150}
-                height={120}
-                objectFit='cover'
-                key={each.name}
-                src={each.url}
-                sha={each.sha}
-                repo={`${http.owner}/${http.repo}`}
-                observer={this._observer}
-              />
-            ))
+          <Spin
+            spinning={loading}
+            delay={500}
+            className='album-images-loading'
+          />
+          {!empty ? (
+            <>
+              {uploading.map(each => (
+                <Uploading
+                  file={each}
+                  key={each.name}
+                  path={this.path}
+                  observer={this._observer}
+                />
+              ))}
+              {images.map(each => (
+                <Image
+                  isPrivate={isPrivate}
+                  className='album-images-item'
+                  width={150}
+                  height={120}
+                  objectFit='cover'
+                  key={each.name}
+                  src={each.url}
+                  sha={each.sha}
+                  repo={`${http.owner}/${http.repo}`}
+                  observer={this._observer}
+                />
+              ))}
+            </>
           ) : !loading ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               style={{ flexGrow: 1 }}
             />
           ) : null}
-          <Spin spinning={loading} delay={500} className='album-images-loading' />
         </div>
       </div>
     )

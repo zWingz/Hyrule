@@ -10,7 +10,8 @@ import {
   GitUser,
   CreateFileParams,
   CreateIssueParams,
-  DeleteFileParams
+  DeleteFileParams,
+  XhrRequestParams
 } from './types'
 import qs from 'qs'
 import { Cache } from '../utils/cache'
@@ -63,15 +64,44 @@ class Rest {
         method,
         body: body && JSON.stringify(body)
       }
-    ).then(res => {
+    ).then(async res => {
       const { status } = res
-      const data = res.json()
+      const data = await res.json()
       if (status === 401) {
         throw new Error('登录验证出错了, 请修改后重试!')
       } else if (status >= 300) {
         throw new Error((data as any).message)
       }
       return data
+    })
+  }
+  xhr({ url, body, method, onProgress }: XhrRequestParams): Promise<any> {
+    return new Promise((res, rej) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open(method, join(this.base, url))
+      xhr.responseType = 'json'
+      xhr.setRequestHeader('Authorization', `token ${this.token}`)
+      xhr.setRequestHeader('content-type', 'application/json')
+      if (xhr.upload) {
+        xhr.upload.onprogress = function(event) {
+          if (event.total > 0) {
+            const percentComplete = (event.loaded / event.total) * 100
+            onProgress(percentComplete)
+          }
+        }
+      }
+      xhr.onreadystatechange = function() {
+        const { readyState, status, response } = xhr
+        if (readyState === 4) {
+          if (status === 401) {
+            rej(new Error('登录验证出错了, 请修改后重试!'))
+          } else if (status >= 300) {
+            rej(new Error((response as any).message))
+          }
+          res(response)
+        }
+      }
+      xhr.send(body && JSON.stringify(body))
     })
   }
   /**
@@ -168,15 +198,16 @@ class Rest {
    *   }
    * @memberof Rest
    */
-  async createFile({ path, content, message }: CreateFileParams) {
+  async createFile({ path, content, message, onProgress }: CreateFileParams) {
     const url = this.parseUrl(`/repos/:owner/:repo/contents/:path`, { path })
-    const data = await this.request({
+    const data = await this.xhr({
       url,
       method: 'PUT',
       body: {
         content,
         message
-      }
+      },
+      onProgress
     })
     return pick(data.content, ['name', 'path', 'sha']) as GitFile
   }

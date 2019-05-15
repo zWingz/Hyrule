@@ -8,13 +8,13 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    // "isolatedModules": true,
+    "isolatedModules": true,
     "paths": {
       "@": ["src"]
     },
     "types": ["node"]
   },
-  "include": ["src/main/*"],
+  "include": ["src/main/**/*.ts"],
   "exclude": ["node_modules"],
   "files": ["global.d.ts"]
 }

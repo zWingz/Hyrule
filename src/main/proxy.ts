@@ -1,12 +1,5 @@
 import fetch from 'node-fetch'
 import { Readable } from 'stream'
-export function porxy(url, options) {
-  return fetch(url, options)
-    .then(r => r.blob())
-    .catch(e => {
-      console.error('proxy error', e)
-    })
-}
 
 export function getImageByApi(
   url: string,
@@ -16,7 +9,7 @@ export function getImageByApi(
   ) => void
 ) {
   const [, src] = url.split('//')
-  if(!src) return
+  if (!src) return
   const [owner, repo, sha, name] = src.split('/')
   const [, ext] = name.split('.')
   fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`, {

@@ -1,25 +1,29 @@
 import React from 'react'
 import { octo } from '../../utils/octokit'
 import { readAsBase64 } from './helper'
-import { Image } from '@zzwing/react-image';
-import { Progress } from '../../component/Progress';
+import { Image, iImageProp } from '@zzwing/react-image'
+import { Progress } from '../../component/Progress'
+import omit from 'omit.js'
 
-interface Prop {
-  file: File
+export interface AlterFile extends File {
+  alter?: string
+}
+
+interface Prop extends Omit<iImageProp, 'src'> {
+  file: AlterFile
   path: string
-  observer: IntersectionObserver
 }
 
 interface State {
   progress: number
-  loading: boolean
+  uploading: boolean
   src: string
 }
 
 export class Uploading extends React.PureComponent<Prop, State> {
   state = {
     progress: 0,
-    loading: true,
+    uploading: true,
     src: ''
   }
   url: string
@@ -36,21 +40,34 @@ export class Uploading extends React.PureComponent<Prop, State> {
       path,
       {
         base64,
-        filename: `${Date.now()}.${file.name.split('.').pop()}`
+        filename: file.alter
         // filename: file.name
       },
       arg => {
-        console.log(arg)
+        this.setState({
+          progress: Math.ceil(Math.min(arg, 99))
+        })
       }
     )
+    setTimeout(() => {
+      this.setState({
+        uploading: false
+      })
+    }, 100)
   }
   render() {
-    const { src } = this.state
+    const { src, progress, uploading } = this.state
+    const imgProp = omit(this.props, ['file', 'path', 'children', 'className'])
+    const { className } = this.props
     return (
       src && (
-        <div className='album-images-item uploading'>
-          <Progress />
-          <Image src={src} width={150} height={120} objectFit='cover' observer={this.props.observer}/>
+        <div className={'uploading ' + className}>
+          {uploading && (
+            <div className='uploading-progress flex-center absolute-full'>
+              <Progress percentage={progress} />
+            </div>
+          )}
+          <Image {...imgProp} src={src} />
         </div>
       )
     )

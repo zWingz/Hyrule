@@ -1,5 +1,4 @@
-import join from 'url-join'
-import { pick, pickArray } from '../utils/helper'
+import { pick, pickArray, getNow } from '../utils/helper'
 import {
   RequestParams,
   GitBlob,
@@ -11,9 +10,11 @@ import {
   CreateFileParams,
   CreateIssueParams,
   DeleteFileParams,
-  XhrRequestParams
+  XhrRequestParams,
+  CreateTreeParams
 } from './types'
 import qs from 'qs'
+import join from 'url-join'
 import { Cache } from '../utils/cache'
 
 class Rest {
@@ -238,6 +239,39 @@ class Rest {
       }
     })
   }
+  // async createTree(
+  //   t: CreateTreeParams.Tree,
+  //   sha
+  // ): Promise<CreateTreeParams.Return> {
+  //   // /repos/:owner/:repo/git/trees
+  //   const url = this.parseUrl('/repos/:owner/:repo/git/trees')
+  //   const tree = t.map(each => ({
+  //     ...each,
+  //     path: each.path,
+  //     mode: each.type === 'blob' ? '100644' : '040000'
+  //   }))
+  //   const res = await this.request({
+  //     url,
+  //     method: 'POST',
+  //     body: {
+  //       tree,
+  //       base_tree: sha
+  //     }
+  //   })
+  //   // await this.createCommit(res.sha, base)
+  //   return res
+  // }
+  // createCommit(sha, parent) {
+  //   const url = this.parseUrl('/repos/:owner/:repo/git/commits')
+  //   return this.request({
+  //     url,
+  //     method: 'POST',
+  //     body: {
+  //       message: `Deleted multi-file by Zelda - ${getNow()}`,
+  //       tree: sha
+  //     }
+  //   })
+  // }
 }
 
 export default new Rest()

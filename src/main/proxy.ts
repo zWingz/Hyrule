@@ -61,7 +61,7 @@ export function getImageByRaw(
   // /repos/:owner/:repo/git/blobs/:sha
   const [owner, repo, , name] = src.split('/')
   fetch(
-    `https://${_token}@raw.githubusercontent.com/${owner}/${repo}/master/${name}`,
+    `https://raw.githubusercontent.com/${owner}/${repo}/master/${name}`,
     {
       headers: {
         Authorization: `token ${_token}`

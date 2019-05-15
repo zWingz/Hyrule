@@ -1,8 +1,8 @@
 import http from '../http'
 import { getNow } from './helper'
 import join from 'url-join'
-import { Cache } from './cache';
-import { XhrRequestParams } from '../http/types';
+import { Cache } from './cache'
+import { XhrRequestParams, CreateTreeParams } from '../http/types'
 
 export type ImgType = {
   name: string
@@ -21,6 +21,7 @@ export type DirType = {
 export type DataJsonType = {
   images: ImgType[]
   dir: DirType
+  sha: string
 }
 
 type UploadImageType = {
@@ -30,7 +31,8 @@ type UploadImageType = {
 
 const DEFAULT_DATA_JSON: DataJsonType = {
   dir: {},
-  images: []
+  images: [],
+  sha: 'master'
 }
 
 /**
@@ -53,7 +55,7 @@ const cache = new ImageCache()
 const ImageRegExg = /\.(jpg|jpeg|png)$/
 
 export class Octo {
-  getRootPath(): Promise<{ path: string; sha: string }[]> {
+  getRootPath() {
     return http.getTree('master')
   }
   setRepo(arg: string) {
@@ -69,7 +71,8 @@ export class Octo {
     }
     let ret = {
       dir: {},
-      images: []
+      images: [],
+      sha: pathSha
     }
     if (pathSha) {
       const data = await http.getTree(pathSha)
@@ -88,7 +91,8 @@ export class Octo {
       })
       ret = {
         dir,
-        images
+        images,
+        sha: pathSha
       }
     }
     cache.set(pathName, ret)
@@ -101,7 +105,11 @@ export class Octo {
     cache.set(join(absolute, pathName), clone(DEFAULT_DATA_JSON))
   }
 
-  async uploadImage(path: string, img: UploadImageType, onProgress?: XhrRequestParams['onProgress']) {
+  async uploadImage(
+    path: string,
+    img: UploadImageType,
+    onProgress?: XhrRequestParams['onProgress']
+  ) {
     const { filename } = img
     const d = await http.createFile({
       path: join(path, filename),
@@ -126,7 +134,7 @@ export class Octo {
   async removeFile(path, img: ImgType) {
     await http.deleteFile({
       path: join(path, img.name),
-      message: `Deleted ${img.name} by Koopa - ${getNow()}`,
+      message: `Deleted ${img.name} by Zelda - ${getNow()}`,
       sha: img.sha
     })
     cache.delImg(path, img)
@@ -145,6 +153,28 @@ export class Octo {
       fileName
     )
   }
+  // async batchDelete(path, remove: string[]) {
+  //   const { images, dir, sha } = cache.get(path)
+  //   const tree: CreateTreeParams.Tree = []
+  //   Object.keys(dir).forEach(each => {
+  //     const dirSha = dir[each]
+  //     tree.push({
+  //       path: each,
+  //       sha: dirSha,
+  //       type: 'tree'
+  //     })
+  //   })
+  //   images
+  //     .filter(each => !remove.includes(each.name))
+  //     .forEach(each => {
+  //       tree.push({
+  //         path: each.name,
+  //         sha: each.sha,
+  //         type: 'blob'
+  //       })
+  //     })
+  //   await http.createTree(tree, sha)
+  // }
   clearCache() {
     cache.clear()
   }

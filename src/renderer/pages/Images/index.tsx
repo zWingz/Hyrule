@@ -2,30 +2,32 @@ import React, { PureComponent } from 'react'
 import ReactDOM from 'react-dom'
 import { Button, Upload, message as Message, Spin, Empty } from 'antd'
 import { RouteComponentProps } from 'react-router'
+import cls from 'classnames'
 import join from 'url-join'
 import { octo, ImgType, DirType } from '../../utils/octokit'
 import { AlbumPath } from './Path'
 import { Folder } from './Folder'
-import { readAsBase64 } from './helper'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-import { createObserver } from '@zzwing/react-image'
+import { createObserver, iImageProp } from '@zzwing/react-image'
 import { Image } from './Image'
 import { store, getCacheRepos } from '../../utils/store'
 import http from '../../http'
-import { Uploading } from './Uploading'
-import { Progress } from '../../component/Progress';
+import { Uploading, AlterFile } from './Uploading'
 interface RouteProp {
   repo: string
 }
+
 type Prop = RouteComponentProps<RouteProp>
 type State = {
   pathArr: string[]
-  images: ImgType[]
-  uploading: File[]
+  images: ((ImgType | { file: AlterFile; name: string }) & {
+    checked: boolean
+  })[]
   dir: DirType
   loading: boolean
   isPrivate: boolean
+  checkedToggle: boolean
   // error: string
   // modalShow: boolean
   // newPathName: string
@@ -42,13 +44,20 @@ export class ImagesPage extends PureComponent<Prop, State> {
     images: [],
     dir: {},
     loading: true,
-    uploading: [],
-    isPrivate: false
+    isPrivate: false,
+    checkedToggle: false
     // modalShow: false,
     // newPathName: '',
     // edit: false
   }
   _observer: IntersectionObserver
+  nameKeys: string[] = []
+  imgCommon: Partial<iImageProp> = {
+    width: 150,
+    height: 120,
+    objectFit: 'cover',
+    observer: this._observer
+  }
   componentDidUpdate(prevProps: Prop, prevState) {
     const repo = getRepo(this.props)
     if (getRepo(prevProps) !== repo) {
@@ -105,17 +114,21 @@ export class ImagesPage extends PureComponent<Prop, State> {
    */
   async getImage(sha?: string) {
     if (!this.state.loading) {
-      this.setState({ loading: true, images: [], dir: {}, uploading: [] })
+      this.setState({ loading: true, images: [], dir: {} })
     }
     try {
       const dataJson = await octo.getTree(this.path, sha)
       const { images, dir } = dataJson
       this.setState({
         // images: [],
-        images: images.map(each => this.parse(each)),
+        images: images.map(each => ({
+          ...this.parse(each),
+          checked: false
+        })),
         dir,
         loading: false
       })
+      this.nameKeys = images.map(each => each.name)
     } catch (e) {
       console.error(e)
       this.setState({
@@ -125,25 +138,28 @@ export class ImagesPage extends PureComponent<Prop, State> {
     }
   }
   uploader = async event => {
-    const { file } = event as { file: File }
+    const { file } = event as { file: AlterFile }
     if (!file) {
       return
     }
+    const [name, ext] = file.name.split('.')
+    let alter = name
+    let indx = 1
+    while (this.nameKeys.indexOf(alter) !== -1) {
+      alter = `${name}_${indx}`
+      indx++
+    }
+    file.alter = `${alter}.${ext}`
     this.setState({
-      uploading: this.state.uploading.concat([file])
+      images: this.state.images.concat([
+        {
+          file,
+          checked: false,
+          name: file.alter
+        }
+      ])
     })
-    // const ext = file.name.split('.').pop()
-    // let base64 = await readAsBase64(file)
-    // base64 = base64.split(',').pop()
-    // await octo
-    //   .uploadImage(this.path, {
-    //     base64,
-    //     filename: `${new Date().getTime()}.${ext}`
-    //   })
-    //   .catch(e => {
-    //     Message.error(`Upload error ${e.message}`)
-    //   })
-    // this.getImage()
+    this.nameKeys.push(alter)
   }
   /**
    * 回到某个目录
@@ -225,10 +241,42 @@ export class ImagesPage extends PureComponent<Prop, State> {
     }
     render()
   }
+  async onDelete(img: ImgType) {
+    await octo.removeFile(this.path, img)
+    this.getImage()
+  }
+  toggle = async value => {
+    const { checkedToggle, images } = this.state
+    if (checkedToggle) {
+      const remove = images.filter(each => each.checked).map(each => each.name)
+      console.log(remove)
+      // octo.batchDelete(this.path, remove)
+    }
+    this.setState({
+      checkedToggle: !checkedToggle
+    })
+  }
+  onChecked(idx: number) {
+    const { images, checkedToggle } = this.state
+    if (!checkedToggle) return
+    const item = images[idx]
+    item.checked = !item.checked
+    this.setState({
+      images: [...images]
+    })
+  }
   render() {
-    const { images, pathArr, dir, loading, isPrivate, uploading } = this.state
+    const {
+      images,
+      pathArr,
+      dir,
+      loading,
+      isPrivate,
+      checkedToggle
+    } = this.state
     const keys = Object.keys(dir)
-    const empty = !(uploading.length || images.length)
+    const { imgCommon } = this
+    const empty = !images.length
     return (
       <div className='album-container'>
         <div className='album-title flex align-center'>
@@ -249,6 +297,12 @@ export class ImagesPage extends PureComponent<Prop, State> {
             customRequest={this.uploader}>
             <Button icon='upload'>Upload Image</Button>
           </Upload>
+          <Button
+            className='mr10'
+            type={checkedToggle ? 'danger' : 'default'}
+            onClick={this.toggle}>
+            批量删除
+          </Button>
         </div>
         <AlbumPath path={pathArr} onBack={this.onBackPath} />
         {!!keys.length && (
@@ -280,26 +334,27 @@ export class ImagesPage extends PureComponent<Prop, State> {
             <>
               {uploading.map(each => (
                 <Uploading
+                  {...imgCommon}
                   file={each}
-                  key={each.name}
+                  key={each.alter || each.name}
                   path={this.path}
-                  observer={this._observer}
                 />
               ))}
-              {images.map(each => (
-                <Progress key={each.sha}/>
-                // <Image
-                //   isPrivate={isPrivate}
-                //   className='album-images-item'
-                //   width={150}
-                //   height={120}
-                //   objectFit='cover'
-                //   key={each.name}
-                //   src={each.url}
-                //   sha={each.sha}
-                //   repo={`${http.owner}/${http.repo}`}
-                //   observer={this._observer}
-                // />
+              {images.map((each, idx) => (
+                <Image
+                  isPrivate={isPrivate}
+                  className={cls('album-images-item', {
+                    checked: checkedToggle && each.checked
+                  })}
+                  {...imgCommon}
+                  key={each.name}
+                  src={each.url}
+                  sha={each.sha}
+                  onClick={this.onChecked.bind(this, idx)}
+                  preview={!checkedToggle}
+                  onDelete={this.onDelete.bind(this, each)}
+                  repo={`${http.owner}/${http.repo}`}
+                />
               ))}
             </>
           ) : !loading ? (

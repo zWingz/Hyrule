@@ -72,6 +72,13 @@
     margin: 3px;
     &.uploading {
       position: relative;
+      .uploading-progress {
+        background: rgba(0,0,0,.6);
+        z-index: 1;
+      }
+    }
+    &.checked {
+      border: 1px solid red;
     }
   }
   &-loading {
@@ -143,10 +150,4 @@
   font-size: 13px;
   color: @tips-text-color;
   margin-top: 10px;
-}
-
-.private-iamge-placeholder {
-  width: 150px;
-  height: 120px;
-  border: 1px solid @border-color;
 }

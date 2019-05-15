@@ -16,5 +16,5 @@
   },
   "include": ["src/main/**/*.ts"],
   "exclude": ["node_modules"],
-  "files": ["global.d.ts"]
+  "files": [".d.ts"]
 }

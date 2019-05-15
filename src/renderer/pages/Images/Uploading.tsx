@@ -9,9 +9,10 @@ export interface AlterFile extends File {
   alter?: string
 }
 
-interface Prop extends Omit<iImageProp, 'src'> {
+interface Prop extends Omit<iImageProp, 'src' | 'onDelete'> {
   file: AlterFile
   path: string
+  onDelete: (arg: { name: string; sha: string }) => void
 }
 
 interface State {
@@ -26,7 +27,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
     uploading: true,
     src: ''
   }
-  url: string
+  sha: string
   async componentDidMount() {
     const { file, path } = this.props
     if (!file) return
@@ -36,7 +37,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
     })
     let base64 = await readAsBase64(file)
     base64 = base64.split(',').pop()
-    await octo.uploadImage(
+    const { sha } = await octo.uploadImage(
       path,
       {
         base64,
@@ -49,15 +50,26 @@ export class Uploading extends React.PureComponent<Prop, State> {
         })
       }
     )
-    setTimeout(() => {
-      this.setState({
-        uploading: false
-      })
-    }, 100)
+    this.sha = sha
+    this.setState({
+      uploading: false
+    })
+  }
+  onDelete = () => {
+    this.props.onDelete({
+      name: this.props.file.alter,
+      sha: this.sha
+    })
   }
   render() {
     const { src, progress, uploading } = this.state
-    const imgProp = omit(this.props, ['file', 'path', 'children', 'className'])
+    const imgProp = omit(this.props, [
+      'file',
+      'path',
+      'children',
+      'className',
+      'onDelete'
+    ])
     const { className } = this.props
     return (
       src && (
@@ -67,7 +79,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
               <Progress percentage={progress} />
             </div>
           )}
-          <Image {...imgProp} src={src} />
+          <Image {...imgProp} src={src} onDelete={this.onDelete} />
         </div>
       )
     )

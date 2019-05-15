@@ -19,11 +19,19 @@ interface RouteProp {
 }
 
 type Prop = RouteComponentProps<RouteProp>
+
+type UploadingFile = {
+  file: AlterFile
+  name: string
+}
+
+type ImgOrFile = (ImgType | UploadingFile) & {
+  checked: boolean
+}
+
 type State = {
   pathArr: string[]
-  images: ((ImgType | { file: AlterFile; name: string }) & {
-    checked: boolean
-  })[]
+  images: ImgOrFile[]
   dir: DirType
   loading: boolean
   isPrivate: boolean
@@ -151,13 +159,13 @@ export class ImagesPage extends PureComponent<Prop, State> {
     }
     file.alter = `${alter}.${ext}`
     this.setState({
-      images: this.state.images.concat([
+      images: [
         {
           file,
           checked: false,
           name: file.alter
-        }
-      ])
+        } as ImgOrFile
+      ].concat(this.state.images)
     })
     this.nameKeys.push(alter)
   }
@@ -241,7 +249,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
     }
     render()
   }
-  async onDelete(img: ImgType) {
+  onDelete = async (img: ImgType) => {
     await octo.removeFile(this.path, img)
     this.getImage()
   }
@@ -265,6 +273,48 @@ export class ImagesPage extends PureComponent<Prop, State> {
       images: [...images]
     })
   }
+
+  renderItem(item: ImgOrFile, idx: number) {
+    const {
+      imgCommon,
+      state: { checkedToggle, isPrivate }
+    } = this
+    const onClick = this.onChecked.bind(this, idx)
+    const common = {
+      className: cls('album-images-item', {
+        checked: checkedToggle && item.checked
+      }),
+      onClick,
+      preview: !checkedToggle,
+      key: item.name
+    }
+    if ((item as UploadingFile).file) {
+      const f: UploadingFile = item as UploadingFile
+      return (
+        <Uploading
+          {...common}
+          {...imgCommon}
+          file={f.file}
+          path={this.path}
+          onDelete={this.onDelete}
+        />
+      )
+    } else {
+      const f: ImgType = item as ImgType
+      return (
+        <Image
+          isPrivate={isPrivate}
+          {...common}
+          {...imgCommon}
+          src={f.url}
+          sha={f.sha}
+          onDelete={() => this.onDelete(f)}
+          repo={`${http.owner}/${http.repo}`}
+        />
+      )
+    }
+  }
+
   render() {
     const {
       images,
@@ -331,32 +381,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
             className='album-images-loading'
           />
           {!empty ? (
-            <>
-              {uploading.map(each => (
-                <Uploading
-                  {...imgCommon}
-                  file={each}
-                  key={each.alter || each.name}
-                  path={this.path}
-                />
-              ))}
-              {images.map((each, idx) => (
-                <Image
-                  isPrivate={isPrivate}
-                  className={cls('album-images-item', {
-                    checked: checkedToggle && each.checked
-                  })}
-                  {...imgCommon}
-                  key={each.name}
-                  src={each.url}
-                  sha={each.sha}
-                  onClick={this.onChecked.bind(this, idx)}
-                  preview={!checkedToggle}
-                  onDelete={this.onDelete.bind(this, each)}
-                  repo={`${http.owner}/${http.repo}`}
-                />
-              ))}
-            </>
+            images.map((each: ImgOrFile, idx) => this.renderItem(each, idx))
           ) : !loading ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}

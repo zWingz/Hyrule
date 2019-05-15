@@ -87,6 +87,7 @@ class Rest {
         xhr.upload.onprogress = function(event) {
           if (event.total > 0) {
             const percentComplete = (event.loaded / event.total) * 100
+            console.log(percentComplete);
             onProgress(percentComplete)
           }
         }

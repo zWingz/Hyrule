@@ -14,6 +14,7 @@ import { Image } from './Image'
 import { store, getCacheRepos } from '../../utils/store'
 import http from '../../http'
 import { Uploading } from './Uploading'
+import { Progress } from '../../component/Progress';
 interface RouteProp {
   repo: string
 }
@@ -286,18 +287,19 @@ export class ImagesPage extends PureComponent<Prop, State> {
                 />
               ))}
               {images.map(each => (
-                <Image
-                  isPrivate={isPrivate}
-                  className='album-images-item'
-                  width={150}
-                  height={120}
-                  objectFit='cover'
-                  key={each.name}
-                  src={each.url}
-                  sha={each.sha}
-                  repo={`${http.owner}/${http.repo}`}
-                  observer={this._observer}
-                />
+                <Progress key={each.sha}/>
+                // <Image
+                //   isPrivate={isPrivate}
+                //   className='album-images-item'
+                //   width={150}
+                //   height={120}
+                //   objectFit='cover'
+                //   key={each.name}
+                //   src={each.url}
+                //   sha={each.sha}
+                //   repo={`${http.owner}/${http.repo}`}
+                //   observer={this._observer}
+                // />
               ))}
             </>
           ) : !loading ? (

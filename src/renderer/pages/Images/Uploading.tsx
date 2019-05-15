@@ -2,6 +2,7 @@ import React from 'react'
 import { octo } from '../../utils/octokit'
 import { readAsBase64 } from './helper'
 import { Image } from '@zzwing/react-image';
+import { Progress } from '../../component/Progress';
 
 interface Prop {
   file: File
@@ -48,6 +49,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
     return (
       src && (
         <div className='album-images-item uploading'>
+          <Progress />
           <Image src={src} width={150} height={120} objectFit='cover' observer={this.props.observer}/>
         </div>
       )

@@ -1,3 +1,4 @@
+
 declare module '*.svg' {
   const content: any
   export default content
@@ -10,10 +11,3 @@ declare const isProduction: boolean
 declare type PlainObj = {
   [k: string]: any
 }
-
-// type Readonly<T> = {
-//   readonly [P in keyof T]: T[P];
-// }
-// type Partial<T> = {
-//   [P in keyof T]?: T[P];
-// }

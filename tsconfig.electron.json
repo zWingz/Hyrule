@@ -1,20 +1,12 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     // "lib": ["es7", "dom"],
     "outDir": "./dist/main",
     "target": "es2016",
     "module": "commonjs",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "paths": {
-      "@": ["src"]
-    },
     "types": ["node"]
   },
   "include": ["src/main/**/*.ts"],
-  "exclude": ["node_modules"],
-  "files": [".d.ts"]
+  "exclude": ["node_modules"]
 }

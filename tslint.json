@@ -38,7 +38,7 @@
     "no-empty": true,
     "no-eval": true,
     "no-internal-module": true,
-    "no-namespace": true,
+    "no-namespace": false,
     "no-reference": true,
     "no-shadowed-variable": true,
     "no-string-literal": true,

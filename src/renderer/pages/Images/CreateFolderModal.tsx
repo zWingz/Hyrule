@@ -1,15 +1,9 @@
 import React, { useState } from 'react'
 import { Modal, Input } from 'antd'
+import { OpenModalProp } from '../../utils/helper'
 
-interface Prop {
-  visible: boolean
-  onConfirm: (value: string) => void
-  onCancel: () => void
-  afterClosed: () => void
-}
-
-export function CreateFolderModal(prop: Prop) {
-  const { visible, onConfirm, onCancel, afterClosed } = prop
+export function CreateFolderModal(prop: OpenModalProp) {
+  const { onConfirm, ...rst } = prop
   const [value, setValue] = useState('')
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setValue(e.target.value)
@@ -18,12 +12,7 @@ export function CreateFolderModal(prop: Prop) {
     onConfirm(value)
   }
   return (
-    <Modal
-      title='Create Folder'
-      visible={visible}
-      onOk={onOk}
-      onCancel={onCancel}
-      afterClose={afterClosed}>
+    <Modal title='Create Folder' {...rst} onOk={onOk}>
       <Input value={value} onChange={onChange} placeholder='输入文件夹名称' />
       <div className='create-folder-tips'>
         <div>提示:</div>

@@ -87,7 +87,7 @@ class Rest {
         xhr.upload.onprogress = function(event) {
           if (event.total > 0) {
             const percentComplete = (event.loaded / event.total) * 100
-            console.log(percentComplete);
+            console.log(percentComplete)
             onProgress(percentComplete)
           }
         }
@@ -167,8 +167,15 @@ class Rest {
    * @memberof Rest
    */
   getTree(sha: string): Promise<GitTree[]> {
-    const url = this.parseUrl(`/repos/:owner/:repo/git/trees/:sha`, { sha })
-    return this.request({ url }).then(d => d.tree)
+    const url = this.parseUrl(
+      `/repos/:owner/:repo/git/trees/:sha` +
+        // no-cache when sha === master
+        (sha === 'master' ? '?nocache=' + Date.now() : ''),
+      { sha }
+    )
+    return this.request({
+      url
+    }).then(d => d.tree)
   }
   /**
    * 获取文件blob接口

@@ -1,4 +1,4 @@
-import React, { PureComponent, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { Icon } from 'antd'
 interface Prop {
   name: string
@@ -13,7 +13,7 @@ export function Folder(prop: Prop) {
   }, ['name', 'sha'])
   return (
     <div className='album-folder-item flex align-center' onClick={onClick}>
-      <Icon type='folder' className='album-folder-icon mr5'/>
+      <Icon type='folder' className='album-folder-icon mr5' />
       {prop.name}
     </div>
   )

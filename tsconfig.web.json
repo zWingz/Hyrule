@@ -1,24 +1,15 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "lib": ["es7", "dom"],
     "jsx": "react",
     "forceConsistentCasingInFileNames": true,
     "target": "esnext",
     "module": "esNext",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noEmit": true,
     "experimentalDecorators": true,
-    "types": ["react"],
-    "paths": {
-      "@": ["src"]
-    }
+    "types": ["react"]
   },
   "include": ["src/renderer/*"],
   "exclude": ["node_modules", "**/*.spec.ts", "src/**/demo.js"],
-  "files": [".d.ts"]
 }

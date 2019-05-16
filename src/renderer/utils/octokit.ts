@@ -2,7 +2,8 @@ import http from '../http'
 import { getNow } from './helper'
 import join from 'url-join'
 import { Cache } from './cache'
-import { XhrRequestParams, CreateTreeParams } from '../http/types'
+import { XhrRequestParams } from '../http/types'
+import { Queue } from './queue';
 
 export type ImgType = {
   name: string
@@ -34,6 +35,8 @@ const DEFAULT_DATA_JSON: DataJsonType = {
   images: [],
   sha: 'master'
 }
+
+const uploadQueue = new Queue()
 
 /**
  * 缓存
@@ -111,11 +114,13 @@ export class Octo {
     onProgress?: XhrRequestParams['onProgress']
   ) {
     const { filename } = img
-    const d = await http.createFile({
-      path: join(path, filename),
-      message: `Upload ${filename} by Koopa - ${getNow()}`,
-      content: img.base64,
-      onProgress
+    const d = await uploadQueue.exec(() => {
+      return http.createFile({
+        path: join(path, filename),
+        message: `Upload ${filename} by Zelda - ${getNow()}`,
+        content: img.base64,
+        onProgress
+      })
     })
     if (d) {
       const dataJson = cache.get(path)
@@ -131,13 +136,14 @@ export class Octo {
     }
     throw d
   }
-  async removeFile(path, img: ImgType) {
+  async removeFile(path, arg: { name: string; sha: string }) {
+    const { name, sha } = arg
     await http.deleteFile({
-      path: join(path, img.name),
-      message: `Deleted ${img.name} by Zelda - ${getNow()}`,
-      sha: img.sha
+      path: join(path, name),
+      message: `Deleted ${name} by Zelda - ${getNow()}`,
+      sha: sha
     })
-    cache.delImg(path, img)
+    cache.delImg(path, arg)
   }
   getUser() {
     return http.getUser()

@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react'
-import ReactDOM from 'react-dom'
-import { Button, Upload, message as Message, Spin, Empty } from 'antd'
+import { Icon, Button, Upload, message as Message, Spin, Empty } from 'antd'
 import { RouteComponentProps } from 'react-router'
 import cls from 'classnames'
 import join from 'url-join'
@@ -13,17 +12,14 @@ import { createObserver, iImageProp } from '@zzwing/react-image'
 import { Image } from './Image'
 import { store, getCacheRepos } from '../../utils/store'
 import http from '../../http'
-import { Uploading, AlterFile } from './Uploading'
+import { Uploading, UploadingFile } from './Uploading'
+import { openModal } from '../../utils/helper'
+import { AlbumItem } from './AlbumItem'
 interface RouteProp {
   repo: string
 }
 
 type Prop = RouteComponentProps<RouteProp>
-
-type UploadingFile = {
-  file: AlterFile
-  name: string
-}
 
 type ImgOrFile = (ImgType | UploadingFile) & {
   checked: boolean
@@ -61,10 +57,10 @@ export class ImagesPage extends PureComponent<Prop, State> {
   _observer: IntersectionObserver
   nameKeys: string[] = []
   imgCommon: Partial<iImageProp> = {
-    width: 150,
-    height: 120,
+    width: 200,
+    height: 150,
     objectFit: 'cover',
-    observer: this._observer
+    observer: null
   }
   componentDidUpdate(prevProps: Prop, prevState) {
     const repo = getRepo(this.props)
@@ -75,6 +71,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
   componentDidMount() {
     this.init()
     this._observer = createObserver(document.querySelector('.album-images'))
+    this.imgCommon.observer = this._observer
   }
   init() {
     const name = getRepo(this.props)
@@ -146,24 +143,25 @@ export class ImagesPage extends PureComponent<Prop, State> {
     }
   }
   uploader = async event => {
-    const { file } = event as { file: AlterFile }
+    const { file } = event as { file: UploadingFile['file'] }
     if (!file) {
       return
     }
     const [name, ext] = file.name.split('.')
-    let alter = name
+    let alter = file.name
     let indx = 1
     while (this.nameKeys.indexOf(alter) !== -1) {
-      alter = `${name}_${indx}`
+      alter = `${name}_${indx}.${ext}`
       indx++
     }
-    file.alter = `${alter}.${ext}`
+    file.alter = alter
     this.setState({
       images: [
         {
           file,
           checked: false,
-          name: file.alter
+          sha: '',
+          name: alter
         } as ImgOrFile
       ].concat(this.state.images)
     })
@@ -219,41 +217,18 @@ export class ImagesPage extends PureComponent<Prop, State> {
     this.enterFolder(name)
   }
   openCreateFolder = () => {
-    let _div = document.createElement('div')
-    document.body.appendChild(_div)
-    let visible = true
-    function onCancel() {
-      visible = false
-      render()
-    }
-    function afterClosed() {
-      const unmountResult = ReactDOM.unmountComponentAtNode(_div)
-      if (unmountResult) {
-        document.body.removeChild(_div)
-      }
-    }
-    const onConfirm = name => {
-      this.createFolder(name)
-      onCancel()
-    }
-    const render = () => {
-      ReactDOM.render(
-        <CreateFolderModal
-          visible={visible}
-          onCancel={onCancel}
-          onConfirm={onConfirm}
-          afterClosed={afterClosed}
-        />,
-        _div
-      )
-    }
-    render()
+    openModal(CreateFolderModal, {
+      onConfirm: this.createFolder
+    })
   }
-  onDelete = async (img: ImgType) => {
-    await octo.removeFile(this.path, img)
-    this.getImage()
+  deleteSingleFile = async (arg: ImgOrFile) => {
+    console.log(arg.sha);
+    await octo.removeFile(this.path, arg)
+    this.setState({
+      images: this.state.images.filter(each => each.name !== arg.name)
+    })
   }
-  toggle = async value => {
+  toggle = async () => {
     const { checkedToggle, images } = this.state
     if (checkedToggle) {
       const remove = images.filter(each => each.checked).map(each => each.name)
@@ -280,39 +255,20 @@ export class ImagesPage extends PureComponent<Prop, State> {
       state: { checkedToggle, isPrivate }
     } = this
     const onClick = this.onChecked.bind(this, idx)
-    const common = {
-      className: cls('album-images-item', {
-        checked: checkedToggle && item.checked
-      }),
+    const className = cls('album-images-item', {
+      checked: checkedToggle && item.checked
+    })
+    const props = {
       onClick,
+      isPrivate,
+      item,
       preview: !checkedToggle,
-      key: item.name
+      className,
+      onDelete: this.deleteSingleFile,
+      path: this.path,
+      ...imgCommon
     }
-    if ((item as UploadingFile).file) {
-      const f: UploadingFile = item as UploadingFile
-      return (
-        <Uploading
-          {...common}
-          {...imgCommon}
-          file={f.file}
-          path={this.path}
-          onDelete={this.onDelete}
-        />
-      )
-    } else {
-      const f: ImgType = item as ImgType
-      return (
-        <Image
-          isPrivate={isPrivate}
-          {...common}
-          {...imgCommon}
-          src={f.url}
-          sha={f.sha}
-          onDelete={() => this.onDelete(f)}
-          repo={`${http.owner}/${http.repo}`}
-        />
-      )
-    }
+    return <AlbumItem {...props} key={item.name} />
   }
 
   render() {
@@ -344,6 +300,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
           <Upload
             showUploadList={false}
             accept='image/*'
+            multiple
             customRequest={this.uploader}>
             <Button icon='upload'>Upload Image</Button>
           </Upload>

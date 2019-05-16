@@ -1,18 +1,22 @@
 import React from 'react'
 import { octo } from '../../utils/octokit'
-import { readAsBase64 } from './helper'
 import { Image, iImageProp } from '@zzwing/react-image'
 import { Progress } from '../../component/Progress'
 import omit from 'omit.js'
+import { readAsBase64 } from 'src/renderer/utils/helper'
 
-export interface AlterFile extends File {
+interface AlterFile extends File {
   alter?: string
 }
 
-interface Prop extends Omit<iImageProp, 'src' | 'onDelete'> {
+export type UploadingFile = {
   file: AlterFile
+  name: string
+  sha: string
+}
+interface Prop extends Omit<iImageProp, 'src' | 'onDelete'> {
+  uploading: UploadingFile
   path: string
-  onDelete: (arg: { name: string; sha: string }) => void
 }
 
 interface State {
@@ -29,7 +33,8 @@ export class Uploading extends React.PureComponent<Prop, State> {
   }
   sha: string
   async componentDidMount() {
-    const { file, path } = this.props
+    const { uploading, path } = this.props
+    const { file } = uploading
     if (!file) return
     const src = URL.createObjectURL(file)
     this.setState({
@@ -50,36 +55,31 @@ export class Uploading extends React.PureComponent<Prop, State> {
         })
       }
     )
-    this.sha = sha
+    // set sha to file
+    // not effect
+    uploading.sha = sha
     this.setState({
       uploading: false
-    })
-  }
-  onDelete = () => {
-    this.props.onDelete({
-      name: this.props.file.alter,
-      sha: this.sha
     })
   }
   render() {
     const { src, progress, uploading } = this.state
     const imgProp = omit(this.props, [
-      'file',
+      'uploading',
       'path',
       'children',
-      'className',
-      'onDelete'
+      'className'
     ])
     const { className } = this.props
     return (
       src && (
-        <div className={'uploading ' + className}>
+        <div className={'rel' + className}>
           {uploading && (
             <div className='uploading-progress flex-center absolute-full'>
               <Progress percentage={progress} />
             </div>
           )}
-          <Image {...imgProp} src={src} onDelete={this.onDelete} />
+          <Image {...imgProp} src={src} />
         </div>
       )
     )

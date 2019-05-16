@@ -4,7 +4,8 @@ import { ImgType } from 'src/renderer/utils/octokit'
 import { UploadingFile, Uploading } from './Uploading'
 import { Image } from './Image'
 import http from 'src/renderer/http'
-import { Icon } from 'antd'
+import { Icon, message } from 'antd'
+import { clipboard } from 'electron'
 
 type ImgOrFile = (ImgType | UploadingFile) & {
   checked: boolean
@@ -26,6 +27,10 @@ export function AlbumItem(props: Prop) {
     setDeleting(true)
     propDelete(item)
   }
+  const onCopy = () => {
+    clipboard.writeText(`![](${item.url})`)
+    message.success('复制成功')
+  }
   let jsx
   if ((item as UploadingFile).file) {
     const f: UploadingFile = item as UploadingFile
@@ -44,7 +49,7 @@ export function AlbumItem(props: Prop) {
   return (
     <div className={className + (deleting ? ' deleting' : '')}>
       <div className='album-images-action'>
-        <Icon type='copy' className='mr5' />
+        <Icon type='copy' className='mr5' onClick={onCopy} />
         <Icon type='delete' onClick={onDelete} />
       </div>
       {jsx}

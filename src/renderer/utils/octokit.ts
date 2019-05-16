@@ -3,7 +3,7 @@ import { getNow } from './helper'
 import join from 'url-join'
 import { Cache } from './cache'
 import { XhrRequestParams } from '../http/types'
-import { Queue } from './queue';
+import { Queue } from './queue'
 
 export type ImgType = {
   name: string
@@ -115,6 +115,7 @@ export class Octo {
   ) {
     const { filename } = img
     const d = await uploadQueue.exec(() => {
+      // const d = await http.createFile({
       return http.createFile({
         path: join(path, filename),
         message: `Upload ${filename} by Zelda - ${getNow()}`,
@@ -129,7 +130,7 @@ export class Octo {
         sha: d.sha
       })
       return {
-        imgUrl: this.parseUrl(path, filename),
+        url: this.parseUrl(path, filename),
         sha: d.sha,
         filename
       }

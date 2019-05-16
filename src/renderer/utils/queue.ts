@@ -4,7 +4,6 @@ export class Queue {
   private _do() {
     this._doing = true
     const item = this._queue.shift()
-    console.log('do next', item);
     if (item) {
       const { fnc, res, rej} = item
       const result = fnc()

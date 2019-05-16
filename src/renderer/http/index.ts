@@ -1,4 +1,4 @@
-import { pick, pickArray, getNow } from '../utils/helper'
+import { pick, pickArray } from '../utils/helper'
 import {
   RequestParams,
   GitBlob,
@@ -10,12 +10,10 @@ import {
   CreateFileParams,
   CreateIssueParams,
   DeleteFileParams,
-  XhrRequestParams,
-  CreateTreeParams
+  XhrRequestParams
 } from './types'
 import qs from 'qs'
 import join from 'url-join'
-import { Cache } from '../utils/cache'
 
 class Rest {
   base = 'https://api.github.com'
@@ -77,34 +75,38 @@ class Rest {
     })
   }
   xhr({ url, body, method, onProgress }: XhrRequestParams): Promise<any> {
-    return new Promise((res, rej) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open(method, join(this.base, url))
-      xhr.responseType = 'json'
-      xhr.setRequestHeader('Authorization', `token ${this.token}`)
-      xhr.setRequestHeader('content-type', 'application/json')
-      if (xhr.upload) {
-        xhr.upload.onprogress = function(event) {
-          if (event.total > 0) {
-            const percentComplete = (event.loaded / event.total) * 100
-            console.log(percentComplete)
-            onProgress(percentComplete)
+    const retry = () => {
+      return new Promise((res, rej) => {
+        const xhr = new XMLHttpRequest()
+        xhr.open(method, join(this.base, url))
+        xhr.responseType = 'json'
+        xhr.setRequestHeader('Authorization', `token ${this.token}`)
+        xhr.setRequestHeader('content-type', 'application/json')
+        if (xhr.upload) {
+          xhr.upload.onprogress = function(event) {
+            if (event.total > 0) {
+              const percentComplete = (event.loaded / event.total) * 100
+              onProgress(percentComplete)
+            }
           }
         }
-      }
-      xhr.onreadystatechange = function() {
-        const { readyState, status, response } = xhr
-        if (readyState === 4) {
-          if (status === 401) {
-            rej(new Error('登录验证出错了, 请修改后重试!'))
-          } else if (status >= 300) {
-            rej(new Error((response as any).message))
+        xhr.onreadystatechange = function() {
+          const { readyState, status, response } = xhr
+          if (readyState === 4) {
+            if (status === 401) {
+              rej(new Error('登录验证出错了, 请修改后重试!'))
+            } else if (status === 409) {
+              res(retry())
+            } else if (status >= 300) {
+              rej(new Error((response as any).message))
+            }
+            res(response)
           }
-          res(response)
         }
-      }
-      xhr.send(body && JSON.stringify(body))
-    })
+        xhr.send(body && JSON.stringify(body))
+      })
+    }
+    return retry()
   }
   /**
    * 获取用户信息接口

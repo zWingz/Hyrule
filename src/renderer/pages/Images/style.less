@@ -68,6 +68,11 @@
   align-content: flex-start;
   overflow: auto;
   position: relative;
+  border: 1px dashed transparent;
+  &.dragover {
+    opacity: 0.5;
+    border-color: #40a9ff;
+  }
   &-item {
     margin: 3px;
     position: relative;

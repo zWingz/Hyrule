@@ -71,3 +71,17 @@ export function openModal<T>(
   }
   render()
 }
+
+export function debounce(fnc: Function, t: number): (...arg) => void {
+  let timer = null
+  const time: number = t || 200
+  return function call(...arg) {
+    if (timer) {
+      window.clearTimeout(timer)
+    }
+    timer = window.setTimeout(async () => {
+      await fnc.apply(this, arg)
+      timer = null
+    }, time)
+  }
+}

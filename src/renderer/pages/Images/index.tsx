@@ -13,7 +13,7 @@ import { Image } from './Image'
 import { store, getCacheRepos } from '../../utils/store'
 import http from '../../http'
 import { Uploading, UploadingFile } from './Uploading'
-import { openModal } from '../../utils/helper'
+import { openModal, debounce } from '../../utils/helper'
 import { AlbumItem } from './AlbumItem'
 interface RouteProp {
   repo: string
@@ -32,24 +32,39 @@ type State = {
   loading: boolean
   isPrivate: boolean
   checkedToggle: boolean
+  dragover: boolean
   // error: string
   // modalShow: boolean
   // newPathName: string
   // edit: boolean
 }
 
+const { Dragger } = Upload
+
 function getRepo(prop: Prop) {
   return prop.match.params.repo
 }
 
 export class ImagesPage extends PureComponent<Prop, State> {
+  /**
+   * 获取拼接后的path
+   *
+   * @readonly
+   * @memberof Index
+   */
+  get path() {
+    const { pathArr: path } = this.state
+    if (!path.length) return ''
+    return join(...this.state.pathArr)
+  }
   state: State = {
     pathArr: [],
     images: [],
     dir: {},
     loading: true,
     isPrivate: false,
-    checkedToggle: false
+    checkedToggle: false,
+    dragover: false
     // modalShow: false,
     // newPathName: '',
     // edit: false
@@ -61,6 +76,13 @@ export class ImagesPage extends PureComponent<Prop, State> {
     height: 150,
     objectFit: 'cover',
     observer: null
+  }
+  onDragToggle = (val, e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    this.setState({
+      dragover: val
+    })
   }
   componentDidUpdate(prevProps: Prop, prevState) {
     const repo = getRepo(this.props)
@@ -85,17 +107,6 @@ export class ImagesPage extends PureComponent<Prop, State> {
       })
       this.getImage()
     }
-  }
-  /**
-   * 获取拼接后的path
-   *
-   * @readonly
-   * @memberof Index
-   */
-  get path() {
-    const { pathArr: path } = this.state
-    if (!path.length) return ''
-    return join(...this.state.pathArr)
   }
 
   /**
@@ -155,15 +166,18 @@ export class ImagesPage extends PureComponent<Prop, State> {
       indx++
     }
     file.alter = alter
-    this.setState({
-      images: [
-        {
-          file,
-          checked: false,
-          sha: '',
-          name: alter
-        } as ImgOrFile
-      ].concat(this.state.images)
+    this.setState(prev => {
+      return {
+        images: [
+          {
+            file,
+            checked: false,
+            sha: '',
+            url: '',
+            name: alter
+          } as ImgOrFile
+        ].concat(prev.images)
+      }
     })
     this.nameKeys.push(alter)
   }
@@ -222,7 +236,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
     })
   }
   deleteSingleFile = async (arg: ImgOrFile) => {
-    console.log(arg.sha);
+    console.log(arg.sha)
     await octo.removeFile(this.path, arg)
     this.setState({
       images: this.state.images.filter(each => each.name !== arg.name)
@@ -248,7 +262,21 @@ export class ImagesPage extends PureComponent<Prop, State> {
       images: [...images]
     })
   }
-
+  onDrop: React.DragEventHandler = e => {
+    this.onDragToggle(false, e)
+    if (e.type === 'dragover') {
+      return
+    }
+    const files: File[] = Array.prototype.slice
+      .call(e.dataTransfer.files)
+      .filter(file => /^image/.test(file.type))
+    if (!files.length) return
+    files.forEach(file => {
+      this.uploader({
+        file
+      })
+    })
+  }
   renderItem(item: ImgOrFile, idx: number) {
     const {
       imgCommon,
@@ -272,16 +300,8 @@ export class ImagesPage extends PureComponent<Prop, State> {
   }
 
   render() {
-    const {
-      images,
-      pathArr,
-      dir,
-      loading,
-      isPrivate,
-      checkedToggle
-    } = this.state
+    const { images, pathArr, dir, loading, dragover } = this.state
     const keys = Object.keys(dir)
-    const { imgCommon } = this
     const empty = !images.length
     return (
       <div className='album-container'>
@@ -304,12 +324,6 @@ export class ImagesPage extends PureComponent<Prop, State> {
             customRequest={this.uploader}>
             <Button icon='upload'>Upload Image</Button>
           </Upload>
-          <Button
-            className='mr10'
-            type={checkedToggle ? 'danger' : 'default'}
-            onClick={this.toggle}>
-            批量删除
-          </Button>
         </div>
         <AlbumPath path={pathArr} onBack={this.onBackPath} />
         {!!keys.length && (
@@ -331,7 +345,13 @@ export class ImagesPage extends PureComponent<Prop, State> {
           </>
         )}
         <div className='album-type'>图片</div>
-        <div className='album-images'>
+        <div
+          className={cls('album-images', {
+            dragover
+          })}
+          onDrop={this.onDrop}
+          onDragOver={this.onDragToggle.bind(this, true)}
+          onDragLeave={this.onDragToggle.bind(this, false)}>
           <Spin
             spinning={loading}
             delay={500}

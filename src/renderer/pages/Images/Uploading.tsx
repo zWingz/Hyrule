@@ -13,6 +13,7 @@ export type UploadingFile = {
   file: AlterFile
   name: string
   sha: string
+  url: string
 }
 interface Prop extends Omit<iImageProp, 'src' | 'onDelete'> {
   uploading: UploadingFile
@@ -42,7 +43,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
     })
     let base64 = await readAsBase64(file)
     base64 = base64.split(',').pop()
-    const { sha } = await octo.uploadImage(
+    const { sha, url } = await octo.uploadImage(
       path,
       {
         base64,
@@ -58,6 +59,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
     // set sha to file
     // not effect
     uploading.sha = sha
+    uploading.url = url
     this.setState({
       uploading: false
     })
@@ -70,10 +72,9 @@ export class Uploading extends React.PureComponent<Prop, State> {
       'children',
       'className'
     ])
-    const { className } = this.props
     return (
       src && (
-        <div className={'rel' + className}>
+        <div className='rel'>
           {uploading && (
             <div className='uploading-progress flex-center absolute-full'>
               <Progress percentage={progress} />

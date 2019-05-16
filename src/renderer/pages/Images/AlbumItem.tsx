@@ -24,6 +24,7 @@ export function AlbumItem(props: Prop) {
   const { item, onDelete: propDelete, className, path, ...rst } = props
   const [deleting, setDeleting] = useState(false)
   const onDelete = () => {
+    if (deleting) return
     setDeleting(true)
     propDelete(item)
   }

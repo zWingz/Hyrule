@@ -236,7 +236,6 @@ export class ImagesPage extends PureComponent<Prop, State> {
     })
   }
   deleteSingleFile = async (arg: ImgOrFile) => {
-    console.log(arg.sha)
     await octo.removeFile(this.path, arg)
     this.setState({
       images: this.state.images.filter(each => each.name !== arg.name)

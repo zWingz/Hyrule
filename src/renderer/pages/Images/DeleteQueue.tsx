@@ -14,7 +14,6 @@ interface Prop {
 export function DeleteQueue(prop: Prop) {
   const { data, visible, onChecked } = prop
   const [deleting, setDeleting] = useState(false)
-  console.log('render', data)
   const onClick = useCallback(
     (item: ImgOrFile) => {
       onChecked(item)
@@ -24,11 +23,9 @@ export function DeleteQueue(prop: Prop) {
   const onDelete = useCallback(() => {
     setDeleting(true)
     const { length } = data
-    console.log(data)
     let count = 0
     data.forEach(each => {
-      console.log('each', each, length)
-      prop.onDelete(each).then(() => {
+      prop.onDelete(each).finally(() => {
         count++
         if (count === length) {
           setDeleting(false)

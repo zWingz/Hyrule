@@ -36,7 +36,7 @@ const DEFAULT_DATA_JSON: DataJsonType = {
   sha: 'master'
 }
 
-const uploadQueue = new Queue()
+const queue = new Queue()
 
 /**
  * 缓存
@@ -114,7 +114,7 @@ export class Octo {
     onProgress?: XhrRequestParams['onProgress']
   ) {
     const { filename } = img
-    const d = await uploadQueue.exec(() => {
+    const d = await queue.exec(() => {
       // const d = await http.createFile({
       return http.createFile({
         path: join(path, filename),
@@ -139,10 +139,13 @@ export class Octo {
   }
   async removeFile(path, arg: { name: string; sha: string }) {
     const { name, sha } = arg
-    await http.deleteFile({
-      path: join(path, name),
-      message: `Deleted ${name} by Zelda - ${getNow()}`,
-      sha: sha
+    await queue.exec(() => {
+      // const d = await http.createFile({
+      return http.deleteFile({
+        path: join(path, name),
+        message: `Deleted ${name} by Zelda - ${getNow()}`,
+        sha: sha
+      })
     })
     cache.delImg(path, arg)
   }

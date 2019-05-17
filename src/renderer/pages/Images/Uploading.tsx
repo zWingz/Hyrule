@@ -14,6 +14,7 @@ export type UploadingFile = {
   name: string
   sha: string
   url: string
+  blobUrl: string
 }
 interface Prop extends Omit<iImageProp, 'src' | 'onDelete'> {
   uploading: UploadingFile
@@ -41,6 +42,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
     this.setState({
       src
     })
+    uploading.blobUrl = src
     let base64 = await readAsBase64(file)
     base64 = base64.split(',').pop()
     const { sha, url } = await octo.uploadImage(

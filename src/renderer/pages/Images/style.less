@@ -2,9 +2,10 @@
 
 .album {
   &-container {
+    position: relative;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    // overflow: hidden;
     padding-left: @padding;
     flex-grow: 1;
   }
@@ -77,20 +78,17 @@
     margin: 3px;
     position: relative;
     overflow: hidden;
-    &.checked {
-      border: 1px solid red;
-    }
     .uploading-progress {
-      background: rgba(0,0,0,.6);
+      background: rgba(0, 0, 0, 0.6);
       z-index: 1;
     }
-    &.deleting img{
+    &.blur img {
       filter: blur(7px);
     }
   }
   &-item:hover &-action {
     transform: translateY(0);
-  } 
+  }
   &-action {
     position: absolute;
     transform: translateY(-100%);
@@ -99,16 +97,11 @@
     top: 0px;
     padding: 5px 10px;
     z-index: 1;
-    background: rgba(0,0,0,.6);
+    background: rgba(0, 0, 0, 0.6);
     color: #fff;
     font-size: 16px;
   }
   &-loading {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    bottom: 0px;
-    right: 0px;
     display: flex;
     justify-content: center;
     padding-top: 60px;
@@ -172,4 +165,53 @@
   font-size: 13px;
   color: @tips-text-color;
   margin-top: 15px;
+}
+
+.album-delete {
+  position: absolute;
+  bottom: -10px;
+  border-top: 1px solid @border-color;
+  left: -20px;
+  right: -20px;
+  height: 200px;
+  transform: translateY(100%);
+  transition: transform 0.5s ease;
+  background: #fff;
+  z-index: 3;
+  &-queue {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    justify-content: center;
+    align-content: center;
+    grid-gap: 5px;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    // &.column-2 {
+    //   grid-template-columns: repeat(10, 1fr);
+    //   grid-template-rows: repeat(2, 1fr);
+    // }
+  }
+  &.visible {
+    transform: translateY(0);
+  }
+  &-icon {
+    width: 100px;
+    flex-shrink: 0;
+    border-left: 1px solid @border-color;
+    // i {
+    //   border: 1px solid #f5222d;
+    //   color: #f5222d;
+    //   padding: 5px;
+    //   font-size: 16px;
+    //   border-radius: 50%;
+    // }
+    // .ant-btn-danger {
+    //   background: #fff;
+    // }
+  }
 }

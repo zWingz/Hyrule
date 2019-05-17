@@ -9,21 +9,16 @@ import { Folder } from './Folder'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
 import { createObserver, iImageProp } from '@zzwing/react-image'
-import { Image } from './Image'
-import { store, getCacheRepos } from '../../utils/store'
-import http from '../../http'
-import { Uploading, UploadingFile } from './Uploading'
-import { openModal, debounce } from '../../utils/helper'
-import { AlbumItem } from './AlbumItem'
+import { getCacheRepos } from '../../utils/store'
+import { UploadingFile } from './Uploading'
+import { openModal } from '../../utils/helper'
+import { AlbumItem, ImgOrFile } from './AlbumItem'
+import { DeleteQueue } from './DeleteQueue'
 interface RouteProp {
   repo: string
 }
 
 type Prop = RouteComponentProps<RouteProp>
-
-type ImgOrFile = (ImgType | UploadingFile) & {
-  checked: boolean
-}
 
 type State = {
   pathArr: string[]
@@ -38,8 +33,6 @@ type State = {
   // newPathName: string
   // edit: boolean
 }
-
-const { Dragger } = Upload
 
 function getRepo(prop: Prop) {
   return prop.match.params.repo
@@ -77,6 +70,9 @@ export class ImagesPage extends PureComponent<Prop, State> {
     objectFit: 'cover',
     observer: null
   }
+  get deleteQueue() {
+    return this.state.images.filter(each => each.checked)
+  }
   onDragToggle = (val, e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -84,17 +80,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
       dragover: val
     })
   }
-  componentDidUpdate(prevProps: Prop, prevState) {
-    const repo = getRepo(this.props)
-    if (getRepo(prevProps) !== repo) {
-      this.init()
-    }
-  }
-  componentDidMount() {
-    this.init()
-    this._observer = createObserver(document.querySelector('.album-images'))
-    this.imgCommon.observer = this._observer
-  }
+
   init() {
     const name = getRepo(this.props)
     const repo = getCacheRepos('all').filter(each => each.name === name)[0]
@@ -172,8 +158,8 @@ export class ImagesPage extends PureComponent<Prop, State> {
           {
             file,
             checked: false,
-            sha: '',
-            url: '',
+            // sha: '',
+            // url: '',
             name: alter
           } as ImgOrFile
         ].concat(prev.images)
@@ -236,29 +222,24 @@ export class ImagesPage extends PureComponent<Prop, State> {
     })
   }
   deleteSingleFile = async (arg: ImgOrFile) => {
+    console.log('delete', arg.name);
     await octo.removeFile(this.path, arg)
     this.setState({
       images: this.state.images.filter(each => each.name !== arg.name)
     })
   }
   toggle = async () => {
-    const { checkedToggle, images } = this.state
-    if (checkedToggle) {
-      const remove = images.filter(each => each.checked).map(each => each.name)
-      console.log(remove)
-      // octo.batchDelete(this.path, remove)
-    }
+    const { checkedToggle } = this.state
     this.setState({
       checkedToggle: !checkedToggle
     })
   }
-  onChecked(idx: number) {
-    const { images, checkedToggle } = this.state
+  onChecked = (item: ImgOrFile) => {
+    const { checkedToggle } = this.state
     if (!checkedToggle) return
-    const item = images[idx]
     item.checked = !item.checked
     this.setState({
-      images: [...images]
+      images: [...this.state.images]
     })
   }
   onDrop: React.DragEventHandler = e => {
@@ -276,14 +257,25 @@ export class ImagesPage extends PureComponent<Prop, State> {
       })
     })
   }
-  renderItem(item: ImgOrFile, idx: number) {
+  componentDidUpdate(prevProps: Prop, prevState) {
+    const repo = getRepo(this.props)
+    if (getRepo(prevProps) !== repo) {
+      this.init()
+    }
+  }
+  componentDidMount() {
+    this.init()
+    this._observer = createObserver(document.querySelector('.album-images'))
+    this.imgCommon.observer = this._observer
+  }
+  renderItem(item: ImgOrFile) {
     const {
       imgCommon,
       state: { checkedToggle, isPrivate }
     } = this
-    const onClick = this.onChecked.bind(this, idx)
+    const onClick = this.onChecked.bind(this, item)
     const className = cls('album-images-item', {
-      checked: checkedToggle && item.checked
+      blur: checkedToggle && item.checked
     })
     const props = {
       onClick,
@@ -299,7 +291,14 @@ export class ImagesPage extends PureComponent<Prop, State> {
   }
 
   render() {
-    const { images, pathArr, dir, loading, dragover } = this.state
+    const {
+      images,
+      pathArr,
+      dir,
+      loading,
+      dragover,
+      checkedToggle
+    } = this.state
     const keys = Object.keys(dir)
     const empty = !images.length
     return (
@@ -323,6 +322,9 @@ export class ImagesPage extends PureComponent<Prop, State> {
             customRequest={this.uploader}>
             <Button icon='upload'>Upload Image</Button>
           </Upload>
+          <Button className='ml10' onClick={this.toggle}>
+            Check Toggle
+          </Button>
         </div>
         <AlbumPath path={pathArr} onBack={this.onBackPath} />
         {!!keys.length && (
@@ -354,10 +356,10 @@ export class ImagesPage extends PureComponent<Prop, State> {
           <Spin
             spinning={loading}
             delay={500}
-            className='album-images-loading'
+            className='album-images-loading absolute-full'
           />
           {!empty ? (
-            images.map((each: ImgOrFile, idx) => this.renderItem(each, idx))
+            images.map((each: ImgOrFile) => this.renderItem(each))
           ) : !loading ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -365,6 +367,12 @@ export class ImagesPage extends PureComponent<Prop, State> {
             />
           ) : null}
         </div>
+        <DeleteQueue
+          visible={checkedToggle}
+          data={this.deleteQueue}
+          onChecked={this.onChecked}
+          onDelete={this.deleteSingleFile}
+        />
       </div>
     )
   }

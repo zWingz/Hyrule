@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import cls from 'classnames'
 import { ImgType } from 'src/renderer/utils/octokit'
 import { UploadingFile, Uploading } from './Uploading'
@@ -7,7 +7,7 @@ import http from 'src/renderer/http'
 import { Icon, message } from 'antd'
 import { clipboard } from 'electron'
 
-type ImgOrFile = (ImgType | UploadingFile) & {
+export type ImgOrFile = (ImgType | UploadingFile) & {
   checked: boolean
 }
 
@@ -28,16 +28,16 @@ export function AlbumItem(props: Prop) {
     setDeleting(true)
     propDelete(item)
   }
-  const onCopy = () => {
+  const onCopy = useCallback(() => {
     clipboard.writeText(`![](${item.url})`)
     message.success('复制成功')
-  }
+  }, ['item'])
   let jsx
   if ((item as UploadingFile).file) {
     const f: UploadingFile = item as UploadingFile
     jsx = <Uploading {...rst} uploading={f} path={path} />
   } else {
-    const f: ImgType = item as ImgType
+    const f: ImgType = item
     jsx = (
       <Image
         {...rst}
@@ -48,7 +48,7 @@ export function AlbumItem(props: Prop) {
     )
   }
   return (
-    <div className={className + (deleting ? ' deleting' : '')}>
+    <div className={className + (deleting ? ' blur' : '')}>
       <div className='album-images-action'>
         <Icon type='copy' className='mr5' onClick={onCopy} />
         <Icon type='delete' onClick={onDelete} />

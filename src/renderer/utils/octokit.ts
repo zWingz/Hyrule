@@ -2,8 +2,8 @@ import http from '../http'
 import { getNow } from './helper'
 import join from 'url-join'
 import { Cache } from './cache'
-import { XhrRequestParams } from '../http/types'
-import { Queue } from './queue'
+import { XhrRequestParams, GitFile } from '../http/types'
+import { Queue } from 'lite-queue'
 
 export type ImgType = {
   name: string
@@ -114,7 +114,7 @@ export class Octo {
     onProgress?: XhrRequestParams['onProgress']
   ) {
     const { filename } = img
-    const d = await queue.exec(() => {
+    const d = await queue.exec<GitFile>(() => {
       // const d = await http.createFile({
       return http.createFile({
         path: join(path, filename),

@@ -4767,6 +4767,11 @@ less@^3.9.0:
     request "^2.83.0"
     source-map "~0.6.0"
 
+lite-queue@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/lite-queue/-/lite-queue-1.0.1.tgz#d7dcca3c31ac5e5ab59c4b21aea36f4e0d0c83e5"
+  integrity sha512-9DPg3OwKi4jV801GGChNYsOxEzNpHxULbqYa7QXwaQc3JFfVE8Zi6aKoi1SK/H6EtG076MKu4ElXZbXvZ5mLTQ==
+
 load-json-file@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/load-json-file/-/load-json-file-1.1.0.tgz#956905708d58b4bab4c2261b04f59f31c99374c0"

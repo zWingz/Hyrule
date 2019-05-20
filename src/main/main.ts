@@ -35,10 +35,10 @@ function createWindow() {
   // 然后加载 app 的 index.html.
   if(isDev) {
     win.loadURL('http://localhost:8989/')
+    // win.webContents.openDevTools()
   } else {
     win.loadFile(`${__dirname}/../renderer/index.html`)
   }
-  win.webContents.openDevTools()
   setWebcontent(win.webContents)
   win.once('ready-to-show', () => {
     win.show()

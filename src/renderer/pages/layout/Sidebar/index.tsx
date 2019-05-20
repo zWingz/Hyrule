@@ -7,6 +7,7 @@ import { Icon } from 'antd'
 import { RepoSelectModal } from './RepoSelectModal'
 import { getCacheRepos, store, setCacheRepos } from '../../../utils/store'
 import { NavLink } from 'react-router-dom'
+import { openModal } from 'src/renderer/utils/helper'
 
 const TYPE_IMG = 'images'
 const TYPE_ISSUES = 'issues'
@@ -36,16 +37,19 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
     })
   }
   openSelectRepo = type => {
-    this.setState({
-      visible: true,
-      selectType: type
+    const { repos, images, issues } = this.state
+    openModal(RepoSelectModal, {
+      onConfirm: this.onSelectedRepos,
+      repos,
+      value: type === TYPE_IMG ? images : issues,
+      disabled: type !== TYPE_IMG ? images : issues
     })
   }
-  closeModal = () => {
-    this.setState({
-      visible: false
-    })
-  }
+  // closeModal = () => {
+  //   this.setState({
+  //     visible: false
+  //   })
+  // }
   onSelectedRepos = value => {
     const { selectType } = this.state
     setCacheRepos(selectType, value)
@@ -56,7 +60,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
   }
   render() {
     const { avatar, owner } = this.context
-    const { visible, repos, selectType, issues, images } = this.state
+    // const { visible, repos, selectType, issues, images } = this.state
     return (
       <div className='sidebar'>
         <div className='user-info'>
@@ -70,7 +74,12 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
               <ul className='repo-list'>
                 {this.state[each].map((repo: GitRepo) => (
                   <li className='repo-list-item' key={repo.id}>
-                    <NavLink to={{pathname: `/images/${repo.name}`, search: repo.private ? 'private' : ''}} activeClassName='nav-active'>
+                    <NavLink
+                      to={{
+                        pathname: `/images/${repo.name}`,
+                        search: repo.private ? 'private' : ''
+                      }}
+                      activeClassName='nav-active'>
                       {repo.name}
                     </NavLink>
                   </li>
@@ -84,14 +93,14 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
             </div>
           ))}
         </div>
-        <RepoSelectModal
+        {/* <RepoSelectModal
           visible={visible}
           onConfirm={this.onSelectedRepos}
           repos={repos}
           onCancel={this.closeModal}
           value={selectType === TYPE_IMG ? images : issues}
           disabled={selectType !== TYPE_IMG ? images : issues}
-        />
+        /> */}
       </div>
     )
   }

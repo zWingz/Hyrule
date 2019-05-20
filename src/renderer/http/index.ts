@@ -55,30 +55,30 @@ class Rest {
    * @returns
    * @memberof Rest
    */
-  request({ url = '', body, params, method = 'GET' }: RequestParams) {
-    return fetch(
-      join(this.base, url, params ? `?${qs.stringify(params)}` : ''),
-      {
-        headers: this.headers,
-        method,
-        body: body && JSON.stringify(body)
-      }
-    ).then(async res => {
-      const { status } = res
-      const data = await res.json()
-      if (status === 401) {
-        throw new Error('登录验证出错了, 请修改后重试!')
-      } else if (status >= 300) {
-        throw new Error((data as any).message)
-      }
-      return data
-    })
-  }
-  xhr({ url, body, method, onProgress }: XhrRequestParams): Promise<any> {
+  // request({ url = '', body, params, method = 'GET' }: RequestParams) {
+  //   return fetch(
+  //     join(this.base, url, params ? `?${qs.stringify(params)}` : ''),
+  //     {
+  //       headers: this.headers,
+  //       method,
+  //       body: body && JSON.stringify(body)
+  //     }
+  //   ).then(async res => {
+  //     const { status } = res
+  //     const data = await res.json()
+  //     if (status === 401) {
+  //       throw new Error('登录验证出错了, 请修改后重试!')
+  //     } else if (status >= 300) {
+  //       throw new Error((data as any).message)
+  //     }
+  //     return data
+  //   })
+  // }
+  xhr({ url, body, method = 'GET', params, onProgress }: XhrRequestParams): Promise<any> {
     const retry = () => {
-      return new Promise((res, rej) => {
+      const ret = new Promise((res, rej) => {
         const xhr = new XMLHttpRequest()
-        xhr.open(method, join(this.base, url))
+        xhr.open(method, join(this.base, url, params ? `?${qs.stringify(params)}` : ''))
         xhr.responseType = 'json'
         xhr.setRequestHeader('Authorization', `token ${this.token}`)
         xhr.setRequestHeader('content-type', 'application/json')
@@ -104,7 +104,9 @@ class Rest {
           }
         }
         xhr.send(body && JSON.stringify(body))
+        ;(ret as any).abort = xhr.abort
       })
+      return ret
     }
     return retry()
   }
@@ -116,7 +118,7 @@ class Rest {
    */
   async getUser() {
     const url = `user`
-    const data = await this.request({ url })
+    const data = await this.xhr({ url })
     const { login: owner, avatar_url: avatar } = data
     this.owner = owner
     return {
@@ -126,7 +128,7 @@ class Rest {
   }
   async getRepos() {
     const url = '/user/repos'
-    const data: GitRepo[] = await this.request({
+    const data: GitRepo[] = await this.xhr({
       url,
       params: {
         type: 'owner',
@@ -137,7 +139,7 @@ class Rest {
   }
   async getIssues() {
     const url = this.parseUrl(`/repos/:owner/:repo/issues`)
-    const data: GitIssue[] = await this.request({ url })
+    const data: GitIssue[] = await this.xhr({ url })
     return pickArray(data, [
       'id',
       'number',
@@ -151,14 +153,14 @@ class Rest {
   }
   async createIssue(body: CreateIssueParams) {
     const url = this.parseUrl('/repos/:owner/:repo/issues')
-    const data: GitIssue = await this.request({ url, method: 'POST', body })
+    const data: GitIssue = await this.xhr({ url, method: 'POST', body })
     return data
   }
   async editIssue(num: number, body: CreateIssueParams) {
     const url = this.parseUrl('/repos/:owner/:repo/issues/:issue_number', {
       issues_number: num
     })
-    const data: GitIssue = await this.request({ url, method: 'PATCH', body })
+    const data: GitIssue = await this.xhr({ url, method: 'PATCH', body })
     return data
   }
   /**
@@ -175,7 +177,7 @@ class Rest {
         (sha === 'master' ? '?nocache=' + Date.now() : ''),
       { sha }
     )
-    return this.request({
+    return this.xhr({
       url
     }).then(d => d.tree)
   }
@@ -193,7 +195,7 @@ class Rest {
    */
   getBlob(sha: string): Promise<GitBlob> {
     const url = this.parseUrl('/repos/:owner/:repo/git/blobs/:sha', { sha })
-    return this.request({ url })
+    return this.xhr({ url })
   }
   /**
    * 创建文件接口
@@ -240,7 +242,7 @@ class Rest {
    */
   deleteFile({ path, message, sha }: DeleteFileParams) {
     const url = this.parseUrl(`/repos/:owner/:repo/contents/:path`, { path })
-    return this.request({
+    return this.xhr({
       url,
       method: 'DELETE',
       body: {
@@ -260,7 +262,7 @@ class Rest {
   //     path: each.path,
   //     mode: each.type === 'blob' ? '100644' : '040000'
   //   }))
-  //   const res = await this.request({
+  //   const res = await this.xhr({
   //     url,
   //     method: 'POST',
   //     body: {
@@ -273,7 +275,7 @@ class Rest {
   // }
   // createCommit(sha, parent) {
   //   const url = this.parseUrl('/repos/:owner/:repo/git/commits')
-  //   return this.request({
+  //   return this.xhr({
   //     url,
   //     method: 'POST',
   //     body: {

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import './style.less'
 import { Sidebar } from './Sidebar'
 import { Route, Switch } from 'react-router-dom'
-import { ImagesPage } from '../Images';
+import { ImagesPage } from '../Images'
 
 export class Layout extends PureComponent {
   render() {

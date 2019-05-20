@@ -1,5 +1,4 @@
 /* eslint-disable */
-const config = require('./config')
 const utils = require('./utils')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
@@ -10,18 +9,18 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 // webpack内置的不支持压缩es6,所以使用最原始的plugin压缩
 const TerserPlugin = require('terser-webpack-plugin');
-const env = config.build.env
-
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
 const webpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
   module: {
-    rules: utils.styleLoaders(true)
+    rules: [utils.styleLoader(true)]
   },
   output: {
-    path: './dist',
-    publicPath: '/',
-    filename: 'assets/js/[name].[chunkhash].js',
-    chunkFilename: 'assets/js/[name].[chunkhash].js',
+    path: path.resolve(__dirname, '../dist/renderer'),
+    publicPath: '.',
+    filename: 'assets/js/[name].js',
+    chunkFilename: 'assets/js/[name].js',
     sourceMapFilename: '[file].map'
   },
   devtool: false,
@@ -104,9 +103,9 @@ const webpackConfig = merge(baseWebpackConfig, {
           chunks: "all",
           minChunks: 1,
           priority: 10,
-          // enforce: true,
+          enforce: true,
           reuseExistingChunk: true,
-          test: /\/components/
+          test: /\/component\//
         },
         vendor: {
           name: 'vendor',
@@ -123,11 +122,10 @@ const webpackConfig = merge(baseWebpackConfig, {
   plugins: [
     // 定义变量
     new webpack.DefinePlugin({
-      'process.env': env,
       'isProduction': true
     }),
     new MiniCssExtractPlugin({
-      filename: 'assets.css/[name].[contenthash].css'
+      filename: 'assets/css/[name].css'
     }),
     new HtmlWebpackPlugin({
       template: './index.html'

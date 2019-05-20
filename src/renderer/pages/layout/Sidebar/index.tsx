@@ -6,7 +6,7 @@ import './style.less'
 import { Icon } from 'antd'
 import { RepoSelectModal } from './RepoSelectModal'
 import { getCacheRepos, store, setCacheRepos } from '../../../utils/store'
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom'
 
 const TYPE_IMG = 'images'
 const TYPE_ISSUES = 'issues'

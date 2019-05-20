@@ -1,13 +1,20 @@
 {
   "name": "zelda",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./dist/main/main.js",
   "license": "MIT",
   "scripts": {
     "dev:web": "node ./build/devServer.js",
+    "build:web": "webpack --progress --hide-modules --colors --config=build/prod.conf.js",
     "dev:main": "yarn build:main --watch",
     "build:main": "tsc -p tsconfig.electron.json",
-    "dev:electron": "nodemon --watch ./dist/main --exec electron ./dist/main/main.js"
+    "dev:electron": "nodemon --watch ./dist/main --exec electron ./dist/main/main.js",
+    "build:package": "electron-builder --config ./electronrc.js -mwl",
+    "lint": "tslint --fix --format codeFrame --project ."
+  },
+  "author": {
+    "email": "zhengzwing@gmail.com",
+    "name": "zWing"
   },
   "dependencies": {
     "@zzwing/react-image": "^1.1.7",
@@ -15,7 +22,6 @@
     "classnames": "^2.2.6",
     "consola": "^2.6.2",
     "dayjs": "^1.8.14",
-    "electron": "^5.0.1",
     "electron-store": "^3.2.0",
     "electron-util": "^0.11.0",
     "lite-queue": "^1.0.1",
@@ -41,6 +47,9 @@
     "babel-loader": "^8.0.5",
     "babel-plugin-import": "^1.11.0",
     "css-loader": "^2.1.1",
+    "cssnano": "^4.1.10",
+    "electron": "^5.0.1",
+    "electron-builder": "^20.40.2",
     "electron-debug": "^3.0.0",
     "electron-is-dev": "^1.1.0",
     "electron-reloader": "^0.2.0",
@@ -54,6 +63,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "post-loader": "^2.0.0",
     "postcss-loader": "^3.0.0",
+    "postcss-safe-parser": "^4.0.1",
     "react-dev-utils": "^9.0.0",
     "react-hot-loader": "^4.8.4",
     "style-loader": "^0.23.1",

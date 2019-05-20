@@ -1,2 +1,2 @@
-export * from './oAuthListener'
+export * from './oauthListener'
 export * from './streamProtocol'

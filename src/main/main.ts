@@ -1,6 +1,5 @@
 import { BrowserWindow, app } from 'electron'
 import * as isDev from 'electron-is-dev'
-import * as Debug from 'electron-debug'
 import { setWebcontent, logger } from './logger'
 import { setWin } from './global'
 import { registerAuthListener, registerStreamProtocol } from './register'
@@ -11,6 +10,7 @@ if (isDev) {
   // try {
   //   require('electron-reloader')(module)
   // } catch (err) {}
+  const Debug = require('electron-debug')
   Debug({ showDevTools: true })
 } else {
   logger('Electron running in production')
@@ -33,7 +33,11 @@ function createWindow() {
   })
   setWin(win)
   // 然后加载 app 的 index.html.
-  win.loadURL('http://localhost:8989/')
+  if(isDev) {
+    win.loadURL('http://localhost:8989/')
+  } else {
+    win.loadFile(`${__dirname}/../renderer/index.html`)
+  }
   win.webContents.openDevTools()
   setWebcontent(win.webContents)
   win.once('ready-to-show', () => {

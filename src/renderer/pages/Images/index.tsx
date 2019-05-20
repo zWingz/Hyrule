@@ -1,14 +1,22 @@
 import React, { PureComponent } from 'react'
-import { Icon, Button, Upload, message as Message, Spin, Empty } from 'antd'
+import {
+  Icon,
+  Button,
+  Upload,
+  message as Message,
+  Spin,
+  Empty,
+  Switch
+} from 'antd'
 import { RouteComponentProps } from 'react-router'
 import cls from 'classnames'
 import join from 'url-join'
+import { createObserver, iImageProp } from '@zzwing/react-image'
 import { octo, ImgType, DirType } from '../../utils/octokit'
 import { AlbumPath } from './Path'
 import { Folder } from './Folder'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-import { createObserver, iImageProp } from '@zzwing/react-image'
 import { getCacheRepos } from '../../utils/store'
 import { UploadingFile } from './Uploading'
 import { openModal } from '../../utils/helper'
@@ -321,11 +329,17 @@ export class ImagesPage extends PureComponent<Prop, State> {
             customRequest={this.uploader}>
             <Button icon='upload'>Upload Image</Button>
           </Upload>
-          <Button className='ml10' onClick={this.toggle}>
-            Check Toggle
-          </Button>
         </div>
-        <AlbumPath path={pathArr} onBack={this.onBackPath} />
+        <div className='flex'>
+          <AlbumPath path={pathArr} onBack={this.onBackPath} />
+          <Switch
+            className='ml10'
+            checked={checkedToggle}
+            checkedChildren='取消'
+            unCheckedChildren='编辑'
+            onChange={this.toggle}
+          />
+        </div>
         {!!keys.length && (
           <>
             <div className='album-type'>文件夹</div>
@@ -347,7 +361,8 @@ export class ImagesPage extends PureComponent<Prop, State> {
         <div className='album-type'>图片</div>
         <div
           className={cls('album-images', {
-            dragover
+            dragover,
+            slide: checkedToggle
           })}
           onDrop={this.onDrop}
           onDragOver={this.onDragToggle.bind(this, true)}

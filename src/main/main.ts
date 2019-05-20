@@ -1,19 +1,19 @@
 import { BrowserWindow, app } from 'electron'
 import * as isDev from 'electron-is-dev'
 import * as Debug from 'electron-debug'
-import { setWebcontent } from './logger'
+import { setWebcontent, logger } from './logger'
 import { setWin } from './global'
 import { registerAuthListener, registerStreamProtocol } from './register'
 import * as Consola from 'consola'
 if (isDev) {
   (Consola as any).wrapAll()
-  console.log('Running in development')
+  logger('Electron running in development')
   // try {
   //   require('electron-reloader')(module)
   // } catch (err) {}
   Debug({ showDevTools: true })
 } else {
-  console.log('Running in production')
+  logger('Electron running in production')
 }
 
 const webPreferences = {
@@ -25,6 +25,8 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1080,
     height: 750,
+    minHeight: 750,
+    minWidth: 1080,
     webPreferences,
     show: false,
     backgroundColor: '#2e2c29'

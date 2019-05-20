@@ -1,5 +1,5 @@
 import http from '../http'
-import { getNow } from './helper'
+import { getNow, clone } from './helper'
 import join from 'url-join'
 import { Cache } from './cache'
 import { XhrRequestParams, GitFile } from '../http/types'
@@ -9,10 +9,6 @@ export type ImgType = {
   name: string
   url?: string
   sha: string
-}
-
-export function clone(obj) {
-  return JSON.parse(JSON.stringify(obj))
 }
 
 export type DirType = {

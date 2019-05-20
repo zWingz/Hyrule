@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { ImgOrFile } from './AlbumItem'
-import { Button, Spin } from 'antd'
+import { Button, Spin, Empty } from 'antd'
 import { UploadingFile } from './Uploading'
 import cls from 'classnames'
 interface Prop {
@@ -34,17 +34,21 @@ export function DeleteQueue(prop: Prop) {
     })
   }, [data])
   return (
-    <div className={cls('album-delete rel flex', { visible })}>
-      <div className='album-delete-queue flex-grow'>
-        {data.map(each => {
-          const url = (each as UploadingFile).blobUrl || each.url
-          return (
-            <div key={each.name} onClick={() => onClick(each)}>
-              <img src={url} className='album-delete-item' />
-            </div>
-          )
-        })}
-      </div>
+    <div className={cls('album-delete flex', { visible })}>
+      {data.length ? (
+        <div className='album-delete-queue flex-grow'>
+          {data.map(each => {
+            const url = (each as UploadingFile).blobUrl || each.url
+            return (
+              <div key={each.name} onClick={() => onClick(each)}>
+                <img src={url} className='album-delete-item' />
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='请选择需要删除的图片' style={{flexGrow: 1}}/>
+      )}
       <div className='album-delete-icon flex-center'>
         <Button
           shape='circle'

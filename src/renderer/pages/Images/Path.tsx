@@ -14,7 +14,7 @@ export function AlbumPath(props: Prop) {
   const { path, onBack } = props
   const active = path.length - 1
   return (
-    <div className='album-path-wrapper'>
+    <div className='album-path-wrapper flex-grow'>
       <Icon type='home' onClick={() => onBack('')} /> <Split />
       {path.map((each, idx) => (
         <div key={each} className='flex'>

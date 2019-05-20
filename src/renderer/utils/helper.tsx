@@ -2,6 +2,12 @@ import dayjs from 'dayjs'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { ModalProps } from 'antd/lib/modal'
+
+
+export function clone(obj) {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 export function getNow() {
   return dayjs().format('YYYY-MM-DD hh:mm:ss')
 }

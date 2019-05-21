@@ -2,7 +2,7 @@ import http from '../http'
 import { getNow, clone } from './helper'
 import join from 'url-join'
 import { Cache } from './cache'
-import { XhrRequestParams, GitFile } from '../http/types'
+import { XhrRequestParams, GitFile, AbortToken } from '../http/types'
 import { Queue } from 'lite-queue'
 
 export type ImgType = {
@@ -62,7 +62,8 @@ export class Octo {
   }
   async getTree(
     pathName: string = '',
-    pathSha: string = 'master'
+    pathSha: string = 'master',
+    abortToken?: AbortToken
   ): Promise<DataJsonType> {
     const c = cache.get(pathName)
     if (c) {
@@ -74,7 +75,7 @@ export class Octo {
       sha: pathSha
     }
     if (pathSha) {
-      const data = await http.getTree(pathSha)
+      const data = await http.getTree(pathSha, abortToken)
       const dir = {}
       const images = []
       data.forEach(each => {

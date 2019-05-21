@@ -10,10 +10,12 @@ import {
   CreateFileParams,
   CreateIssueParams,
   DeleteFileParams,
-  XhrRequestParams
+  XhrRequestParams,
+  AbortToken
 } from './types'
 import qs from 'qs'
 import join from 'url-join'
+import { AbortError } from './Error'
 
 class Rest {
   base = 'https://api.github.com'
@@ -74,11 +76,22 @@ class Rest {
   //     return data
   //   })
   // }
-  xhr({ url, body, method = 'GET', params, onProgress }: XhrRequestParams): Promise<any> {
+  xhr({
+    url,
+    body,
+    method = 'GET',
+    params,
+    onProgress,
+    abortToken
+  }: XhrRequestParams): Promise<any> {
     const retry = () => {
       const ret = new Promise((res, rej) => {
+        let _abort = ''
         const xhr = new XMLHttpRequest()
-        xhr.open(method, join(this.base, url, params ? `?${qs.stringify(params)}` : ''))
+        xhr.open(
+          method,
+          join(this.base, url, params ? `?${qs.stringify(params)}` : '')
+        )
         xhr.responseType = 'json'
         xhr.setRequestHeader('Authorization', `token ${this.token}`)
         xhr.setRequestHeader('content-type', 'application/json')
@@ -92,19 +105,32 @@ class Rest {
         }
         xhr.onreadystatechange = function() {
           const { readyState, status, response } = xhr
-          if (readyState === 4) {
-            if (status === 401) {
-              rej(new Error('登录验证出错了, 请修改后重试!'))
-            } else if (status === 409) {
-              res(retry())
-            } else if (status >= 300) {
-              rej(new Error((response as any).message))
-            }
+          if (_abort) {
+            rej(new AbortError(_abort))
+            return
+          }
+          if (readyState !== 4) {
+            return
+          }
+          if (status === 401) {
+            rej(new Error('登录验证出错了, 请修改后重试!'))
+          } else if (status === 409) {
+            res(retry())
+          } else if (status >= 300) {
+            rej(new Error((response as any).message))
+          } else {
             res(response)
           }
         }
         xhr.send(body && JSON.stringify(body))
-        ;(ret as any).abort = xhr.abort
+        if (abortToken) {
+          abortToken((msg: string = 'xhr abort') => {
+            if (xhr.readyState !== 4) {
+              _abort = msg
+              xhr.abort()
+            }
+          })
+        }
       })
       return ret
     }
@@ -170,7 +196,7 @@ class Rest {
    * @returns {Promise<{ path: string; sha: string; type: string }[]>}
    * @memberof Rest
    */
-  getTree(sha: string): Promise<GitTree[]> {
+  getTree(sha: string, abortToken?: AbortToken): Promise<GitTree[]> {
     const url = this.parseUrl(
       `/repos/:owner/:repo/git/trees/:sha` +
         // no-cache when sha === master
@@ -178,7 +204,8 @@ class Rest {
       { sha }
     )
     return this.xhr({
-      url
+      url,
+      abortToken
     }).then(d => d.tree)
   }
   /**

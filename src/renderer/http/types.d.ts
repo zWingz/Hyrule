@@ -9,8 +9,11 @@ export interface RequestParams {
   }
 }
 
+export type AbortToken = (abort: (msg?: string) => void) => void
+
 export interface XhrRequestParams extends RequestParams {
   onProgress?: (pro: number) => void
+  abortToken?: AbortToken
 }
 
 export interface CreateIssueParams {

@@ -22,6 +22,7 @@ import { UploadingFile } from './Uploading'
 import { openModal } from '../../utils/helper'
 import { AlbumItem, ImgOrFile } from './AlbumItem'
 import { DeleteQueue } from './DeleteQueue'
+import { AbortError } from 'src/renderer/http/Error'
 interface RouteProp {
   repo: string
 }
@@ -45,6 +46,8 @@ type State = {
 function getRepo(prop: Prop) {
   return prop.match.params.repo
 }
+
+let abortToken = null
 
 export class ImagesPage extends PureComponent<Prop, State> {
   /**
@@ -123,11 +126,16 @@ export class ImagesPage extends PureComponent<Prop, State> {
    * @memberof Index
    */
   async getImage(sha?: string) {
+    if (abortToken) {
+      abortToken()
+    }
     if (!this.state.loading) {
       this.setState({ loading: true, images: [], dir: {} })
     }
     try {
-      const dataJson = await octo.getTree(this.path, sha)
+      const dataJson = await octo.getTree(this.path, sha, abort => {
+        abortToken = abort
+      })
       const { images, dir } = dataJson
       this.setState({
         // images: [],
@@ -140,12 +148,14 @@ export class ImagesPage extends PureComponent<Prop, State> {
       })
       this.nameKeys = images.map(each => each.name)
     } catch (e) {
+      if (e instanceof AbortError) return
       console.error(e)
       this.setState({
         // error: e.message,
         loading: false
       })
     }
+    abortToken = null
   }
   uploader = async event => {
     const { file } = event as { file: UploadingFile['file'] }
@@ -369,7 +379,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
           onDragLeave={this.onDragToggle.bind(this, false)}>
           <Spin
             spinning={loading}
-            delay={500}
+            delay={250}
             className='album-images-loading absolute-full'
           />
           {!empty ? (

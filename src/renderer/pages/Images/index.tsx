@@ -319,10 +319,10 @@ export class ImagesPage extends PureComponent<Prop, State> {
     const keys = Object.keys(dir)
     const empty = !images.length
     return (
-      <div className='album-container'>
+      <div className='page-container album-container'>
         <div className='album-title flex align-center'>
           <div className='flex-grow'>
-            <div className='album-title-text'>
+            <div className='page-title'>
               {this.props.match.params.repo}
             </div>
           </div>

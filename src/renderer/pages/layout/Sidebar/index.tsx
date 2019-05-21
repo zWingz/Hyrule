@@ -17,7 +17,6 @@ interface State {
   issues: GitRepo[]
   images: GitRepo[]
   visible: boolean
-  selectType: typeof TYPE_IMG | typeof TYPE_ISSUES
 }
 
 export class Sidebar extends PureComponent<{}, State, UserCtx> {
@@ -26,8 +25,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
     repos: getCacheRepos('all'),
     issues: getCacheRepos('issues'),
     images: getCacheRepos('images'),
-    visible: false,
-    selectType: TYPE_ISSUES
+    visible: false
   }
   async componentDidMount() {
     const repos = await http.getRepos()
@@ -39,7 +37,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
   openSelectRepo = type => {
     const { repos, images, issues } = this.state
     openModal(RepoSelectModal, {
-      onConfirm: this.onSelectedRepos,
+      onConfirm: this.onSelectedRepos.bind(this, type),
       repos,
       value: type === TYPE_IMG ? images : issues,
       disabled: type !== TYPE_IMG ? images : issues
@@ -50,11 +48,10 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
   //     visible: false
   //   })
   // }
-  onSelectedRepos = value => {
-    const { selectType } = this.state
-    setCacheRepos(selectType, value)
+  onSelectedRepos = (type, value) => {
+    setCacheRepos(type, value)
     this.setState({
-      [selectType]: value,
+      [type]: value,
       visible: false
     } as State)
   }
@@ -68,7 +65,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
           <span className='user-name'>{owner}</span>
         </div>
         <div className='repo'>
-          {['issues', 'images'].map(each => (
+          {['images', 'issues'].map(each => (
             <div className={`repo-group`} key={each}>
               <div className='repo-type'>{each}</div>
               <ul className='repo-list'>
@@ -76,7 +73,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
                   <li className='repo-list-item' key={repo.id}>
                     <NavLink
                       to={{
-                        pathname: `/images/${repo.name}`,
+                        pathname: `/${each}/${repo.name}`,
                         search: repo.private ? 'private' : ''
                       }}
                       activeClassName='nav-active'>

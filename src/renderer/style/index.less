@@ -21,7 +21,36 @@ ol {
 li {
   list-style: none;
 }
+@padding: 20px;
 
+.page-container {
+  padding-left: @padding;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  // overflow: hidden;
+  flex-grow: 1;
+}
+
+.page-title {
+  font-size: 32px;
+  display: inline-block;
+  text-shadow: rgb(255, 255, 255) -2px 2px 0px, rgb(174, 255, 206) -4px 4px 0px;
+  color: rgb(112, 55, 213);
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    width: calc(15% + 40px);
+    margin-left: -@padding;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(222, 209, 255), rgb(128, 255, 249));
+    border-radius: 3px;
+  }
+}
 
 // antd
 .ant-modal-close-x {

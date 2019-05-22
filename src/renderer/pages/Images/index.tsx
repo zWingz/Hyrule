@@ -39,7 +39,6 @@ type State = {
   images: ImgOrFile[]
   dir: DirType
   loading: boolean
-  isPrivate: boolean
   checkedToggle: boolean
   dragover: boolean
   // error: string
@@ -71,7 +70,6 @@ class ImagesPageBase extends PureComponent<Prop, State> {
     images: [],
     dir: {},
     loading: true,
-    isPrivate: false,
     checkedToggle: false,
     dragover: false
     // modalShow: false,
@@ -269,8 +267,9 @@ class ImagesPageBase extends PureComponent<Prop, State> {
   renderItem(item: ImgOrFile) {
     const {
       imgCommon,
-      state: { checkedToggle, isPrivate }
+      state: { checkedToggle }
     } = this
+    const { private: isPrivate } = this.props.repo
     const onClick = this.onChecked.bind(this, item)
     const className = cls('album-images-item', {
       blur: checkedToggle && item.checked
@@ -298,7 +297,9 @@ class ImagesPageBase extends PureComponent<Prop, State> {
     this.setState(
       {
         pathArr: [],
-        isPrivate: repo.private
+        loading: true,
+        images: [],
+        dir: {}
       },
       () => {
         this.getImage()

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import cls from 'classnames'
 import { ImgType } from 'src/renderer/utils/imageKit'
 import { UploadingFile, Uploading } from './Uploading'

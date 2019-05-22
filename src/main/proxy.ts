@@ -12,6 +12,7 @@ export function getImageByApi(
   if (!src) return
   const [owner, repo, sha, name] = src.split('/')
   const [, ext] = name.split('.')
+  // FIXME: cache and return error
   fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`, {
     headers: {
       Authorization: `token ${_token}`,

@@ -95,7 +95,7 @@ class Rest {
         xhr.responseType = 'json'
         xhr.setRequestHeader('Authorization', `token ${this.token}`)
         xhr.setRequestHeader('content-type', 'application/json')
-        if (xhr.upload) {
+        if (onprogress && xhr.upload) {
           xhr.upload.onprogress = function(event) {
             if (event.total > 0) {
               const percentComplete = (event.loaded / event.total) * 100

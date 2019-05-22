@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import cls from 'classnames'
-import { ImgType } from 'src/renderer/utils/octokit'
+import { ImgType } from 'src/renderer/utils/imageKit'
 import { UploadingFile, Uploading } from './Uploading'
 import { Image } from './Image'
 import http from 'src/renderer/http'

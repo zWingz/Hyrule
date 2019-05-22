@@ -12,7 +12,7 @@ import { RouteComponentProps } from 'react-router'
 import cls from 'classnames'
 import join from 'url-join'
 import { createObserver, iImageProp } from '@zzwing/react-image'
-import { octo, ImgType, DirType } from '../../utils/octokit'
+import { ImageKit, ImgType, DirType } from '../../utils/imageKit'
 import { AlbumPath } from './Path'
 import { Folder } from './Folder'
 import './style.less'
@@ -23,11 +23,16 @@ import { openModal } from '../../utils/helper'
 import { AlbumItem, ImgOrFile } from './AlbumItem'
 import { DeleteQueue } from './DeleteQueue'
 import { AbortError } from 'src/renderer/http/Error'
+import { RepoWrapper } from 'src/renderer/component/RepoWrapper'
+import { GitRepo } from 'src/renderer/http/types'
 interface RouteProp {
   repo: string
 }
 
-type Prop = RouteComponentProps<RouteProp>
+// type Prop = RouteComponentProps<RouteProp>
+type Prop = {
+  repo: GitRepo
+}
 
 type State = {
   pathArr: string[]
@@ -43,13 +48,13 @@ type State = {
   // edit: boolean
 }
 
-function getRepo(prop: Prop) {
-  return prop.match.params.repo
-}
+// function getRepo(prop: Prop) {
+//   return prop.match.params.repo
+// }
 
 let abortToken = null
 
-export class ImagesPage extends PureComponent<Prop, State> {
+class ImagesPageBase extends PureComponent<Prop, State> {
   /**
    * 获取拼接后的path
    *
@@ -92,20 +97,6 @@ export class ImagesPage extends PureComponent<Prop, State> {
     })
   }
 
-  init() {
-    const name = getRepo(this.props)
-    const repo = getCacheRepos('all').filter(each => each.name === name)[0]
-    if (repo) {
-      octo.clearCache()
-      octo.setRepo(name)
-      this.setState({
-        pathArr: [],
-        isPrivate: repo.private
-      })
-      this.getImage()
-    }
-  }
-
   /**
    * 根据图片名称以及路径, 设置图片的url
    *
@@ -116,7 +107,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
   parse(img: ImgType): ImgType {
     return {
       ...img,
-      url: octo.parseUrl(this.path, img.name)
+      url: ImageKit.parseUrl(this.path, img.name)
     }
   }
   /**
@@ -133,7 +124,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
       this.setState({ loading: true, images: [], dir: {} })
     }
     try {
-      const dataJson = await octo.getTree(this.path, sha, abort => {
+      const dataJson = await ImageKit.getTree(this.path, sha, abort => {
         abortToken = abort
       })
       const { images, dir } = dataJson
@@ -231,7 +222,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
       Message.error('文件夹已存在')
       return
     }
-    octo.createPath(this.path, name)
+    ImageKit.createPath(this.path, name)
     this.enterFolder(name)
   }
   openCreateFolder = () => {
@@ -240,7 +231,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
     })
   }
   deleteSingleFile = async (arg: ImgOrFile) => {
-    await octo.removeFile(this.path, arg)
+    await ImageKit.removeFile(this.path, arg)
     this.setState({
       images: this.state.images.filter(each => each.name !== arg.name)
     })
@@ -274,17 +265,7 @@ export class ImagesPage extends PureComponent<Prop, State> {
       })
     })
   }
-  componentDidUpdate(prevProps: Prop, prevState) {
-    const repo = getRepo(this.props)
-    if (getRepo(prevProps) !== repo) {
-      this.init()
-    }
-  }
-  componentDidMount() {
-    this.init()
-    this._observer = createObserver(document.querySelector('.album-images'))
-    this.imgCommon.observer = this._observer
-  }
+
   renderItem(item: ImgOrFile) {
     const {
       imgCommon,
@@ -306,7 +287,37 @@ export class ImagesPage extends PureComponent<Prop, State> {
     }
     return <AlbumItem {...props} key={item.name} />
   }
-
+  init() {
+    // const name = getRepo(this.props)
+    const { repo } = this.props
+    // const repo = getCacheRepos('all').filter(each => each.name === name)[0]
+    // if (repo) {
+    ImageKit.clearCache()
+    //   ImageKit.setRepo(name)
+    // }
+    this.setState(
+      {
+        pathArr: [],
+        isPrivate: repo.private
+      },
+      () => {
+        this.getImage()
+      }
+    )
+  }
+  componentDidUpdate(prevProps: Prop, prevState) {
+    if (prevProps.repo !== this.props.repo) {
+      this.init()
+    }
+  }
+  componentDidMount() {
+    this.init()
+    this._observer = createObserver(document.querySelector('.album-images'))
+    this.imgCommon.observer = this._observer
+  }
+  componentWillUnmount() {
+    this._observer.disconnect()
+  }
   render() {
     const {
       images,
@@ -316,15 +327,14 @@ export class ImagesPage extends PureComponent<Prop, State> {
       dragover,
       checkedToggle
     } = this.state
+    const { repo } = this.props
     const keys = Object.keys(dir)
     const empty = !images.length
     return (
       <div className='page-container album-container'>
         <div className='album-title flex align-center'>
           <div className='flex-grow'>
-            <div className='page-title'>
-              {this.props.match.params.repo}
-            </div>
+            <div className='page-title'>{repo.name}</div>
           </div>
           <Button
             icon='folder-add'
@@ -401,3 +411,5 @@ export class ImagesPage extends PureComponent<Prop, State> {
     )
   }
 }
+
+export const ImagesPage = RepoWrapper(ImagesPageBase)

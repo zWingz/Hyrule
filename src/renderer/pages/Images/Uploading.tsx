@@ -1,5 +1,5 @@
 import React from 'react'
-import { octo } from '../../utils/octokit'
+import { ImageKit } from '../../utils/imageKit'
 import { Image, iImageProp } from '@zzwing/react-image'
 import { Progress } from '../../component/Progress'
 import omit from 'omit.js'
@@ -45,7 +45,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
     uploading.blobUrl = src
     let base64 = await readAsBase64(file)
     base64 = base64.split(',').pop()
-    const { sha, url } = await octo.uploadImage(
+    const { sha, url } = await ImageKit.uploadImage(
       path,
       {
         base64,

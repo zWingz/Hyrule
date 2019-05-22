@@ -53,7 +53,7 @@ const cache = new ImageCache()
 
 const ImageRegExg = /\.(jpg|jpeg|png)$/
 
-export class Octo {
+class Octo {
   getRootPath() {
     return http.getTree('master')
   }
@@ -188,4 +188,4 @@ export class Octo {
 }
 
 const octo = new Octo()
-export { octo }
+export { octo as ImageKit }

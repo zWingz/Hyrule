@@ -14,6 +14,7 @@ export type AbortToken = (abort: (msg?: string) => void) => void
 export interface XhrRequestParams extends RequestParams {
   onProgress?: (pro: number) => void
   abortToken?: AbortToken
+  getHeader?: boolean
 }
 
 export interface CreateIssueParams {
@@ -111,4 +112,9 @@ export namespace CreateTreeParams {
       sha: '7c258a9869f33c1e1e1f74fbb32f07c86cb5a75b'
     }[]
   }
+}
+
+export type GetIssuesParams = {
+  page?: number
+  pageSize?: number
 }

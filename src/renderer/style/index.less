@@ -52,6 +52,24 @@ li {
   }
 }
 
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  background: @border-color;
+}
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  &:hover {
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
+
 // antd
 .ant-modal-close-x {
   display: flex;

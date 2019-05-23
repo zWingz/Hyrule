@@ -1,0 +1,46 @@
+
+.issues {
+  &-container {
+    margin-left: -40px;
+    border-top: 1px solid @border-color;
+    overflow: hidden;
+  }
+  &-list {
+    overflow: auto;
+    border-bottom: 1px solid @border-color;
+  }
+  &-item {
+    width: 200px;
+    border-right: 1px solid @border-color;
+    padding: 7px 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    cursor: pointer;
+    &:not(:last-child) {
+      border-bottom: 1px solid @border-color;
+    }
+    &:hover {
+      text-decoration: underline;
+    }
+    &.active {
+      background: @blue-color;
+      color: #fff;
+    }
+  }
+}
+
+
+.issues-editor {
+  flex-grow: 1;
+  &-title {
+    padding: 10px 20px;
+    font-size: 18px;
+    border-bottom: 1px solid @border-color;
+  }
+}
+
+
+#monaco-editor {
+  width: 600px;
+  height: 600px;
+}

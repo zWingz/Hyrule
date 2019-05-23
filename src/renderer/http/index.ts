@@ -11,7 +11,8 @@ import {
   CreateIssueParams,
   DeleteFileParams,
   XhrRequestParams,
-  AbortToken
+  AbortToken,
+  GetIssuesParams
 } from './types'
 import qs from 'qs'
 import join from 'url-join'
@@ -82,7 +83,8 @@ class Rest {
     method = 'GET',
     params,
     onProgress,
-    abortToken
+    abortToken,
+    getHeader
   }: XhrRequestParams): Promise<any> {
     const retry = () => {
       const ret = new Promise((res, rej) => {
@@ -119,7 +121,14 @@ class Rest {
           } else if (status >= 300) {
             rej(new Error((response as any).message))
           } else {
-            res(response)
+            if (getHeader) {
+              res({
+                headers: xhr.getAllResponseHeaders(),
+                response
+              })
+            } else {
+              res(response)
+            }
           }
         }
         xhr.send(body && JSON.stringify(body))
@@ -163,19 +172,16 @@ class Rest {
     })
     return pickArray(data, ['name', 'id', 'description', 'private'])
   }
-  async getIssues() {
+  async getIssues({ page = 2, pageSize = 10 }: GetIssuesParams = {}) {
     const url = this.parseUrl(`/repos/:owner/:repo/issues`)
-    const data: GitIssue[] = await this.xhr({ url })
-    return pickArray(data, [
-      'id',
-      'number',
-      'html_url',
-      'title',
-      'body',
-      'labels',
-      'created_at',
-      'updated_at'
-    ])
+    return this.xhr({
+      url
+      // params: {
+      // per_page: pageSize,
+      // page
+      // },
+      // getHeader: true
+    })
   }
   async createIssue(body: CreateIssueParams) {
     const url = this.parseUrl('/repos/:owner/:repo/issues')

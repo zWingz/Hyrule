@@ -1,6 +1,7 @@
 var path = require('path')
 var utils = require('./utils')
 const { CheckerPlugin } = require('awesome-typescript-loader')
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 module.exports = {
   entry: './src/renderer/index',
   target: 'electron-renderer',
@@ -80,7 +81,7 @@ module.exports = {
       }
     ]
   },
-  plugins: [new CheckerPlugin()],
+  plugins: [new CheckerPlugin(), new MonacoWebpackPlugin()],
   node: {
     Buffer: false
   }

@@ -1,8 +1,9 @@
 import http from '../http'
+import { GetIssuesParams } from '../http/types';
 
 class Octo {
-  async getIssues() {
-    return http.getIssues()
+  async getIssues(arg?: GetIssuesParams) {
+    return http.getIssues(arg)
   }
 }
 

@@ -8,7 +8,6 @@ import {
   Empty,
   Switch
 } from 'antd'
-import { RouteComponentProps } from 'react-router'
 import cls from 'classnames'
 import join from 'url-join'
 import { createObserver, iImageProp } from '@zzwing/react-image'
@@ -17,7 +16,6 @@ import { AlbumPath } from './Path'
 import { Folder } from './Folder'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-import { getCacheRepos } from '../../utils/store'
 import { UploadingFile } from './Uploading'
 import { openModal } from '../../utils/helper'
 import { AlbumItem, ImgOrFile } from './AlbumItem'
@@ -25,9 +23,6 @@ import { DeleteQueue } from './DeleteQueue'
 import { AbortError } from 'src/renderer/http/Error'
 import { RepoWrapper } from 'src/renderer/component/RepoWrapper'
 import { GitRepo } from 'src/renderer/http/types'
-interface RouteProp {
-  repo: string
-}
 
 // type Prop = RouteComponentProps<RouteProp>
 type Prop = {
@@ -288,7 +283,6 @@ class ImagesPageBase extends PureComponent<Prop, State> {
   }
   init() {
     // const name = getRepo(this.props)
-    const { repo } = this.props
     // const repo = getCacheRepos('all').filter(each => each.name === name)[0]
     // if (repo) {
     ImageKit.clearCache()

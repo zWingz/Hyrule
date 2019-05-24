@@ -30,7 +30,11 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       'number'
     ])
   }
-
+  onChange = (v) => {
+    this.setState({
+      body: v
+    })
+  }
   render() {
     const { body, title } = this.state
     return (
@@ -42,7 +46,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
           {title}
         </div>
         <div className='issues-editor-content'>
-          <Editor content={body} />
+          <Editor content={body} onChange={this.onChange}/>
           <Preview content={body} />
         </div>
       </div>

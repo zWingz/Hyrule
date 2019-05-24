@@ -2,8 +2,8 @@
   &-list-wrapper {
     border-top: 1px solid @border-color;
     overflow: hidden;
-    padding: 0 40px;
-    margin: 20px -40px 0;
+    // padding: 0 40px;
+    margin: 20px 0  0 -40px;
     display: grid;
     grid-template-columns: min-content auto;
     grid-gap: 10px;
@@ -18,21 +18,23 @@
   }
   &-item {
     border-right: 1px solid @border-color;
-    padding: 7px 0;
-    width: 200px;
+    padding: 15px 0;
+    width: 300px;
     padding-left: 15px;
     padding-right: 15px;
     cursor: pointer;
-    &:not(:last-child) {
-      border-bottom: 1px solid @border-color;
-    }
+    // &:not(:last-child) {
+    //   border-bottom: 1px solid @border-color;
+    // }
     &:hover {
       text-decoration: underline;
     }
     &.active {
       color: @blue-color;
       // color: #fff;
+      background: rgba(0,0,0,.05);
       border-right-color: transparent;
+      border-right: 4px solid @blue-color;
     }
   }
   &-preview {
@@ -73,7 +75,7 @@
 }
 
 .issue-title {
-  padding: 10px;
+  padding: 20px 20px;
   font-size: 20px;
   border-bottom: 1px solid @border-color;
 }

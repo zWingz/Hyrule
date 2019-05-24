@@ -22,5 +22,8 @@ export const Image = React.memo(function (p: Prop) {
     const name = src.split('/').pop()
     url = `github://${repo}/${sha}/${name}`
   }
+  console.log('render');
   return <ReactImage {...p} src={url} />
-}, () => true)
+}, (prevProp, nextProp) => {
+  return prevProp.preview === nextProp.preview
+})

@@ -2,6 +2,7 @@ import React from 'react'
 import * as monaco from 'monaco-editor'
 type Prop = {
   content: string
+  onChange: (arg: string) => void
 }
 
 export class Editor extends React.PureComponent<Prop> {
@@ -22,13 +23,15 @@ export class Editor extends React.PureComponent<Prop> {
     // this.editor.layout()
     this.editor.onDidChangeModelContent((e) => {
       const value = this.editor.getValue()
-      this.setState({
-        content: value
-      })
+      console.log(value);
+      this.props.onChange(value)
     })
   }
   componentWillUnmount() {
     this.editor.dispose()
+  }
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return false
   }
   render() {
     return (

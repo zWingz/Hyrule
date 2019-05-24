@@ -5,17 +5,20 @@ import { GitRepo, GitIssue } from 'src/renderer/http/types'
 import { RepoWrapper } from 'src/renderer/component/RepoWrapper'
 import './style.less'
 import { IssuesEditor } from './Editor'
-type Prop = {
+import { IssuesList } from './List'
+import { Route, Switch, RouteChildrenProps } from 'react-router'
+import { Provider } from './Context'
+import { getCacheIssues, setCacheIssues } from 'src/renderer/utils/store'
+
+type Prop = RouteChildrenProps & {
   repo: GitRepo
 }
 type State = {
-  issues: GitIssue[],
-  selected: GitIssue
+  issues: GitIssue[]
 }
 class IssuesPageBase extends PureComponent<Prop, State> {
   state: State = {
-    issues: [],
-    selected: null
+    issues: getCacheIssues()
   }
   async componentDidMount() {
     this.getIssues()
@@ -23,37 +26,25 @@ class IssuesPageBase extends PureComponent<Prop, State> {
 
   async getIssues() {
     const issues = await IssuesKit.getIssues()
-    this.setState(
-      {
-        issues
-      },
-      () => {
-        console.log(this.state.issues)
-      }
-    )
-  }
-  selectIssue = (issue: GitIssue) => {
+    setCacheIssues(issues)
     this.setState({
-      selected: issue
+      issues
     })
   }
   render() {
-    const { issues, selected } = this.state
+    const { issues } = this.state
+    const {
+      match: { url }
+    } = this.props
     return (
       <div className='page-container '>
         <div className='page-title'>{this.props.repo.name}</div>
-        <div className='flex flex-grow mt20 issues-container'>
-          <div className='issues-list'>
-            {issues.map(each => (
-              <div key={each.id} onClick={this.selectIssue.bind(this, each)} className={cls('issues-item', { active: selected === each})}>
-                <div className='issues-item-title'>{each.title}</div>
-              </div>
-            ))}
-          </div>
-          {
-            !!selected && <IssuesEditor issue={selected}/>
-          }
-        </div>
+        <Provider value={issues}>
+          <Switch>
+            <Route path={`${url}/:number`} component={IssuesEditor} />
+            <Route path={`${url}`} component={IssuesList} />
+          </Switch>
+        </Provider>
       </div>
     )
   }

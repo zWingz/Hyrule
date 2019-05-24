@@ -1,21 +1,40 @@
 import React from 'react'
 import * as monaco from 'monaco-editor'
+type Prop = {
+  content: string
+}
 
-export class Editor extends React.PureComponent {
+export class Editor extends React.PureComponent<Prop> {
+  editor: monaco.editor.IStandaloneCodeEditor
   componentDidMount() {
-    monaco.editor.create(document.getElementById('monaco-editor'), {
-      value: '## Hello world',
+    const { content } = this.props
+    this.editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+      value: content,
       language: 'markdown',
+      automaticLayout: true,
       minimap: {
         enabled: false
       },
       lineNumbers: 'off',
       roundedSelection: false,
-      scrollBeyondLastLine: false,
       theme: 'vs-dark'
     })
+    // this.editor.layout()
+    this.editor.onDidChangeModelContent((e) => {
+      const value = this.editor.getValue()
+      this.setState({
+        content: value
+      })
+    })
+  }
+  componentWillUnmount() {
+    this.editor.dispose()
   }
   render() {
-    return <div id='monaco-editor' className='monaco-editor' />
+    return (
+      <div className='markdown-editor'>
+        <div id='monaco-editor' className='monaco-editor' />
+      </div>
+    )
   }
 }

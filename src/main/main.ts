@@ -7,6 +7,7 @@ import * as Consola from 'consola'
 if (isDev) {
   (Consola as any).wrapAll()
   logger('Electron running in development')
+
   // try {
   //   require('electron-reloader')(module)
   // } catch (err) {}
@@ -33,8 +34,12 @@ function createWindow() {
   })
   setWin(win)
   // 然后加载 app 的 index.html.
-  if(isDev) {
+  if (isDev) {
     win.loadURL('http://localhost:8989/')
+    const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer')
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then(name => console.log(`Added Extension:  ${name}`))
+      .catch(err => console.log('An error occurred: ', err))
     // win.webContents.openDevTools()
   } else {
     win.loadFile(`${__dirname}/../renderer/index.html`)

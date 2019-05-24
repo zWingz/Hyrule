@@ -9,9 +9,20 @@ import { Link } from 'react-router-dom'
 
 type Prop = RouteComponentProps
 
+let _lastSelected: GitIssue = null
+
 export function IssuesList(p: Prop) {
   const issues = useContext(IssuesContext)
-  const [selected, setSelected] = useState<GitIssue>(null)
+  const [selected, setSelected] = useState<GitIssue>(() => {
+    const first = issues[0]
+    if (!_lastSelected) return first
+    const filter = issues.filter(each => each.id === _lastSelected.id)[0]
+    return filter || first
+  })
+  const onClick = issue => {
+    _lastSelected = issue
+    setSelected(issue)
+  }
   return (
     <div className='issues-list-wrapper'>
       <div className='issues-list'>
@@ -19,9 +30,9 @@ export function IssuesList(p: Prop) {
           <div
             key={each.id}
             className={cls('issues-item', {
-              active: each === selected
+              active: each.id === selected.id
             })}
-            onClick={() => setSelected(each)}>
+            onClick={() => onClick(each)}>
             <div className='issues-item-title'>{each.title}</div>
           </div>
         ))}
@@ -30,7 +41,9 @@ export function IssuesList(p: Prop) {
         <div className='issues-preview'>
           <div className='issue-title flex'>
             {selected.title}
-            <Link to={`${p.match.url}/${selected.number}`} style={{marginLeft: 'auto'}}>
+            <Link
+              to={`${p.match.url}/${selected.number}`}
+              style={{ marginLeft: 'auto' }}>
               <Icon type='form' />
             </Link>
           </div>

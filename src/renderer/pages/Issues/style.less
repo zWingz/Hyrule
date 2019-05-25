@@ -3,7 +3,7 @@
     border-top: 1px solid @border-color;
     overflow: hidden;
     // padding: 0 40px;
-    margin: 20px 0  0 -40px;
+    margin: 20px 0 0 -40px;
     display: grid;
     grid-template-columns: min-content auto;
     grid-gap: 10px;
@@ -32,7 +32,7 @@
     &.active {
       color: @blue-color;
       // color: #fff;
-      background: rgba(0,0,0,.05);
+      background: rgba(0, 0, 0, 0.05);
       border-right-color: transparent;
       border-right: 4px solid @blue-color;
     }
@@ -43,7 +43,6 @@
     overflow: hidden;
   }
 }
-    
 
 .issues-editor {
   overflow: hidden;
@@ -65,8 +64,17 @@
     height: 100%;
   }
   &-preview {
-    padding: 10px 20px;
+    padding: 0 20px;
     overflow: auto;
+    position: relative;
+
+    &.hidden {
+      position: fixed;
+      left: -9999px;
+      bottom: -9999px;
+      z-index: 999;
+      pointer-events: none;
+    }
   }
 }
 #monaco-editor {
@@ -78,4 +86,32 @@
   padding: 20px 20px;
   font-size: 20px;
   border-bottom: 1px solid @border-color;
+}
+
+.editor-title {
+  padding: 20px 0px;
+  input {
+    font-size: 20px;
+    flex-grow: 1;
+    border: none;
+    border-radius: 0px;
+    outline: 0px;
+    border-bottom: 1px solid @border-color;
+    &:focus {
+      border-color: @blue-color;
+    }
+  }
+  i {
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    align-self: stretch;
+    line-height: inherit;
+    &:hover {
+      color: @blue-color;
+      background: #fff;
+    }
+  }
 }

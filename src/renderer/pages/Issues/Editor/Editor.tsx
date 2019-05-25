@@ -3,28 +3,40 @@ import * as monaco from 'monaco-editor'
 type Prop = {
   content: string
   onChange: (arg: string) => void
+  onScroll: (line: number) => void
 }
-
-export class Editor extends React.PureComponent<Prop> {
+const LINE_HEIGHT = 18
+export class Editor extends React.Component<Prop> {
   editor: monaco.editor.IStandaloneCodeEditor
   componentDidMount() {
     const { content } = this.props
-    this.editor = monaco.editor.create(document.getElementById('monaco-editor'), {
-      value: content,
-      language: 'markdown',
-      automaticLayout: true,
-      minimap: {
-        enabled: false
-      },
-      lineNumbers: 'off',
-      roundedSelection: false,
-      theme: 'vs-dark'
-    })
+    this.editor = monaco.editor.create(
+      document.getElementById('monaco-editor'),
+      {
+        value: content,
+        language: 'markdown',
+        automaticLayout: true,
+        minimap: {
+          enabled: false
+        },
+        lineNumbers: 'off',
+        roundedSelection: false,
+        // scrollBeyondLastLine: false,
+        theme: 'vs-dark'
+      }
+    )
     // this.editor.layout()
-    this.editor.onDidChangeModelContent((e) => {
+    this.editor.onDidChangeModelContent(e => {
       const value = this.editor.getValue()
-      console.log(value);
       this.props.onChange(value)
+    })
+    this.editor.onDidScrollChange(e => {
+      const { scrollHeight, scrollTop } = e
+      let v = 0
+      if (scrollHeight) {
+        v = scrollTop / LINE_HEIGHT
+      }
+      this.props.onScroll(Math.round(v))
     })
   }
   componentWillUnmount() {

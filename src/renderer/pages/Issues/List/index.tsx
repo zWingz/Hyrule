@@ -39,11 +39,9 @@ export function IssuesList(p: Prop) {
       </div>
       {selected && (
         <div className='issues-preview'>
-          <div className='issue-title flex'>
+          <div className='issue-title flex align-center'>
             {selected.title}
-            <Link
-              to={`${p.match.url}/${selected.number}`}
-              style={{ marginLeft: 'auto' }}>
+            <Link className='ml10' to={`${p.match.url}/${selected.number}`}>
               <Icon type='form' />
             </Link>
           </div>

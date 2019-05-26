@@ -46,6 +46,10 @@ class Octo {
     }
     return data
   }
+  async closeIssue(issue: GitIssue) {
+    _cache.removeIssue(http.repo, issue)
+    return http.closeIssue(issue.number)
+  }
 }
 
 const IssuesKit = new Octo()

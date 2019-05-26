@@ -195,6 +195,13 @@ class Rest {
     const data: GitIssue = await this.xhr({ url, method: 'PATCH', body })
     return data
   }
+  async closeIssue(num) {
+    const url = this.parseUrl('/repos/:owner/:repo/issues/:issue_number', {
+      issue_number: num
+    })
+    const data: GitIssue = await this.xhr({ url, method: 'PATCH', body: { state: 'closed'} })
+    return data
+  }
   /**
    * 获取tree接口
    *

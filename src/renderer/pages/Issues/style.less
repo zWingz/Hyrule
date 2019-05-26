@@ -18,32 +18,46 @@
       display: none;
     }
   }
-  &-item-time {
-    font-size: 11px;
-    // color: #828282;
-  }
+  
   &-item {
     padding: 15px 0;
     width: 300px;
     padding-left: 15px;
     padding-right: 15px;
     cursor: pointer;
+    border-right: 4px solid transparent;
     // &:not(:last-child) {
     //   border-bottom: 1px solid @border-color;
     // }
+    &-time {
+      font-size: 11px;
+      // color: #828282;
+    }
+    &-close {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+      &:hover {
+        color: @danger-color;
+      }
+    }
     &:hover {
       text-decoration: underline;
+      .issues-item-close {
+        opacity: 1;
+        pointer-events: initial;
+      }
     }
     &.active {
       color: @blue-color;
       // color: #fff;
       background: rgba(0, 0, 0, 0.05);
-      border-right-color: transparent;
-      border-right: 4px solid @blue-color;
+      border-right-color:  @blue-color;
     }
     &.create {
       border-bottom: 1px solid @border-color;
     }
+    
   }
   &-preview {
     display: flex;

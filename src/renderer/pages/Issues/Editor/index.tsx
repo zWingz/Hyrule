@@ -14,7 +14,7 @@ const { Group } = Radio
 type Prop = RouteComponentProps<{
   number: string
 }> & {
-  onSave: (issue: GitIssue, isCreate: boolean) => void
+  onUpdate: () => void
 }
 
 enum MODE_ENMU {
@@ -93,7 +93,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     })
     const { number: num } = this.props.match.params
     const { title, body, labels = [] } = this.state
-    const data = await IssuesKit.saveIssues(
+    await IssuesKit.saveIssues(
       {
         title,
         body,
@@ -104,7 +104,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     this.setState({
       syncing: false
     })
-    this.props.onSave(data, this.isCreate)
+    this.props.onUpdate()
     message.success('保存成功')
   }
 

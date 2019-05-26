@@ -31,7 +31,7 @@ class IssuesPageBase extends PureComponent<Prop, State> {
     this.init()
   }
 
-  async getIssues() {
+   getIssues = async () => {
     this.setState(({
       loading: true
     }))
@@ -53,12 +53,14 @@ class IssuesPageBase extends PureComponent<Prop, State> {
     })
     this.getIssues()
   }
-  onSaveIssue = () => {
+  onCloseIssue = (issue: GitIssue) => {
+    IssuesKit.closeIssue(issue)
     this.getIssues()
   }
   render() {
     const { issues, loading } = this.state
-    const CreateEditorPage = (p) => <IssuesEditor onSave={this.onSaveIssue} {...p}/>
+    const CreateEditorPage = (p) => <IssuesEditor onUpdate={this.getIssues} {...p}/>
+    const CreateIssuesListPage = p => <IssuesList onUpdate={this.getIssues} {...p}/>
     const {
       match: { url }
     } = this.props
@@ -73,7 +75,7 @@ class IssuesPageBase extends PureComponent<Prop, State> {
           <Switch>
             <Route path={`${url}/create`} render={CreateEditorPage} />
             <Route path={`${url}/:number`} render={CreateEditorPage} />
-            <Route path={`${url}`} component={IssuesList} />
+            <Route path={`${url}`} render={CreateIssuesListPage} />
           </Switch>
         </Provider>
       </div>

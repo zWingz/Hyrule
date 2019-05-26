@@ -53,19 +53,8 @@ class IssuesPageBase extends PureComponent<Prop, State> {
     })
     this.getIssues()
   }
-  onSaveIssue = (issue: GitIssue, isCreated) => {
-    const { issues} = this.state
-    let newIssues: GitIssue[]
-    if(isCreated) {
-      newIssues = [issue].concat(this.state.issues)
-    } else {
-      const item = issues.findIndex(each => each.id === issue.id)
-      issues.splice(item, 1, issue)
-      newIssues = [...issues]
-    }
-    this.setState({
-      issues: newIssues
-    })
+  onSaveIssue = () => {
+    this.getIssues()
   }
   render() {
     const { issues, loading } = this.state

@@ -99,7 +99,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
         body,
         labels: labels.map(each => each.name)
       },
-      +num
+      num ? +num : false
     )
     this.setState({
       syncing: false

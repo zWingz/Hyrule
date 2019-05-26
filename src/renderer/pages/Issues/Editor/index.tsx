@@ -5,20 +5,33 @@ import { Preview } from '../Preview'
 import { IssuesContext } from '../Context'
 import { RouteComponentProps } from 'react-router'
 import { pick } from 'src/renderer/utils/helper'
-import { Icon } from 'antd'
+import { Icon, Button, Radio, message } from 'antd'
+import * as monaco from 'monaco-editor'
+import { IssuesKit } from 'src/renderer/utils/issuesKit';
+import CheckableTag from 'antd/lib/tag/CheckableTag';
 
+const { Group } = Radio
 type Prop = RouteComponentProps<{
   number: string
 }>
 
+enum MODE_ENMU {
+  eidtor,
+  preview,
+  both
+}
+
 type State = GitIssue & {
   scrollLine: number
+  mode: MODE_ENMU
+  syncing: boolean
 }
 
 export class IssuesEditor extends React.PureComponent<Prop, State> {
   static contextType = IssuesContext
   context: GitIssue[]
-  backUrl: string = ''
+  editor: monaco.editor.IStandaloneCodeEditor
+  // backUrl: string = ''
   constructor(p: Prop, context: GitIssue[]) {
     super(p)
     const { number: num } = p.match.params
@@ -26,15 +39,17 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     this.state = Object.assign(
       pick(issue, ['body', 'title', 'created_at', 'id', 'labels', 'number']),
       {
-        scrollLine: 0
+        scrollLine: 0,
+        mode: MODE_ENMU.both,
+        syncing: false
       }
     )
-    this.backUrl = this.props.match.url
-      .split('/')
-      .slice(0, -1)
-      .join('/')
+    // this.backUrl = this.props.match.url
+    // .split('/')
+    // .slice(0, -1)
+    // .join('/')
   }
-  onChange = v => {
+  onChangeContent = v => {
     this.setState({
       body: v
     })
@@ -52,25 +67,88 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
   goBack = () => {
     this.props.history.goBack()
   }
+  onChangeMode = mode => {
+    if (mode === MODE_ENMU.both) {
+      this.editor.layout()
+    }
+    this.setState({
+      mode
+    })
+  }
+  getEditor = ins => {
+    this.editor = ins
+  }
+  getActive = expect => {
+    return this.state.mode === expect ? 'primary' : 'default'
+  }
+  onSync = async () => {
+    this.setState({
+      syncing: true
+    })
+    const { number: num } = this.props.match.params
+    console.log(num);
+    const { title, body, labels = []} = this.state
+    await IssuesKit.saveIssues({
+      title,
+      body,
+      labels: labels.map(each => each.name)
+    }, +num)
+    this.setState({
+      syncing: false
+    })
+    message.success('保存成功')
+  }
+
   render() {
-    const { body, title, scrollLine } = this.state
+    const { body, title, scrollLine, mode, syncing } = this.state
     return (
       <div className='issues-editor'>
         <div className='editor-title flex align-center'>
           <Icon
             type='left'
-            className='flex-center mr10'
+            className='flex-center mr10 editor-goback'
             onClick={this.goBack}
           />
           <input value={title} onChange={this.onChangeTitle} />
         </div>
+        <div className='flex'>
+          <Button.Group className='mr10'>
+            <Button
+              title='显示编辑器'
+              type={this.getActive(MODE_ENMU.eidtor)}
+              onClick={() => this.onChangeMode(MODE_ENMU.eidtor)}>
+              <Icon type='pic-left' />
+            </Button>
+            <Button
+              title='显示全部'
+              type={this.getActive(MODE_ENMU.both)}
+              onClick={() => this.onChangeMode(MODE_ENMU.both)}>
+              <Icon type='pic-center' />
+            </Button>
+            <Button
+              title='显示预览'
+              type={this.getActive(MODE_ENMU.preview)}
+              onClick={() => this.onChangeMode(MODE_ENMU.preview)}>
+              <Icon type='pic-right' />
+            </Button>
+          </Button.Group>
+          <Button onClick={this.onSync}>
+            <Icon type="sync" spin={syncing}/>
+            同步
+          </Button>
+        </div>
         <div className='issues-editor-content'>
-          <Editor
-            content={body}
-            onChange={this.onChange}
-            onScroll={this.onScroll}
-          />
-          <Preview content={body} scrollLine={scrollLine} />
+          {mode !== MODE_ENMU.preview && (
+            <Editor
+              getEditor={this.getEditor}
+              content={body}
+              onChange={this.onChangeContent}
+              onScroll={this.onScroll}
+            />
+          )}
+          {mode !== MODE_ENMU.eidtor && (
+            <Preview content={body} scrollLine={scrollLine} />
+          )}
         </div>
       </div>
     )

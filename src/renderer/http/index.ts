@@ -34,6 +34,7 @@ class Rest {
     this.repo = repo
   }
   parseUrl(url: string, params = {}) {
+    console.log(params);
     const map = {
       repo: this.repo,
       owner: this.owner,
@@ -190,7 +191,7 @@ class Rest {
   }
   async editIssue(num: number, body: CreateIssueParams) {
     const url = this.parseUrl('/repos/:owner/:repo/issues/:issue_number', {
-      issues_number: num
+      issue_number: num
     })
     const data: GitIssue = await this.xhr({ url, method: 'PATCH', body })
     return data

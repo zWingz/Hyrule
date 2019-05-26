@@ -6,7 +6,7 @@ import { RouteComponentProps } from 'react-router'
 import { Icon } from 'antd'
 import cls from 'classnames'
 import { Link } from 'react-router-dom'
-
+import dayjs from 'dayjs'
 type Prop = RouteComponentProps
 
 let _lastSelected: GitIssue = null
@@ -33,7 +33,10 @@ export function IssuesList(p: Prop) {
               active: each.id === selected.id
             })}
             onClick={() => onClick(each)}>
-            <div className='issues-item-title'>{each.title}</div>
+            <time className='issues-item-time'>{dayjs(each.created_at).format('YYYY-MM-DD hh:mm')}</time>
+            <div className='issues-item-title'>
+              {each.title}
+            </div>
           </div>
         ))}
       </div>

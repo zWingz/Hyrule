@@ -34,7 +34,6 @@ class Rest {
     this.repo = repo
   }
   parseUrl(url: string, params = {}) {
-    console.log(params);
     const map = {
       repo: this.repo,
       owner: this.owner,

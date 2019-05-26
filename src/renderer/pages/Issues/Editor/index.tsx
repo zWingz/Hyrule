@@ -7,13 +7,15 @@ import { RouteComponentProps } from 'react-router'
 import { pick } from 'src/renderer/utils/helper'
 import { Icon, Button, Radio, message } from 'antd'
 import * as monaco from 'monaco-editor'
-import { IssuesKit } from 'src/renderer/utils/issuesKit';
-import CheckableTag from 'antd/lib/tag/CheckableTag';
+import { IssuesKit } from 'src/renderer/utils/issuesKit'
+import CheckableTag from 'antd/lib/tag/CheckableTag'
 
 const { Group } = Radio
 type Prop = RouteComponentProps<{
   number: string
-}>
+}> & {
+  onSave: (issue: GitIssue, isCreate: boolean) => void
+}
 
 enum MODE_ENMU {
   eidtor,
@@ -21,7 +23,7 @@ enum MODE_ENMU {
   both
 }
 
-type State = GitIssue & {
+type State = Pick<GitIssue, 'body' | 'title' | 'created_at' | 'labels'> & {
   scrollLine: number
   mode: MODE_ENMU
   syncing: boolean
@@ -31,23 +33,27 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
   static contextType = IssuesContext
   context: GitIssue[]
   editor: monaco.editor.IStandaloneCodeEditor
-  // backUrl: string = ''
+  state: State = {
+    scrollLine: 0,
+    mode: MODE_ENMU.both,
+    syncing: false,
+    body: '',
+    title: '',
+    created_at: '',
+    labels: []
+  }
+  isCreate: boolean = false
   constructor(p: Prop, context: GitIssue[]) {
     super(p)
     const { number: num } = p.match.params
-    const issue = context.filter(each => each.number === +num)[0]
-    this.state = Object.assign(
-      pick(issue, ['body', 'title', 'created_at', 'id', 'labels', 'number']),
-      {
-        scrollLine: 0,
-        mode: MODE_ENMU.both,
-        syncing: false
-      }
-    )
-    // this.backUrl = this.props.match.url
-    // .split('/')
-    // .slice(0, -1)
-    // .join('/')
+    this.isCreate === !!num
+    if (num) {
+      const issue = context.filter(each => each.number === +num)[0]
+      Object.assign(
+        this.state,
+        pick(issue, ['body', 'title', 'created_at', 'labels'])
+      )
+    }
   }
   onChangeContent = v => {
     this.setState({
@@ -86,16 +92,19 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       syncing: true
     })
     const { number: num } = this.props.match.params
-    console.log(num);
-    const { title, body, labels = []} = this.state
-    await IssuesKit.saveIssues({
-      title,
-      body,
-      labels: labels.map(each => each.name)
-    }, +num)
+    const { title, body, labels = [] } = this.state
+    const data = await IssuesKit.saveIssues(
+      {
+        title,
+        body,
+        labels: labels.map(each => each.name)
+      },
+      +num
+    )
     this.setState({
       syncing: false
     })
+    this.props.onSave(data, this.isCreate)
     message.success('保存成功')
   }
 
@@ -109,7 +118,11 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
             className='flex-center mr10 editor-goback'
             onClick={this.goBack}
           />
-          <input value={title} onChange={this.onChangeTitle} />
+          <input
+            value={title}
+            onChange={this.onChangeTitle}
+            placeholder='请输入标题'
+          />
         </div>
         <div className='flex'>
           <Button.Group className='mr10'>
@@ -133,7 +146,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
             </Button>
           </Button.Group>
           <Button onClick={this.onSync}>
-            <Icon type="sync" spin={syncing}/>
+            <Icon type='sync' spin={syncing} />
             同步
           </Button>
         </div>

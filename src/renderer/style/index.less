@@ -70,6 +70,24 @@ body {
   }
 }
 
+.spin-loading {
+  display: flex;
+  justify-content: center;
+  padding-top: 120px;
+  z-index: 1;
+  &:after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    opacity: 0.4;
+    background: #fff;
+    content: '';
+  }
+}
+
 // antd
 .ant-modal-close-x {
   display: flex;

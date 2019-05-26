@@ -12,12 +12,12 @@ export function setCacheRepos(
   store.set(`repos.${type}`, value)
 }
 
-export function getCacheIssues() {
-  return (store.get('issues')) as GitIssue[] || []
+export function getCacheIssues(repo) {
+  return (store.get(`issues.${repo}`)) as GitIssue[] || []
 }
 
-export function setCacheIssues(value: GitIssue[]) {
-  store.set('issues', value)
+export function setCacheIssues(repo, value: GitIssue[]) {
+  store.set(`issues.${repo}`, value)
 }
 
 export { store }

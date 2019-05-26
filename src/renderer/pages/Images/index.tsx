@@ -79,6 +79,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
     objectFit: 'cover',
     observer: null
   }
+  _isMounted: boolean = false
   get deleteQueue() {
     return this.state.images.filter(each => each.checked)
   }
@@ -121,6 +122,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
         abortToken = abort
       })
       const { images, dir } = dataJson
+      if(!this._isMounted) return
       this.setState({
         // images: [],
         images: images.map(each => ({
@@ -306,11 +308,13 @@ class ImagesPageBase extends PureComponent<Prop, State> {
     }
   }
   componentDidMount() {
+    this._isMounted = true
     this.init()
     this._observer = createObserver(document.querySelector('.album-images'))
     this.imgCommon.observer = this._observer
   }
   componentWillUnmount() {
+    this._isMounted = false
     this._observer.disconnect()
   }
   render() {
@@ -385,7 +389,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
           <Spin
             spinning={loading}
             delay={250}
-            className='album-images-loading absolute-full'
+            className='spin-loading absolute-full'
           />
           {!empty ? (
             images.map((each: ImgOrFile) => this.renderItem(each))

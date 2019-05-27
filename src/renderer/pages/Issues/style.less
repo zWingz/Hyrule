@@ -18,7 +18,7 @@
       display: none;
     }
   }
-  
+
   &-item {
     padding: 15px 0;
     width: 300px;
@@ -36,7 +36,7 @@
     &-close {
       opacity: 0;
       pointer-events: none;
-      transition: opacity .3s ease;
+      transition: opacity 0.3s ease;
       &:hover {
         color: @danger-color;
       }
@@ -52,12 +52,11 @@
       color: @blue-color;
       // color: #fff;
       background: rgba(0, 0, 0, 0.05);
-      border-right-color:  @blue-color;
+      border-right-color: @blue-color;
     }
     &.create {
       border-bottom: 1px solid @border-color;
     }
-    
   }
   &-preview {
     display: flex;
@@ -78,58 +77,30 @@
     // grid-template-columns: auto;
     margin-top: 10px;
   }
-  .markdown-editor, .markdown-preview {
+  .markdown-editor,
+  .markdown-preview {
     flex-grow: 1;
     flex-shrink: 1;
-    flex-basis: 50%;
-    min-width: 50%;;
+    // flex-basis: 50%;
+    min-width: 50%;
+    max-width: 50%;
   }
-}
-.markdown {
-  
-  &-editor {
-    height: 100%;
-  }
-  &-preview {
-    padding: 0 20px;
-    overflow: auto;
-    position: relative;
-
-    &.hidden {
-      position: fixed;
-      left: -9999px;
-      bottom: -9999px;
-      z-index: 999;
-      pointer-events: none;
+  &-title {
+    padding: 20px 0px;
+    input {
+      font-size: 20px;
+      padding: 10px 0px;
+      flex-grow: 1;
+      border: none;
+      border-radius: 0px;
+      outline: 0px;
+      border-bottom: 1px solid @border-color;
+      &:focus {
+        border-color: @blue-color;
+      }
     }
   }
-}
-#monaco-editor {
-  width: 100%;
-  height: 100%;
-}
-
-.issue-title {
-  padding: 20px 20px;
-  font-size: 20px;
-  border-bottom: 1px solid @border-color;
-}
-
-.editor-title {
-  padding: 20px 0px;
-  input {
-    font-size: 20px;
-    padding:10px 0px;
-    flex-grow: 1;
-    border: none;
-    border-radius: 0px;
-    outline: 0px;
-    border-bottom: 1px solid @border-color;
-    &:focus {
-      border-color: @blue-color;
-    }
-  }
-  .editor-goback {
+  &-goback {
     cursor: pointer;
     width: 32px;
     height: 32px;
@@ -143,4 +114,32 @@
       border-color: @blue-color;
     }
   }
+}
+.markdown {
+  &-editor {
+    height: 100%;
+  }
+  &-preview {
+    padding: 0 20px;
+    overflow: auto;
+    position: relative;
+
+    &.hidden {
+      position: fixed;
+      left: -9999px;
+      bottom: -9999px;
+      z-index: 0;
+      pointer-events: none;
+    }
+  }
+}
+#monaco-editor {
+  width: 100%;
+  height: 100%;
+}
+
+.issue-title {
+  padding: 20px 20px;
+  font-size: 20px;
+  border-bottom: 1px solid @border-color;
 }

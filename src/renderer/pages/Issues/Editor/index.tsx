@@ -49,10 +49,12 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     this.isCreate === !!num
     if (num) {
       const issue = context.filter(each => each.number === +num)[0]
-      Object.assign(
-        this.state,
-        pick(issue, ['body', 'title', 'created_at', 'labels'])
-      )
+      if(issue) {
+        Object.assign(
+          this.state,
+          pick(issue, ['body', 'title', 'created_at', 'labels'])
+        )
+      }
     }
   }
   onChangeContent = v => {
@@ -112,10 +114,10 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     const { body, title, scrollLine, mode, syncing } = this.state
     return (
       <div className='issues-editor'>
-        <div className='editor-title flex align-center'>
+        <div className='issues-editor-title flex align-center'>
           <Icon
             type='left'
-            className='flex-center mr10 editor-goback'
+            className='flex-center mr10 issues-editor-goback'
             onClick={this.goBack}
           />
           <input

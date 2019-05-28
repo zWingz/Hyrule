@@ -70,21 +70,6 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  &-content {
-    width: 100%;
-    overflow: hidden;
-    display: flex;
-    // grid-template-columns: auto;
-    margin-top: 10px;
-  }
-  .markdown-editor,
-  .markdown-preview {
-    flex-grow: 1;
-    flex-shrink: 1;
-    // flex-basis: 50%;
-    min-width: 50%;
-    max-width: 50%;
-  }
   &-title {
     padding: 20px 0px;
     input {
@@ -99,6 +84,22 @@
         border-color: @blue-color;
       }
     }
+  }
+  &-content {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    // grid-template-columns: auto;
+    margin-top: 10px;
+  }
+  .markdown-editor,
+  .markdown-preview {
+    flex-grow: 1;
+    flex-shrink: 1;
+    // flex-basis: 50%;
+    // min-width: 50%;
+    // max-width: 50%;
+    width: 50%;
   }
   &-goback {
     cursor: pointer;

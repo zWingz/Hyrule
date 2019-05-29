@@ -48,7 +48,7 @@ export function IssuesList(p: Prop) {
           <Link
             to={`${p.match.url}/create`}
             className='issues-item-title flex align-center'>
-            新增文章
+            Create New
             <Icon type='plus-circle' style={{ marginLeft: 'auto' }} />
           </Link>
         </div>
@@ -81,8 +81,8 @@ export function IssuesList(p: Prop) {
         )}
       </div>
       {mid && (
-        <div className='issues-preview'>
-          <div className='issue-title flex align-center'>
+        <div className='issue-preview'>
+          <div className='issue-preview-title flex align-center'>
             {mid.title}
             <Link className='ml10' to={`${p.match.url}/${mid.number}`}>
               <Icon type='form' />

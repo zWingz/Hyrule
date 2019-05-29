@@ -84,7 +84,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
                 <li
                   className='repo-add'
                   onClick={() => this.openSelectRepo(each)}>
-                  编辑
+                  Edit
                 </li>
               </ul>
             </div>

@@ -25,14 +25,15 @@ function calcHeight(content: string, lineNumber) {
   }
   _div.setAttribute('style', `width: ${getDom().clientWidth}`)
   _div.innerHTML = parseMd(hide)
-  return _div.clientHeight
+  // fixed padding 40
+  return _div.clientHeight - 40
 }
 
 export function Preview(p: Prop) {
   const { scrollLine, content } = p
   useLayoutEffect(() => {
     let c = 0
-    if (scrollLine > 0) {
+    if (scrollLine >= 0) {
       c = calcHeight(content, scrollLine)
     }
     getDom().scrollTo({

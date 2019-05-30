@@ -48,6 +48,28 @@ export class Editor extends React.Component<Prop> {
       this.editor.onDidChangeModelContent(this.onChange)
       this.editor.onDidScrollChange(this.onScroll)
       this.props.getEditor(this.editor)
+      window.addEventListener('paste', (e: ClipboardEvent) => {
+        console.log('paste');
+        if (this.editor.hasTextFocus()) {
+          let selection = this.editor.getSelection()
+          let items = e.clipboardData.items
+          for (let i = 0; i < items.length; i++) {
+            let matches = items[i].type.match(/^image\/(png|jpg|jpeg|gif)$/i)
+            if (matches) {
+              var blob = items[i].getAsFile()
+              console.log(blob);
+              // this.editor.executeEdits("", [
+              //   {
+              //     range: new monaco.Range(selection.endLineNumber, selection.endColumn, selection.endLineNumber, selection.endColumn),
+              //     text: `![图片](///12312)`
+              //   }
+              // ])
+              // let {endLineNumber, endColumn} = this.editor.getSelection()
+              // this.editor.setPosition({lineNumber: endLineNumber, column: endColumn})
+            }
+          }
+        }
+      })
   }
   componentWillUnmount() {
     this._isMounted = false

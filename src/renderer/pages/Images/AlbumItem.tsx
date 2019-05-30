@@ -30,7 +30,7 @@ export function AlbumItem(props: Prop) {
   }
   const onCopy = useCallback(() => {
     clipboard.writeText(`![](${item.url})`)
-    message.success('复制成功')
+    message.success('Copy Succeed')
   }, ['item'])
   let jsx
   if ((item as UploadingFile).file) {

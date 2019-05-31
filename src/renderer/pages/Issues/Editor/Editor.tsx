@@ -8,10 +8,11 @@ type Prop = {
   getEditor: (ins: monaco.editor.IStandaloneCodeEditor) => void
 }
 const LINE_HEIGHT = 18
+const ImgReg = /(png|jpg|jpeg|gif)/i
 export class Editor extends React.Component<Prop> {
   editor: monaco.editor.IStandaloneCodeEditor
   onScroll = debounce(e => {
-    if(!this._isMounted) return
+    if (!this._isMounted) return
     const { scrollHeight, scrollTop } = e
     let v = 0
     if (scrollHeight) {
@@ -19,57 +20,73 @@ export class Editor extends React.Component<Prop> {
     }
     this.props.onScroll(Math.round(v))
   }, 0)
-  onChange = debounce((e) => {
-    if(!this._isMounted) return
+  onChange = debounce(e => {
+    if (!this._isMounted) return
     const value = this.editor.getValue()
-      this.props.onChange(value)
+    this.props.onChange(value)
   }, 0)
   _isMounted = false
   componentDidMount() {
     this._isMounted = true
     const { content } = this.props
-      this.editor = monaco.editor.create(
-        document.getElementById('monaco-editor'),
-        {
-          value: content,
-          language: 'markdown',
-          automaticLayout: true,
-          minimap: {
-            enabled: false
-          },
-          wordWrap: 'wordWrapColumn',
-          lineNumbers: 'off',
-          roundedSelection: false,
-          // scrollBeyondLastLine: false,
-          theme: 'vs-dark'
-        }
-      )
-      // this.editor.layout()
-      this.editor.onDidChangeModelContent(this.onChange)
-      this.editor.onDidScrollChange(this.onScroll)
-      this.props.getEditor(this.editor)
-      window.addEventListener('paste', (e: ClipboardEvent) => {
-        console.log('paste');
+    this.editor = monaco.editor.create(
+      document.getElementById('monaco-editor'),
+      {
+        value: content,
+        language: 'markdown',
+        automaticLayout: true,
+        minimap: {
+          enabled: false
+        },
+        wordWrap: 'wordWrapColumn',
+        lineNumbers: 'off',
+        roundedSelection: false,
+        // scrollBeyondLastLine: false,
+        theme: 'vs-dark'
+      }
+    )
+    // this.editor.layout()
+    this.editor.onDidChangeModelContent(this.onChange)
+    this.editor.onDidScrollChange(this.onScroll)
+    this.props.getEditor(this.editor)
+    window.addEventListener(
+      'paste',
+      (e: ClipboardEvent) => {
         if (this.editor.hasTextFocus()) {
-          let selection = this.editor.getSelection()
-          let items = e.clipboardData.items
-          for (let i = 0; i < items.length; i++) {
-            let matches = items[i].type.match(/^image\/(png|jpg|jpeg|gif)$/i)
-            if (matches) {
-              var blob = items[i].getAsFile()
-              console.log(blob);
-              // this.editor.executeEdits("", [
-              //   {
-              //     range: new monaco.Range(selection.endLineNumber, selection.endColumn, selection.endLineNumber, selection.endColumn),
-              //     text: `![图片](///12312)`
-              //   }
-              // ])
-              // let {endLineNumber, endColumn} = this.editor.getSelection()
-              // this.editor.setPosition({lineNumber: endLineNumber, column: endColumn})
+          const startSelection = this.editor.getSelection()
+          let { files } = e.clipboardData
+          const { length } = files
+          // use setTimeout to get endSelection
+          setTimeout(() => {
+            const endSelectrion = this.editor.getSelection()
+            for (let i = 0; i < length; i++) {
+              const file = files[i]
+              if (ImgReg.test(file.type)) {
+                // copy img url to editor
+                this.editor.executeEdits(
+                  '',
+                  [
+                    {
+                      range: new monaco.Range(
+                        startSelection.startLineNumber,
+                        startSelection.startColumn,
+                        endSelectrion.endLineNumber,
+                        endSelectrion.endColumn
+                      ),
+                      text: `![](Uploading...)`
+                    }
+                  ],
+                  [endSelectrion]
+                )
+                // let {endLineNumber, endColumn} = this.editor.getSelection()
+                // this.editor.setPosition({lineNumber: endLineNumber, column: endColumn})
+              }
             }
-          }
+          })
         }
-      })
+      },
+      true
+    )
   }
   componentWillUnmount() {
     this._isMounted = false
@@ -81,8 +98,6 @@ export class Editor extends React.Component<Prop> {
     return false
   }
   render() {
-    return (
-      <div id='monaco-editor' className='markdown-editor monaco-editor' />
-    )
+    return <div id='monaco-editor' className='markdown-editor monaco-editor' />
   }
 }

@@ -4,6 +4,7 @@ import { setWebcontent, logger } from './logger'
 import { setWin } from './global'
 import { registerAuthListener, registerStreamProtocol } from './register'
 import * as Consola from 'consola'
+import { getCacheWindowSize, setCacheWindowSize } from './store';
 if (isDev) {
   (Consola as any).wrapAll()
   logger('Electron running in development')
@@ -21,11 +22,11 @@ const webPreferences = {
   nodeIntegration: true
 }
 let win: BrowserWindow
+const cacheSize = getCacheWindowSize()
 function createWindow() {
   // 创建浏览器窗口
   win = new BrowserWindow({
-    width: 1080,
-    height: 750,
+    ...cacheSize,
     minHeight: 750,
     minWidth: 1080,
     webPreferences,
@@ -47,6 +48,10 @@ function createWindow() {
   setWebcontent(win.webContents)
   win.once('ready-to-show', () => {
     win.show()
+  })
+  win.on('resize', () => {
+    const { width, height } = win.getBounds()
+    setCacheWindowSize({ width, height })
   })
   win.on('close', () => {
     win = null

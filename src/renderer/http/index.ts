@@ -18,17 +18,16 @@ import qs from 'qs'
 import join from 'url-join'
 import { AbortError } from './Error'
 
-class Rest {
-  base = 'https://api.github.com'
-  headers = {
-    'content-type': 'application/json'
-  } as any
-  token: string = ''
-  repo: string = ''
-  owner: string = ''
-  setToken(token: string) {
-    this.headers.Authorization = `token ${token}`
+export class Http {
+  static token = ''
+  static owner = ''
+  static setToken(token: string) {
     this.token = token
+  }
+  base = 'https://api.github.com'
+  repo: string = ''
+  get owner() {
+    return Http.owner
   }
   setRepo(repo: string) {
     this.repo = repo
@@ -36,7 +35,7 @@ class Rest {
   parseUrl(url: string, params = {}) {
     const map = {
       repo: this.repo,
-      owner: this.owner,
+      owner: Http.owner,
       ...params
     }
     return url.replace(/(:\w+)/g, (match, $1) => {
@@ -95,7 +94,9 @@ class Rest {
           join(this.base, url, params ? `?${qs.stringify(params)}` : '')
         )
         xhr.responseType = 'json'
-        xhr.setRequestHeader('Authorization', `token ${this.token}`)
+        if (Http.token) {
+          xhr.setRequestHeader('Authorization', `token ${Http.token}`)
+        }
         xhr.setRequestHeader('content-type', 'application/json')
         if (onprogress && xhr.upload) {
           xhr.upload.onprogress = function(event) {
@@ -155,7 +156,7 @@ class Rest {
     const url = `user`
     const data = await this.xhr({ url })
     const { login: owner, avatar_url: avatar } = data
-    this.owner = owner
+    Http.owner = owner
     return {
       owner,
       avatar
@@ -199,7 +200,11 @@ class Rest {
     const url = this.parseUrl('/repos/:owner/:repo/issues/:issue_number', {
       issue_number: num
     })
-    const data: GitIssue = await this.xhr({ url, method: 'PATCH', body: { state: 'closed'} })
+    const data: GitIssue = await this.xhr({
+      url,
+      method: 'PATCH',
+      body: { state: 'closed' }
+    })
     return data
   }
   /**
@@ -326,4 +331,4 @@ class Rest {
   // }
 }
 
-export default new Rest()
+export const DefaultHttpIns = new Http()

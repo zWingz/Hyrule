@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react'
-import cls from 'classnames'
 import { IssuesKit } from 'src/renderer/utils/issuesKit'
 import { GitRepo, GitIssue } from 'src/renderer/http/types'
 import { RepoWrapper } from 'src/renderer/component/RepoWrapper'

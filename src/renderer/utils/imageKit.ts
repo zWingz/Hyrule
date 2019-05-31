@@ -1,4 +1,4 @@
-import http from '../http'
+import { Http } from '../http'
 import { getNow, clone } from './helper'
 import join from 'url-join'
 import { Cache } from './cache'
@@ -54,11 +54,12 @@ const cache = new ImageCache()
 const ImageRegExg = /\.(jpg|jpeg|png)$/
 
 class Octo {
-  getRootPath() {
-    return http.getTree('master')
-  }
+  http = new Http()
   setRepo(arg: string) {
-    http.setRepo(arg)
+    this.http.setRepo(arg)
+  }
+  getRootPath() {
+    return this.http.getTree('master')
   }
   async getTree(
     pathName: string = '',
@@ -75,7 +76,7 @@ class Octo {
       sha: pathSha
     }
     if (pathSha) {
-      const data = await http.getTree(pathSha, abortToken)
+      const data = await this.http.getTree(pathSha, abortToken)
       const dir = {}
       const images = []
       data.forEach(each => {
@@ -112,8 +113,8 @@ class Octo {
   ) {
     const { filename } = img
     const d = await queue.exec<GitFile>(() => {
-      // const d = await http.createFile({
-      return http.createFile({
+      // const d = await this.http.createFile({
+      return this.http.createFile({
         path: join(path, filename),
         message: `Upload ${filename} by Zelda - ${getNow()}`,
         content: img.base64,
@@ -137,8 +138,8 @@ class Octo {
   async removeFile(path, arg: { name: string; sha: string }) {
     const { name, sha } = arg
     await queue.exec(() => {
-      // const d = await http.createFile({
-      return http.deleteFile({
+      // const d = await this.http.createFile({
+      return this.http.deleteFile({
         path: join(path, name),
         message: `Deleted ${name} by Zelda - ${getNow()}`,
         sha: sha
@@ -147,10 +148,10 @@ class Octo {
     cache.delImg(path, arg)
   }
   getUser() {
-    return http.getUser()
+    return this.http.getUser()
   }
   parseUrl(path, fileName): string {
-    const { repo, owner } = http
+    const { repo, owner } = this.http
     return join(
       `https://raw.githubusercontent.com/`,
       owner,
@@ -180,7 +181,7 @@ class Octo {
   //         type: 'blob'
   //       })
   //     })
-  //   await http.createTree(tree, sha)
+  //   await this.http.createTree(tree, sha)
   // }
   clearCache() {
     cache.clear()

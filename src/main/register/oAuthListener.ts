@@ -1,8 +1,9 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import * as qs from 'qs'
 import { GITHUB_APP } from '../config'
-import { setToken, getWin } from '../global'
+import { getWin } from '../global'
 import { default as fetch } from 'node-fetch'
+import { setToken } from '../store';
 let authWindow: BrowserWindow
 export function registerAuthListener(win: BrowserWindow) {
   ipcMain.on('open-auth-window', () => {

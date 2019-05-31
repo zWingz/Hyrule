@@ -3,19 +3,18 @@ import { hot } from 'react-hot-loader/root'
 import { ipcRenderer } from 'electron'
 import Animate from 'rc-animate'
 import {
-  store,
   getCacheUser,
   setCacheUser,
   getCacheToken,
   setCacheToken
 } from './utils/store'
-import http from './http'
 import { Provider } from './context/UserContext'
 import { HashRouter } from 'react-router-dom'
 import { Layout } from './pages/layout'
 import { Spin, Icon } from 'antd'
 import './utils/logger'
 import './style/index.less'
+import { DefaultHttpIns, Http } from './http';
 const antIcon = <Icon type='loading' style={{ fontSize: 32 }} spin />
 Spin.setDefaultIndicator(antIcon)
 
@@ -39,8 +38,8 @@ class App extends PureComponent {
   }
   async valid(t) {
     setCacheToken(t)
-    http.setToken(t)
-    const user = await http.getUser()
+    Http.setToken(t)
+    const user = await DefaultHttpIns.getUser()
     setCacheUser(user)
     this.setState({
       ...user,

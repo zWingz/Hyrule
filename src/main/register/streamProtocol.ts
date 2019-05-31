@@ -1,6 +1,6 @@
 import { protocol } from 'electron'
 import { getImageByApi } from '../proxy'
-import { getToken } from '../global'
+import { getToken } from '../store'
 
 export function registerStreamProtocol() {
   protocol.registerStreamProtocol('github', (req, callback) => {

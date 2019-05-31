@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { getCacheRepos } from 'src/renderer/utils/store'
-import http from 'src/renderer/http'
+import { Http } from 'src/renderer/http'
 import { GitRepo } from 'src/renderer/http/types'
+import { IssuesKit } from 'src/renderer/utils/issuesKit';
+import { ImageKit } from 'src/renderer/utils/imageKit';
 
 interface RouteProp {
   repo: string
@@ -44,7 +46,8 @@ export function RepoWrapper<P = any>(
     const { repo } = p.match.params
     const repoInfo = getCacheRepos('all').filter(each => each.name === repo)[0]
     if (repoInfo) {
-      http.setRepo(repo)
+      IssuesKit.setRepo(repo)
+      ImageKit.setRepo(repo)
     }
     return <Page {...p} repo={repoInfo} />
   }

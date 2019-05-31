@@ -1,4 +1,4 @@
-import http from '../http'
+import { Http } from '../http'
 import { GetIssuesParams, CreateIssueParams, GitIssue } from '../http/types'
 import { Cache } from './cache'
 
@@ -26,29 +26,33 @@ class IssuesCache extends Cache<GitIssue[]> {
 const _cache = new IssuesCache()
 
 class Octo {
+  http = new Http()
+  setRepo(repo) {
+    this.http.setRepo(repo)
+  }
   async getIssues(arg?: GetIssuesParams) {
-    const { repo } = http
+    const { repo } = this.http
     if (_cache.has(repo)) {
       return _cache.get(repo)
     }
-    const issues = await http.getIssues(arg)
+    const issues = await this.http.getIssues(arg)
     _cache.set(repo, issues)
     return issues
   }
   async saveIssues(issue: CreateIssueParams, num?: number | false) {
     let data
     if (num) {
-      data = await http.editIssue(num, issue)
-      _cache.updateIssue(http.repo, data)
+      data = await this.http.editIssue(num, issue)
+      _cache.updateIssue(this.http.repo, data)
     } else {
-      data = await http.createIssue(issue)
-      _cache.addIssues(http.repo, data)
+      data = await this.http.createIssue(issue)
+      _cache.addIssues(this.http.repo, data)
     }
     return data
   }
   async closeIssue(issue: GitIssue) {
-    _cache.removeIssue(http.repo, issue)
-    return http.closeIssue(issue.number)
+    _cache.removeIssue(this.http.repo, issue)
+    return this.http.closeIssue(issue.number)
   }
 }
 

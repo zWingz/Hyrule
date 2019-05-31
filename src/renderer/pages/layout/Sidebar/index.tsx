@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react'
 import UserContext, { UserCtx } from '../../../context/UserContext'
-import http from '../../../http'
+import { DefaultHttpIns } from '../../../http'
 import { GitRepo } from '../../../http/types'
 import './style.less'
 import { Icon } from 'antd'
 import { RepoSelectModal } from './RepoSelectModal'
-import { getCacheRepos, store, setCacheRepos } from '../../../utils/store'
+import { getCacheRepos, setCacheRepos } from '../../../utils/store'
 import { NavLink } from 'react-router-dom'
 import { openModal } from 'src/renderer/utils/helper'
 
@@ -28,7 +28,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
     visible: false
   }
   async componentDidMount() {
-    const repos = await http.getRepos()
+    const repos = await DefaultHttpIns.getRepos()
     setCacheRepos('all', repos)
     this.setState({
       repos

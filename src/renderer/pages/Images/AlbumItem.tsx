@@ -1,9 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import cls from 'classnames'
-import { ImgType } from 'src/renderer/utils/imageKit'
+import { ImgType, ImageKit } from 'src/renderer/utils/imageKit'
 import { UploadingFile, Uploading } from './Uploading'
 import { Image } from './Image'
-import http from 'src/renderer/http'
 import { Icon, message } from 'antd'
 import { clipboard } from 'electron'
 
@@ -19,7 +18,6 @@ interface Prop {
   className: string
   path: string
 }
-
 export function AlbumItem(props: Prop) {
   const { item, onDelete: propDelete, className, path, ...rst } = props
   const [deleting, setDeleting] = useState(false)
@@ -43,7 +41,7 @@ export function AlbumItem(props: Prop) {
         {...rst}
         src={f.url}
         sha={f.sha}
-        repo={`${http.owner}/${http.repo}`}
+        repo={`${ImageKit.http.owner}/${ImageKit.http.repo}`}
       />
     )
   }

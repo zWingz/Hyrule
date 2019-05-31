@@ -26,8 +26,44 @@ export class Editor extends React.Component<Prop> {
     this.props.onChange(value)
   }, 0)
   _isMounted = false
-  componentDidMount() {
-    this._isMounted = true
+
+  onPaste = (e: ClipboardEvent) => {
+    const { editor } = this
+    if (editor.hasTextFocus()) {
+      const startSelection = editor.getSelection()
+      let { files } = e.clipboardData
+      const { length } = files
+      // use setTimeout to get endSelection
+      setTimeout(() => {
+        const endSelectrion = editor.getSelection()
+        for (let i = 0; i < length; i++) {
+          const file = files[i]
+          if (ImgReg.test(file.type)) {
+            // copy img url to editor
+            editor.executeEdits(
+              '',
+              [
+                {
+                  range: new monaco.Range(
+                    startSelection.startLineNumber,
+                    startSelection.startColumn,
+                    endSelectrion.endLineNumber,
+                    endSelectrion.endColumn
+                  ),
+                  text: `![](Uploading...)`
+                }
+              ],
+              [endSelectrion]
+            )
+            // TODO: Upload img to default album
+            // let {endLineNumber, endColumn} = this.editor.getSelection()
+            // this.editor.setPosition({lineNumber: endLineNumber, column: endColumn})
+          }
+        }
+      })
+    }
+  }
+  initEditor() {
     const { content } = this.props
     this.editor = monaco.editor.create(
       document.getElementById('monaco-editor'),
@@ -49,47 +85,15 @@ export class Editor extends React.Component<Prop> {
     this.editor.onDidChangeModelContent(this.onChange)
     this.editor.onDidScrollChange(this.onScroll)
     this.props.getEditor(this.editor)
-    window.addEventListener(
-      'paste',
-      (e: ClipboardEvent) => {
-        if (this.editor.hasTextFocus()) {
-          const startSelection = this.editor.getSelection()
-          let { files } = e.clipboardData
-          const { length } = files
-          // use setTimeout to get endSelection
-          setTimeout(() => {
-            const endSelectrion = this.editor.getSelection()
-            for (let i = 0; i < length; i++) {
-              const file = files[i]
-              if (ImgReg.test(file.type)) {
-                // copy img url to editor
-                this.editor.executeEdits(
-                  '',
-                  [
-                    {
-                      range: new monaco.Range(
-                        startSelection.startLineNumber,
-                        startSelection.startColumn,
-                        endSelectrion.endLineNumber,
-                        endSelectrion.endColumn
-                      ),
-                      text: `![](Uploading...)`
-                    }
-                  ],
-                  [endSelectrion]
-                )
-                // let {endLineNumber, endColumn} = this.editor.getSelection()
-                // this.editor.setPosition({lineNumber: endLineNumber, column: endColumn})
-              }
-            }
-          })
-        }
-      },
-      true
-    )
+  }
+  componentDidMount() {
+    this._isMounted = true
+    this.initEditor()
+    window.addEventListener('paste', this.onPaste, true)
   }
   componentWillUnmount() {
     this._isMounted = false
+    window.removeEventListener('paste', this.onPaste)
     setTimeout(() => {
       this.editor.dispose()
     }, 0)

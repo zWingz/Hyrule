@@ -27,7 +27,8 @@ export function readAsBase64(file): Promise<string> {
   return new Promise((res, rej) => {
     const fileReader = new FileReader()
     fileReader.onload = () => {
-      res(fileReader.result as string)
+      const base64 = fileReader.result as string
+      res(base64.split(',').pop())
     }
     fileReader.onerror = rej
     fileReader.readAsDataURL(file) // 将文件转成base64

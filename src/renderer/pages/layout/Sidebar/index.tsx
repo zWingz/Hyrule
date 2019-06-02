@@ -36,11 +36,12 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
   }
   openSelectRepo = type => {
     const { repos, images, issues } = this.state
+    const isImg = type === TYPE_IMG
     openModal(RepoSelectModal, {
       onConfirm: this.onSelectedRepos.bind(this, type),
       repos,
-      value: type === TYPE_IMG ? images : issues,
-      disabled: type !== TYPE_IMG ? images : issues
+      value: isImg ? images : issues,
+      disabled: !isImg ? images : issues
     })
   }
   // closeModal = () => {

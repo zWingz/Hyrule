@@ -1,16 +1,15 @@
 import React, { useContext } from 'react'
-import { GitIssue } from 'src/renderer/http/types'
+import { Icon, Button, Select, message } from 'antd'
+import * as monaco from 'monaco-editor'
+import { GitIssue, GitRepo } from 'src/renderer/http/types'
 import { Editor } from './Editor'
 import { Preview } from '../Preview'
 import { IssuesContext } from '../Context'
 import { RouteComponentProps } from 'react-router'
 import { pick } from 'src/renderer/utils/helper'
-import { Icon, Button, Radio, message } from 'antd'
-import * as monaco from 'monaco-editor'
 import { IssuesKit } from 'src/renderer/utils/issuesKit'
-import CheckableTag from 'antd/lib/tag/CheckableTag'
-
-const { Group } = Radio
+import { getCacheRepos, store, getCacheDefUploadRepo, setCacheDefUploadRepo } from 'src/renderer/utils/store'
+const { Option } = Select
 type Prop = RouteComponentProps<{
   number: string
 }> & {
@@ -27,6 +26,8 @@ type State = Pick<GitIssue, 'body' | 'title' | 'created_at' | 'labels'> & {
   scrollLine: number
   mode: MODE_ENMU
   syncing: boolean
+  imagesRepo: GitRepo[]
+  uploadRepo: string
 }
 
 export class IssuesEditor extends React.PureComponent<Prop, State> {
@@ -40,7 +41,9 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     body: '',
     title: '',
     created_at: '',
-    labels: []
+    labels: [],
+    imagesRepo: getCacheRepos('images'),
+    uploadRepo: getCacheDefUploadRepo()
   }
   isCreate: boolean = false
   constructor(p: Prop, context: GitIssue[]) {
@@ -49,7 +52,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     this.isCreate === !!num
     if (num) {
       const issue = context.filter(each => each.number === +num)[0]
-      if(issue) {
+      if (issue) {
         Object.assign(
           this.state,
           pick(issue, ['body', 'title', 'created_at', 'labels'])
@@ -57,15 +60,17 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       }
     }
   }
-  onChangeContent = v => {
+  removeStoreListeners: () => void = function() {}
+  onRepoSelectChange = (v) => {
+    setCacheDefUploadRepo(v)
     this.setState({
-      body: v
+      uploadRepo: v
     })
   }
-  onScroll = v => {
+  onChangeState(key: keyof State, val) {
     this.setState({
-      scrollLine: v
-    })
+      [key]: val
+    } as State)
   }
   onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
@@ -75,18 +80,10 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
   goBack = () => {
     this.props.history.goBack()
   }
-  onChangeMode = mode => {
-    if (mode === MODE_ENMU.both) {
-      this.editor.layout()
-    }
-    this.setState({
-      mode
-    })
-  }
   getEditor = ins => {
     this.editor = ins
   }
-  getActive = expect => {
+  getActiveMod = expect => {
     return this.state.mode === expect ? 'primary' : 'default'
   }
   onSync = async () => {
@@ -109,9 +106,27 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     this.props.onUpdate()
     message.success('保存成功')
   }
-
+  componentDidMount() {
+    this.removeStoreListeners = store.onDidChange(
+      'repos.images',
+      (val: GitRepo[]) => {
+        let { uploadRepo } = this.state
+        const exist = val.filter(each => each.name === uploadRepo)[0]
+        if(!exist) {
+          uploadRepo = val[0] ? val[0].name : ''
+        }
+        this.setState({
+          imagesRepo: val,
+          uploadRepo
+        })
+      }
+    )
+  }
+  componentWillUnmount() {
+    this.removeStoreListeners()
+  }
   render() {
-    const { body, title, scrollLine, mode, syncing } = this.state
+    const { body, title, scrollLine, mode, syncing, imagesRepo, uploadRepo } = this.state
     return (
       <div className='issues-editor'>
         <div className='issues-editor-title flex align-center'>
@@ -130,35 +145,47 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
           <Button.Group className='mr10'>
             <Button
               title='显示编辑器'
-              type={this.getActive(MODE_ENMU.eidtor)}
-              onClick={() => this.onChangeMode(MODE_ENMU.eidtor)}>
+              type={this.getActiveMod(MODE_ENMU.eidtor)}
+              onClick={this.onChangeState.bind(this, 'mode', MODE_ENMU.eidtor)}>
               <Icon type='pic-left' />
             </Button>
             <Button
               title='显示全部'
-              type={this.getActive(MODE_ENMU.both)}
-              onClick={() => this.onChangeMode(MODE_ENMU.both)}>
+              type={this.getActiveMod(MODE_ENMU.both)}
+              onClick={this.onChangeState.bind(this, 'mode', MODE_ENMU.both)}>
               <Icon type='pic-center' />
             </Button>
             <Button
               title='显示预览'
-              type={this.getActive(MODE_ENMU.preview)}
-              onClick={() => this.onChangeMode(MODE_ENMU.preview)}>
+              type={this.getActiveMod(MODE_ENMU.preview)}
+              onClick={this.onChangeState.bind(
+                this,
+                'mode',
+                MODE_ENMU.preview
+              )}>
               <Icon type='pic-right' />
             </Button>
           </Button.Group>
-          <Button onClick={this.onSync}>
+          <Button className='mr10' onClick={this.onSync}>
             <Icon type='sync' spin={syncing} />
             同步
           </Button>
+          <Select value={uploadRepo} style={{width: '120px'}} onChange={this.onRepoSelectChange}>
+            {imagesRepo.map(each => (
+              <Option key={each.name} value={each.name}>
+                {each.name}
+              </Option>
+            ))}
+          </Select>
         </div>
         <div className='issues-editor-content'>
           {mode !== MODE_ENMU.preview && (
             <Editor
               getEditor={this.getEditor}
               content={body}
-              onChange={this.onChangeContent}
-              onScroll={this.onScroll}
+              uploadRepo={uploadRepo}
+              onChange={this.onChangeState.bind(this, 'body')}
+              onScroll={this.onChangeState.bind(this, 'scrollLine')}
             />
           )}
           {mode !== MODE_ENMU.eidtor && (

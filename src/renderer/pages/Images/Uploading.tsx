@@ -43,8 +43,7 @@ export class Uploading extends React.PureComponent<Prop, State> {
       src
     })
     uploading.blobUrl = src
-    let base64 = await readAsBase64(file)
-    base64 = base64.split(',').pop()
+    const base64 = await readAsBase64(file)
     const { sha, url } = await ImageKit.uploadImage(
       path,
       {

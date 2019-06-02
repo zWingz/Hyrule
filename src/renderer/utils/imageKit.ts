@@ -123,7 +123,7 @@ class Octo {
     })
     if (d) {
       const dataJson = cache.get(path)
-      dataJson.images.unshift({
+      dataJson && dataJson.images.unshift({
         name: filename,
         sha: d.sha
       })

@@ -1,14 +1,16 @@
 import React from 'react'
 import * as monaco from 'monaco-editor'
-import { debounce } from 'src/renderer/utils/helper'
+import { debounce, readAsBase64 } from 'src/renderer/utils/helper'
+import { ImageKit } from 'src/renderer/utils/imageKit'
 type Prop = {
   content: string
   onChange: (arg: string) => void
   onScroll: (line: number) => void
+  uploadRepo: string
   getEditor: (ins: monaco.editor.IStandaloneCodeEditor) => void
 }
 const LINE_HEIGHT = 18
-const ImgReg = /(png|jpg|jpeg|gif)/i
+const IMG_REGEXP = /(png|jpg|jpeg|gif)/i
 export class Editor extends React.Component<Prop> {
   editor: monaco.editor.IStandaloneCodeEditor
   onScroll = debounce(e => {
@@ -27,38 +29,70 @@ export class Editor extends React.Component<Prop> {
   }, 0)
   _isMounted = false
 
+  /**
+   * window paste listeners
+   * used to upload img to repo
+   *
+   * @memberof Editor
+   */
   onPaste = (e: ClipboardEvent) => {
     const { editor } = this
     if (editor.hasTextFocus()) {
       const startSelection = editor.getSelection()
       let { files } = e.clipboardData
       const { length } = files
+      const file = files[length - 1]
+      const createRange = (end: monaco.Selection) => new monaco.Range(
+        startSelection.startLineNumber,
+        startSelection.startColumn,
+        end.endLineNumber,
+        end.endColumn
+      )
       // use setTimeout to get endSelection
-      setTimeout(() => {
-        const endSelectrion = editor.getSelection()
-        for (let i = 0; i < length; i++) {
-          const file = files[i]
-          if (ImgReg.test(file.type)) {
-            // copy img url to editor
-            editor.executeEdits(
-              '',
-              [
-                {
-                  range: new monaco.Range(
-                    startSelection.startLineNumber,
-                    startSelection.startColumn,
-                    endSelectrion.endLineNumber,
-                    endSelectrion.endColumn
-                  ),
-                  text: `![](Uploading...)`
-                }
-              ],
-              [endSelectrion]
-            )
-            // TODO: Upload img to default album
-            // let {endLineNumber, endColumn} = this.editor.getSelection()
-            // this.editor.setPosition({lineNumber: endLineNumber, column: endColumn})
-          }
+      setTimeout(async () => {
+        let endSelection = editor.getSelection()
+        if (IMG_REGEXP.test(file.type)) {
+          let range = createRange(endSelection)
+          // generate fileName
+          const fileName = `${Date.now()}.${file.type.split('/').pop()}`
+          // copy img url to editor
+          editor.executeEdits(
+            '',
+            [
+              {
+                range,
+                text: `![](Uploading...)`
+              }
+            ]
+          )
+          // get new range
+          range = createRange(editor.getSelection())
+          // reset position
+          // this.editor.setPosition({lineNumber: range.endLineNumber, column: range.endColumn})
+          // set the upload repo
+          ImageKit.setRepo(this.props.uploadRepo)
+          // read base64
+          let base64 = await readAsBase64(file)
+          // upload img
+          const { sha, url } = await ImageKit.uploadImage(
+            '',
+            {
+              base64,
+              filename: fileName
+              // filename: file.name
+            }
+          )
+          // copy img url to editor
+          editor.executeEdits(
+            '',
+            [
+              {
+                range,
+                text: `![](${url})`
+              }
+            ]
+          )
+          editor.setPosition(editor.getPosition())
         }
       })
     }

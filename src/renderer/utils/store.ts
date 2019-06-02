@@ -12,6 +12,14 @@ export function setCacheRepos(
   store.set(`repos.${type}`, value)
 }
 
+export function getCacheDefUploadRepo() {
+  return store.get('defUploadRep') as string || ''
+}
+
+export function setCacheDefUploadRepo(repo) {
+  store.set('defUploadRep', repo)
+}
+
 export function getCacheIssues(repo) {
   return (store.get(`issues.${repo}`) as GitIssue[]) || []
 }

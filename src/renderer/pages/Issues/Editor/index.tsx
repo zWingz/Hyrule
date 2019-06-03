@@ -76,7 +76,6 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       IssuesKit.http.repo,
       this.isCreate ? 'create' : this.state.id
     )
-    console.log(draft)
     if (draft) {
       this.state.title = draft.title
       this.state.body = draft.body
@@ -114,6 +113,9 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     return this.state.mode === expect ? 'primary' : 'default'
   }
   onSaveDraft = () => {
+    if(!this.state.draft) {
+      return
+    }
     const { title, body, id } = this.state
     setCacheDraftIssue(IssuesKit.http.repo, this.isCreate ? 'create' : id, {
       title,
@@ -214,11 +216,12 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
               <Icon type='pic-right' />
             </Button>
           </Button.Group>
-          <Button className='mr10' onClick={this.onSync}>
+          <Button className='mr10' title='save to github' onClick={this.onSync}>
             <Icon type='sync' spin={syncing} />
             Sync
           </Button>
           <Button
+            title='save draft to local'
             type='primary'
             shape='circle'
             icon={draft ? 'edit' : 'check'}
@@ -239,6 +242,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
         <div className='issues-editor-content'>
           {mode !== MODE_ENMU.preview && (
             <Editor
+              onSave={this.onSaveDraft}
               getEditor={this.getEditor}
               content={body}
               uploadRepo={uploadRepo}

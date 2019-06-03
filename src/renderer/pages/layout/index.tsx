@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react'
 import './style.less'
 import { Sidebar } from './Sidebar'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Switch, withRouter, RouteComponentProps } from 'react-router-dom'
 import { ImagesPage } from '../Images'
 import { IssuesPage } from '../Issues'
-export class Layout extends PureComponent {
+export class LayoutComponent extends PureComponent<RouteComponentProps> {
   render() {
     return (
       <div className='main flex'>
@@ -20,3 +20,5 @@ export class Layout extends PureComponent {
     )
   }
 }
+
+export const Layout = withRouter(LayoutComponent)

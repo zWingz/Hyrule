@@ -8,6 +8,7 @@ type Prop = {
   onScroll: (line: number) => void
   uploadRepo: string
   getEditor: (ins: monaco.editor.IStandaloneCodeEditor) => void
+  onSave: () => void
 }
 const LINE_HEIGHT = 18
 const IMG_REGEXP = /(png|jpg|jpeg|gif)/i
@@ -116,6 +117,10 @@ export class Editor extends React.Component<Prop> {
       }
     )
     // this.editor.layout()
+    const KM = monaco.KeyMod
+    const KC = monaco.KeyCode
+    // tslint:disable-next-line
+    this.editor.addCommand(KM.CtrlCmd | KC.KEY_S, this.props.onSave)
     this.editor.onDidChangeModelContent(this.onChange)
     this.editor.onDidScrollChange(this.onScroll)
     this.props.getEditor(this.editor)

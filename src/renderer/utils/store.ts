@@ -43,4 +43,18 @@ export function setCacheToken(token) {
   store.set('token', token)
 }
 
+type DraftIssue = {
+  title?: string,
+  body: string
+}
+
+export function getCacheDraftIssue(repo: string, id: number | 'create'): DraftIssue | null {
+  return store.get(`draft.${repo}.${id}`) as DraftIssue
+}
+
+export function setCacheDraftIssue(repo: string, id: number | 'create', draft: DraftIssue) {
+  store.set(`draft.${repo}.${id}`, draft)
+}
+
+
 export { store }

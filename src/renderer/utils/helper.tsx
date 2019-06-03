@@ -3,6 +3,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { ModalProps } from 'antd/lib/modal'
 
+export function empty() {/* tslint-disable */}
+
 export function clone(obj) {
   return JSON.parse(JSON.stringify(obj))
 }

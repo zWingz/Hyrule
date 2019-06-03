@@ -6,9 +6,16 @@ import { Editor } from './Editor'
 import { Preview } from '../Preview'
 import { IssuesContext } from '../Context'
 import { RouteComponentProps } from 'react-router'
-import { pick } from 'src/renderer/utils/helper'
+import { pick, empty } from 'src/renderer/utils/helper'
 import { IssuesKit } from 'src/renderer/utils/issuesKit'
-import { getCacheRepos, store, getCacheDefUploadRepo, setCacheDefUploadRepo } from 'src/renderer/utils/store'
+import {
+  getCacheRepos,
+  store,
+  getCacheDefUploadRepo,
+  setCacheDefUploadRepo,
+  setCacheDraftIssue,
+  getCacheDraftIssue
+} from 'src/renderer/utils/store'
 const { Option } = Select
 type Prop = RouteComponentProps<{
   number: string
@@ -22,12 +29,15 @@ enum MODE_ENMU {
   both
 }
 
-type State = Pick<GitIssue, 'body' | 'title' | 'created_at' | 'labels'> & {
+type State = Partial<
+  Pick<GitIssue, 'body' | 'title' | 'created_at' | 'labels' | 'id'>
+> & {
   scrollLine: number
   mode: MODE_ENMU
   syncing: boolean
   imagesRepo: GitRepo[]
   uploadRepo: string
+  draft: boolean
 }
 
 export class IssuesEditor extends React.PureComponent<Prop, State> {
@@ -38,14 +48,17 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     scrollLine: 0,
     mode: MODE_ENMU.both,
     syncing: false,
+    id: null,
     body: '',
     title: '',
     created_at: '',
     labels: [],
     imagesRepo: getCacheRepos('images'),
-    uploadRepo: getCacheDefUploadRepo()
+    uploadRepo: getCacheDefUploadRepo(),
+    draft: false
   }
   isCreate: boolean = false
+  removeStoreListeners: () => void = empty
   constructor(p: Prop, context: GitIssue[]) {
     super(p)
     const { number: num } = p.match.params
@@ -55,26 +68,40 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       if (issue) {
         Object.assign(
           this.state,
-          pick(issue, ['body', 'title', 'created_at', 'labels'])
+          pick(issue, ['body', 'title', 'created_at', 'labels', 'id'])
         )
       }
     }
+    const draft = getCacheDraftIssue(
+      IssuesKit.http.repo,
+      this.isCreate ? 'create' : this.state.id
+    )
+    console.log(draft)
+    if (draft) {
+      this.state.title = draft.title
+      this.state.body = draft.body
+    }
   }
-  removeStoreListeners: () => void = function() {}
-  onRepoSelectChange = (v) => {
+  onRepoSelectChange = v => {
     setCacheDefUploadRepo(v)
     this.setState({
       uploadRepo: v
     })
   }
   onChangeState(key: keyof State, val) {
+    let draft = this.state.draft
+    if (key === 'body') {
+      draft = true
+    }
     this.setState({
-      [key]: val
+      [key]: val,
+      draft
     } as State)
   }
   onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      title: e.target.value
+      title: e.target.value,
+      draft: true
     })
   }
   goBack = () => {
@@ -85,6 +112,17 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
   }
   getActiveMod = expect => {
     return this.state.mode === expect ? 'primary' : 'default'
+  }
+  onSaveDraft = () => {
+    const { title, body, id } = this.state
+    setCacheDraftIssue(IssuesKit.http.repo, this.isCreate ? 'create' : id, {
+      title,
+      body
+    })
+    this.setState({
+      draft: false
+    })
+    message.success('Save draft succeed')
   }
   onSync = async () => {
     this.setState({
@@ -101,10 +139,11 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       num ? +num : false
     )
     this.setState({
-      syncing: false
+      syncing: false,
+      draft: false
     })
     this.props.onUpdate()
-    message.success('保存成功')
+    message.success('Sync succeed')
   }
   componentDidMount() {
     this.removeStoreListeners = store.onDidChange(
@@ -112,7 +151,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       (val: GitRepo[]) => {
         let { uploadRepo } = this.state
         const exist = val.filter(each => each.name === uploadRepo)[0]
-        if(!exist) {
+        if (!exist) {
           uploadRepo = val[0] ? val[0].name : ''
         }
         this.setState({
@@ -126,7 +165,16 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     this.removeStoreListeners()
   }
   render() {
-    const { body, title, scrollLine, mode, syncing, imagesRepo, uploadRepo } = this.state
+    const {
+      body,
+      title,
+      scrollLine,
+      mode,
+      syncing,
+      imagesRepo,
+      uploadRepo,
+      draft
+    } = this.state
     return (
       <div className='issues-editor'>
         <div className='issues-editor-title flex align-center'>
@@ -138,25 +186,25 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
           <input
             value={title}
             onChange={this.onChangeTitle}
-            placeholder='请输入标题'
+            placeholder='Title'
           />
         </div>
         <div className='flex'>
           <Button.Group className='mr10'>
             <Button
-              title='显示编辑器'
+              title='Editor'
               type={this.getActiveMod(MODE_ENMU.eidtor)}
               onClick={this.onChangeState.bind(this, 'mode', MODE_ENMU.eidtor)}>
               <Icon type='pic-left' />
             </Button>
             <Button
-              title='显示全部'
+              title='Both'
               type={this.getActiveMod(MODE_ENMU.both)}
               onClick={this.onChangeState.bind(this, 'mode', MODE_ENMU.both)}>
               <Icon type='pic-center' />
             </Button>
             <Button
-              title='显示预览'
+              title='Preview'
               type={this.getActiveMod(MODE_ENMU.preview)}
               onClick={this.onChangeState.bind(
                 this,
@@ -168,9 +216,19 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
           </Button.Group>
           <Button className='mr10' onClick={this.onSync}>
             <Icon type='sync' spin={syncing} />
-            同步
+            Sync
           </Button>
-          <Select value={uploadRepo} style={{width: '120px'}} onChange={this.onRepoSelectChange}>
+          <Button
+            type='primary'
+            shape='circle'
+            icon={draft ? 'edit' : 'check'}
+            onClick={this.onSaveDraft}
+          />
+          <Select
+            placeholder='Select'
+            value={uploadRepo}
+            style={{ width: '120px', marginLeft: 'auto' }}
+            onChange={this.onRepoSelectChange}>
             {imagesRepo.map(each => (
               <Option key={each.name} value={each.name}>
                 {each.name}

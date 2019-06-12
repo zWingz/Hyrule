@@ -324,7 +324,7 @@ export class Http {
   //     url,
   //     method: 'POST',
   //     body: {
-  //       message: `Deleted multi-file by Zelda - ${getNow()}`,
+  //       message: `Deleted multi-file by Hyrule - ${getNow()}`,
   //       tree: sha
   //     }
   //   })

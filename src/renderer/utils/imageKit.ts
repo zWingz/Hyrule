@@ -116,7 +116,7 @@ class Octo {
       // const d = await this.http.createFile({
       return this.http.createFile({
         path: join(path, filename),
-        message: `Upload ${filename} by Zelda - ${getNow()}`,
+        message: `Upload ${filename} by Hyrule - ${getNow()}`,
         content: img.base64,
         onProgress
       })
@@ -141,7 +141,7 @@ class Octo {
       // const d = await this.http.createFile({
       return this.http.deleteFile({
         path: join(path, name),
-        message: `Deleted ${name} by Zelda - ${getNow()}`,
+        message: `Deleted ${name} by Hyrule - ${getNow()}`,
         sha: sha
       })
     })

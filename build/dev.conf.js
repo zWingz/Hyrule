@@ -47,7 +47,7 @@ module.exports = merge(baseWebpackConfig, {
       tsconfig: 'tsconfig.web.json'
     }),
     new ForkTsCheckerNotifierWebpackPlugin({
-      title: 'webpack zelda',
+      title: 'webpack Hyrule',
       excludeWarnings: false,
       skipSuccessful: true,
       skipFirstNotification: true

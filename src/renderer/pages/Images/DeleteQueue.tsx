@@ -47,7 +47,7 @@ export function DeleteQueue(prop: Prop) {
           })}
         </div>
       ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='请选择需要删除的图片' style={{flexGrow: 1}}/>
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='Select the image to delete' style={{flexGrow: 1}}/>
       )}
       <div className='album-delete-icon flex-center'>
         <Button

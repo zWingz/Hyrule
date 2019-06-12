@@ -4,7 +4,9 @@ import { setWebcontent, logger } from './logger'
 import { setWin } from './global'
 import { registerAuthListener, registerStreamProtocol } from './register'
 import * as Consola from 'consola'
-import { getCacheWindowSize, setCacheWindowSize } from './store';
+import { getCacheWindowSize, setCacheWindowSize } from './store'
+import { createMenu } from './menu'
+
 if (isDev) {
   (Consola as any).wrapAll()
   logger('Electron running in development')
@@ -17,16 +19,19 @@ if (isDev) {
 } else {
   logger('Electron running in production')
 }
-
+// app.setName(packagejson.name.replace(/^\w/, $1 => $1.toUpperCase()))
+app.setName('Hyrule')
 const webPreferences = {
   nodeIntegration: true
 }
 let win: BrowserWindow
 const cacheSize = getCacheWindowSize()
 function createWindow() {
+  createMenu()
   // 创建浏览器窗口
   win = new BrowserWindow({
     ...cacheSize,
+    title: app.getName(),
     minHeight: 750,
     minWidth: 1080,
     webPreferences,
@@ -37,7 +42,10 @@ function createWindow() {
   // 然后加载 app 的 index.html.
   if (isDev) {
     win.loadURL('http://localhost:8989/')
-    const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer')
+    const {
+      default: installExtension,
+      REACT_DEVELOPER_TOOLS
+    } = require('electron-devtools-installer')
     installExtension(REACT_DEVELOPER_TOOLS)
       .then(name => console.log(`Added Extension:  ${name}`))
       .catch(err => console.log('An error occurred: ', err))

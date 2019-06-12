@@ -34,7 +34,7 @@ export function RepoSelectModal(p: Prop) {
   }, [v])
   return (
     <Modal
-      title='选择仓库'
+      title='Select repo'
       visible={visible}
       onCancel={onCancel}
       onOk={onOk}

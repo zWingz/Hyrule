@@ -354,8 +354,8 @@ class ImagesPageBase extends PureComponent<Prop, State> {
           <Switch
             className='ml10'
             checked={checkedToggle}
-            checkedChildren='取消'
-            unCheckedChildren='编辑'
+            checkedChildren='Cancel'
+            unCheckedChildren='Edit'
             onChange={this.toggle}
           />
         </div>

@@ -1,17 +1,17 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import cls from 'classnames'
 import { ImgType, ImageKit } from 'src/renderer/utils/imageKit'
-import { UploadingFile, Uploading } from './Uploading'
+import { UploadingFileType, Uploading } from './Uploading'
 import { Image } from './Image'
 import { Icon, message } from 'antd'
 import { clipboard } from 'electron'
 
-export type ImgOrFile = (ImgType | UploadingFile) & {
+export type ImgOrFileType = (ImgType | UploadingFileType) & {
   checked: boolean
 }
 
 interface Prop {
-  item: ImgOrFile
+  item: ImgOrFileType
   isPrivate: boolean
   onClick: () => void
   onDelete: (arg) => void
@@ -31,8 +31,8 @@ export function AlbumItem(props: Prop) {
     message.success('Copy Succeed')
   }, ['item'])
   let jsx
-  if ((item as UploadingFile).file) {
-    const f: UploadingFile = item as UploadingFile
+  if ((item as UploadingFileType).file) {
+    const f: UploadingFileType = item as UploadingFileType
     jsx = <Uploading {...rst} uploading={f} path={path} />
   } else {
     const f: ImgType = item

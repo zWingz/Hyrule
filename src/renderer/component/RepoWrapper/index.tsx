@@ -14,10 +14,6 @@ type Prop = RouteComponentProps<RouteProp>
 
 type withProp<T> = T & Prop
 
-function getRepo(prop: Prop) {
-  return prop.match.params.repo
-}
-
 export function RepoWrapper<P = any>(
   Page: React.ComponentType<P & { repo: GitRepo }>
 ): React.SFC<withProp<P>> {
@@ -46,8 +42,11 @@ export function RepoWrapper<P = any>(
     const { repo } = p.match.params
     const repoInfo = getCacheRepos('all').filter(each => each.name === repo)[0]
     if (repoInfo) {
-      IssuesKit.setRepo(repo)
-      ImageKit.setRepo(repo)
+      if(/issues/.test(p.match.path)) {
+        IssuesKit.setRepo(repo)
+      } else {
+        ImageKit.setRepo(repo)
+      }
     }
     return <Page {...p} repo={repoInfo} />
   }

@@ -49,7 +49,7 @@ export function IssuesList(p: Prop) {
             to={`${p.match.url}/create`}
             className='issues-item-title flex align-center'>
             Create New
-            <Icon type='plus-circle' style={{ marginLeft: 'auto' }} />
+            <Icon type='plus-circle' className='ml-auto'/>
           </Link>
         </div>
         {!!issues.length ? (

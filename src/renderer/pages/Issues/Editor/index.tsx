@@ -1,22 +1,17 @@
-import React, { useContext } from 'react'
-import { Icon, Button, Select, message } from 'antd'
+import React from 'react'
+import { Icon, Button, Select, message, Tooltip } from 'antd'
 import * as monaco from 'monaco-editor'
 import { GitIssue, GitRepo } from 'src/renderer/http/types'
 import { Editor } from './Editor'
 import { Preview } from '../Preview'
-import { IssuesContext } from '../Context'
+import { IssuesContext, UploadRepoContext } from '../Context'
 import { RouteComponentProps } from 'react-router'
-import { pick, empty } from 'src/renderer/utils/helper'
+import { pick } from 'src/renderer/utils/helper'
 import { IssuesKit } from 'src/renderer/utils/issuesKit'
 import {
-  getCacheRepos,
-  store,
-  getCacheDefUploadRepo,
-  setCacheDefUploadRepo,
   setCacheDraftIssue,
   getCacheDraftIssue
 } from 'src/renderer/utils/store'
-const { Option } = Select
 type Prop = RouteComponentProps<{
   number: string
 }> & {
@@ -35,9 +30,13 @@ type State = Partial<
   scrollLine: number
   mode: MODE_ENMU
   syncing: boolean
-  imagesRepo: GitRepo[]
-  uploadRepo: string
+  // imagesRepo: GitRepo[]
+  // uploadRepo: string
   draft: boolean
+}
+
+const TooltipProp = {
+  mouseEnterDelay: 0.5
 }
 
 export class IssuesEditor extends React.PureComponent<Prop, State> {
@@ -53,12 +52,9 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     title: '',
     created_at: '',
     labels: [],
-    imagesRepo: getCacheRepos('images'),
-    uploadRepo: getCacheDefUploadRepo(),
     draft: false
   }
   isCreate: boolean = false
-  removeStoreListeners: () => void = empty
   constructor(p: Prop, context: GitIssue[]) {
     super(p)
     const { number: num } = p.match.params
@@ -80,12 +76,6 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       this.state.title = draft.title
       this.state.body = draft.body
     }
-  }
-  onRepoSelectChange = v => {
-    setCacheDefUploadRepo(v)
-    this.setState({
-      uploadRepo: v
-    })
   }
   onChangeState(key: keyof State, val) {
     let draft = this.state.draft
@@ -113,7 +103,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     return this.state.mode === expect ? 'primary' : 'default'
   }
   onSaveDraft = () => {
-    if(!this.state.draft) {
+    if (!this.state.draft) {
       return
     }
     const { title, body, id } = this.state
@@ -147,36 +137,8 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     this.props.onUpdate()
     message.success('Sync succeed')
   }
-  componentDidMount() {
-    this.removeStoreListeners = store.onDidChange(
-      'repos.images',
-      (val: GitRepo[]) => {
-        let { uploadRepo } = this.state
-        const exist = val.filter(each => each.name === uploadRepo)[0]
-        if (!exist) {
-          uploadRepo = val[0] ? val[0].name : ''
-        }
-        this.setState({
-          imagesRepo: val,
-          uploadRepo
-        })
-      }
-    )
-  }
-  componentWillUnmount() {
-    this.removeStoreListeners()
-  }
   render() {
-    const {
-      body,
-      title,
-      scrollLine,
-      mode,
-      syncing,
-      imagesRepo,
-      uploadRepo,
-      draft
-    } = this.state
+    const { body, title, scrollLine, mode, syncing, draft } = this.state
     return (
       <div className='issues-editor'>
         <div className='issues-editor-title flex align-center'>
@@ -193,62 +155,66 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
         </div>
         <div className='flex'>
           <Button.Group className='mr10'>
-            <Button
-              title='Editor'
-              type={this.getActiveMod(MODE_ENMU.eidtor)}
-              onClick={this.onChangeState.bind(this, 'mode', MODE_ENMU.eidtor)}>
-              <Icon type='pic-left' />
-            </Button>
-            <Button
-              title='Both'
-              type={this.getActiveMod(MODE_ENMU.both)}
-              onClick={this.onChangeState.bind(this, 'mode', MODE_ENMU.both)}>
-              <Icon type='pic-center' />
-            </Button>
-            <Button
-              title='Preview'
-              type={this.getActiveMod(MODE_ENMU.preview)}
-              onClick={this.onChangeState.bind(
-                this,
-                'mode',
-                MODE_ENMU.preview
-              )}>
-              <Icon type='pic-right' />
-            </Button>
+            <Tooltip {...TooltipProp} title='Show Editor'>
+              <Button
+                type={this.getActiveMod(MODE_ENMU.eidtor)}
+                onClick={this.onChangeState.bind(
+                  this,
+                  'mode',
+                  MODE_ENMU.eidtor
+                )}>
+                <Icon type='pic-left' />
+              </Button>
+            </Tooltip>
+            <Tooltip {...TooltipProp} title='Show Both'>
+              <Button
+                type={this.getActiveMod(MODE_ENMU.both)}
+                onClick={this.onChangeState.bind(this, 'mode', MODE_ENMU.both)}>
+                <Icon type='pic-center' />
+              </Button>
+            </Tooltip>
+            <Tooltip {...TooltipProp} title='Show Preview'>
+              <Button
+                type={this.getActiveMod(MODE_ENMU.preview)}
+                onClick={this.onChangeState.bind(
+                  this,
+                  'mode',
+                  MODE_ENMU.preview
+                )}>
+                <Icon type='pic-right' />
+              </Button>
+            </Tooltip>
           </Button.Group>
-          <Button className='mr10' title='save to github' onClick={this.onSync}>
-            <Icon type='sync' spin={syncing} />
-            Sync
-          </Button>
-          <Button
-            title='save draft to local'
-            type='primary'
-            shape='circle'
-            icon={draft ? 'edit' : 'check'}
-            onClick={this.onSaveDraft}
-          />
-          <Select
-            placeholder='Select'
-            value={uploadRepo}
-            style={{ width: '120px', marginLeft: 'auto' }}
-            onChange={this.onRepoSelectChange}>
-            {imagesRepo.map(each => (
-              <Option key={each.name} value={each.name}>
-                {each.name}
-              </Option>
-            ))}
-          </Select>
+          <Button.Group>
+            <Tooltip {...TooltipProp} title='Save draft to local'>
+              <Button
+                // type='primary'
+                // shape='circle'
+                onClick={this.onSaveDraft}>
+                <Icon type={draft ? 'save' : 'check'} />
+              </Button>
+            </Tooltip>
+            <Tooltip {...TooltipProp} title='Save to github'>
+              <Button onClick={this.onSync}>
+                <Icon type='sync' spin={syncing} />
+              </Button>
+            </Tooltip>
+          </Button.Group>
         </div>
         <div className='issues-editor-content'>
           {mode !== MODE_ENMU.preview && (
-            <Editor
-              onSave={this.onSaveDraft}
-              getEditor={this.getEditor}
-              content={body}
-              uploadRepo={uploadRepo}
-              onChange={this.onChangeState.bind(this, 'body')}
-              onScroll={this.onChangeState.bind(this, 'scrollLine')}
-            />
+            <UploadRepoContext.Consumer>
+              {uploadRepo => (
+                <Editor
+                  onSave={this.onSaveDraft}
+                  getEditor={this.getEditor}
+                  content={body}
+                  uploadRepo={uploadRepo}
+                  onChange={this.onChangeState.bind(this, 'body')}
+                  onScroll={this.onChangeState.bind(this, 'scrollLine')}
+                />
+              )}
+            </UploadRepoContext.Consumer>
           )}
           {mode !== MODE_ENMU.eidtor && (
             <Preview content={body} scrollLine={scrollLine} />

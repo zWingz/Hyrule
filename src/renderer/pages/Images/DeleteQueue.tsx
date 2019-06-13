@@ -1,13 +1,13 @@
 import React, { useCallback, useState, useEffect } from 'react'
-import { ImgOrFile } from './AlbumItem'
+import { ImgOrFileType } from './AlbumItem'
 import { Button, Spin, Empty } from 'antd'
-import { UploadingFile } from './Uploading'
+import { UploadingFileType } from './Uploading'
 import cls from 'classnames'
 interface Prop {
-  data: ImgOrFile[]
+  data: ImgOrFileType[]
   visible: boolean
-  onChecked: (arg: ImgOrFile) => void
-  onDelete: (arg: ImgOrFile) => Promise<any>
+  onChecked: (arg: ImgOrFileType) => void
+  onDelete: (arg: ImgOrFileType) => Promise<any>
   // onDelete
 }
 
@@ -15,7 +15,7 @@ export function DeleteQueue(prop: Prop) {
   const { data, visible, onChecked } = prop
   const [deleting, setDeleting] = useState(false)
   const onClick = useCallback(
-    (item: ImgOrFile) => {
+    (item: ImgOrFileType) => {
       onChecked(item)
     },
     [data]
@@ -38,7 +38,7 @@ export function DeleteQueue(prop: Prop) {
       {data.length ? (
         <div className='album-delete-queue flex-grow'>
           {data.map(each => {
-            const url = (each as UploadingFile).blobUrl || each.url
+            const url = (each as UploadingFileType).blobUrl || each.url
             return (
               <div key={each.name} onClick={() => onClick(each)}>
                 <img src={url} className='album-delete-item' />

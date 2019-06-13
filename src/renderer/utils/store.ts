@@ -56,5 +56,4 @@ export function setCacheDraftIssue(repo: string, id: number | 'create', draft: D
   store.set(`draft.${repo}.${id}`, draft)
 }
 
-
 export { store }

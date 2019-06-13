@@ -9,7 +9,7 @@ interface AlterFile extends File {
   alter?: string
 }
 
-export type UploadingFile = {
+export type UploadingFileType = {
   file: AlterFile
   name: string
   sha: string
@@ -17,7 +17,7 @@ export type UploadingFile = {
   blobUrl: string
 }
 interface Prop extends Omit<iImageProp, 'src' | 'onDelete'> {
-  uploading: UploadingFile
+  uploading: UploadingFileType
   path: string
 }
 

@@ -16,9 +16,9 @@ import { AlbumPath } from './Path'
 import { Folder } from './Folder'
 import './style.less'
 import { CreateFolderModal } from './CreateFolderModal'
-import { UploadingFile } from './Uploading'
+import { UploadingFileType } from './Uploading'
 import { openModal } from '../../utils/helper'
-import { AlbumItem, ImgOrFile } from './AlbumItem'
+import { AlbumItem, ImgOrFileType } from './AlbumItem'
 import { DeleteQueue } from './DeleteQueue'
 import { AbortError } from 'src/renderer/http/Error'
 import { RepoWrapper } from 'src/renderer/component/RepoWrapper'
@@ -27,11 +27,12 @@ import { GitRepo } from 'src/renderer/http/types'
 // type Prop = RouteComponentProps<RouteProp>
 type Prop = {
   repo: GitRepo
+  className?: string
 }
 
 type State = {
   pathArr: string[]
-  images: ImgOrFile[]
+  images: ImgOrFileType[]
   dir: DirType
   loading: boolean
   checkedToggle: boolean
@@ -48,7 +49,7 @@ type State = {
 
 let abortToken = null
 
-class ImagesPageBase extends PureComponent<Prop, State> {
+export class ImagesPageBase extends PureComponent<Prop, State> {
   /**
    * 获取拼接后的path
    *
@@ -144,7 +145,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
     abortToken = null
   }
   uploader = async event => {
-    const { file } = event as { file: UploadingFile['file'] }
+    const { file } = event as { file: UploadingFileType['file'] }
     if (!file) {
       return
     }
@@ -165,7 +166,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
             // sha: '',
             // url: '',
             name: alter
-          } as ImgOrFile
+          } as ImgOrFileType
         ].concat(prev.images)
       }
     })
@@ -214,7 +215,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
   createFolder = (name: string) => {
     const { dir } = this.state
     if (name in dir) {
-      Message.error('文件夹已存在')
+      Message.error('Folder exist')
       return
     }
     ImageKit.createPath(this.path, name)
@@ -225,7 +226,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
       onConfirm: this.createFolder
     })
   }
-  deleteSingleFile = async (arg: ImgOrFile) => {
+  deleteSingleFile = async (arg: ImgOrFileType) => {
     await ImageKit.removeFile(this.path, arg)
     this.setState({
       images: this.state.images.filter(each => each.name !== arg.name)
@@ -237,7 +238,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
       checkedToggle: !checkedToggle
     })
   }
-  onChecked = (item: ImgOrFile) => {
+  onChecked = (item: ImgOrFileType) => {
     const { checkedToggle } = this.state
     if (!checkedToggle) return
     item.checked = !item.checked
@@ -261,7 +262,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
     })
   }
 
-  renderItem(item: ImgOrFile) {
+  renderItem(item: ImgOrFileType) {
     const {
       imgCommon,
       state: { checkedToggle }
@@ -326,15 +327,14 @@ class ImagesPageBase extends PureComponent<Prop, State> {
       dragover,
       checkedToggle
     } = this.state
-    const { repo } = this.props
+    const { repo, className } = this.props
+    console.log(repo);
     const keys = Object.keys(dir)
     const empty = !images.length
     return (
-      <div className='page-container album-container'>
+      <div className={cls('page-container album-container', className)}>
         <div className='album-title flex align-center'>
-          <div className='flex-grow'>
-            <div className='page-title'>{repo.name}</div>
-          </div>
+          <div className='page-title mr-auto'>{repo.name}</div>
           <Button
             icon='folder-add'
             className='mr10'
@@ -361,7 +361,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
         </div>
         {!!keys.length && (
           <>
-            <div className='album-type'>文件夹</div>
+            <div className='album-type'>Folder</div>
             <div className='album-folder'>
               {keys.map(name => {
                 const sha = dir[name]
@@ -377,7 +377,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
             </div>
           </>
         )}
-        <div className='album-type'>图片</div>
+        <div className='album-type'>Images</div>
         <div
           className={cls('album-images', {
             dragover,
@@ -392,7 +392,7 @@ class ImagesPageBase extends PureComponent<Prop, State> {
             className='spin-loading absolute-full'
           />
           {!empty ? (
-            images.map((each: ImgOrFile) => this.renderItem(each))
+            images.map((each: ImgOrFileType) => this.renderItem(each))
           ) : !loading ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}

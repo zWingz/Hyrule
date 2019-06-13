@@ -133,9 +133,7 @@ class IssuesPageBase extends PureComponent<Prop, State> {
     const condition = uploadRepo && showImage
     return (
       <>
-        <div
-          className='page-container'
-          onClick={showImage ? this.onShowImageChange : empty}>
+        <div className='page-container'>
           <div className='flex'>
             <div className='page-title mr-auto'>{this.props.repo.name}</div>
             {uploadRepo && (
@@ -174,12 +172,16 @@ class IssuesPageBase extends PureComponent<Prop, State> {
           </Provider>
         </div>
         {uploadRepo && (
-          <ImagesPageBase
-            className={cls('issues-images', {
+          <div
+            className={cls('issues-images-container absolute-full', {
               hidden: !condition
             })}
-            repo={this.uploadRepoInfo}
-          />
+            onClick={this.onShowImageChange}>
+            <ImagesPageBase
+              className={cls('issues-images')}
+              repo={this.uploadRepoInfo}
+            />
+          </div>
         )}
       </>
     )

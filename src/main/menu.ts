@@ -1,4 +1,7 @@
 import { app, Menu, shell } from 'electron'
+import * as Store from 'electron-store'
+import { getToken, setToken } from './store';
+const store = new Store()
 
 export function createMenu() {
   const template: any[] = [
@@ -53,21 +56,6 @@ export function createMenu() {
           }
         },
         {
-          type: 'separator'
-        },
-        {
-          role: 'resetzoom'
-        },
-        {
-          role: 'zoomin'
-        },
-        {
-          role: 'zoomout'
-        },
-        {
-          type: 'separator'
-        },
-        {
           role: 'togglefullscreen'
         }
       ]
@@ -82,6 +70,22 @@ export function createMenu() {
           role: 'close'
         }
       ]
+    },
+    {
+      label: 'Hyrule',
+      submenu: [{
+        label: 'Open Cache',
+        click () {
+          store.openInEditor()
+        }
+      }, {
+        label: 'Clear Cache',
+        click() {
+          const _token = getToken()
+          store.clear()
+          setToken(_token)
+        }
+      }]
     },
     {
       role: 'help',

@@ -3,11 +3,12 @@ import UserContext, { UserCtx } from '../../../context/UserContext'
 import { DefaultHttpIns } from '../../../http'
 import { GitRepo } from '../../../http/types'
 import './style.less'
-import { Icon } from 'antd'
+import { Icon, Tooltip } from 'antd'
 import { RepoSelectModal } from './RepoSelectModal'
-import { getCacheRepos, setCacheRepos } from '../../../utils/store'
+import { getCacheRepos, setCacheRepos, store } from '../../../utils/store'
 import { NavLink } from 'react-router-dom'
 import { openModal } from 'src/renderer/utils/helper'
+import { shell } from 'electron';
 
 const TYPE_IMG = 'images'
 const TYPE_ISSUES = 'issues'
@@ -56,6 +57,13 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
       visible: false
     } as State)
   }
+  openExternal = () => {
+    shell.openExternal(`https://github.com/${this.context.owner}`)
+  }
+  logout = () => {
+    store.clear()
+    window.location.reload()
+  }
   render() {
     const { avatar, owner } = this.context
     // const { visible, repos, selectType, issues, images } = this.state
@@ -63,7 +71,14 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
       <div className='sidebar'>
         <div className='user-info'>
           <img src={avatar} className='user-avatar' />
-          <span className='user-name'>{owner}</span>
+          <span className='user-name'>
+            <span onClick={this.openExternal}>
+              {owner}
+            </span>
+            <Tooltip title='Logout' mouseEnterDelay={0.25}>
+              <Icon onClick={this.logout} type='logout' style={{fontSize: '12px'}} className='ml5' />
+            </Tooltip>
+          </span>
         </div>
         <div className='repo'>
           {['images', 'issues'].map(each => (

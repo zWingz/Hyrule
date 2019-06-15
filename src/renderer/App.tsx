@@ -6,7 +6,8 @@ import {
   getCacheUser,
   setCacheUser,
   getCacheToken,
-  setCacheToken
+  setCacheToken,
+  store
 } from './utils/store'
 import { Provider } from './context/UserContext'
 import { HashRouter } from 'react-router-dom'
@@ -15,18 +16,27 @@ import { Spin, Icon } from 'antd'
 import './utils/logger'
 import './style/index.less'
 import { DefaultHttpIns, Http } from './http';
+import { GitUser } from './http/types';
+
+type State = {
+  loaded: boolean,
+  isLogin: boolean
+} & GitUser
+
+
 const antIcon = <Icon type='loading' style={{ fontSize: 32 }} spin />
 Spin.setDefaultIndicator(antIcon)
 
 const cacheUser = getCacheUser()
+const token = getCacheToken()
 
-class App extends PureComponent {
-  state = {
+class App extends PureComponent<{}, State> {
+  state: State = {
     ...cacheUser,
-    loaded: false
+    loaded: false,
+    isLogin: !!token
   }
   componentDidMount() {
-    const token = getCacheToken()
     ipcRenderer.on('set-access-token', async (e, t) => {
       this.valid(t)
     })
@@ -46,10 +56,17 @@ class App extends PureComponent {
       loaded: true
     })
   }
+  logout = () => {
+    store.clear()
+    this.setState({
+      loaded: false
+    })
+  }
   render() {
     const { avatar, owner, loaded } = this.state
+    const { logout } = this
     return (
-      <Provider value={{ avatar, owner }}>
+      <Provider value={{ avatar, owner, logout }}>
         <HashRouter>{loaded && <Layout />}</HashRouter>
         <Animate transitionName='fade'>
           {!loaded && (

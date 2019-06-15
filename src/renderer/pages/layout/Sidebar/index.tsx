@@ -60,12 +60,8 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
   openExternal = () => {
     shell.openExternal(`https://github.com/${this.context.owner}`)
   }
-  logout = () => {
-    store.clear()
-    window.location.reload()
-  }
   render() {
-    const { avatar, owner } = this.context
+    const { avatar, owner, logout } = this.context
     // const { visible, repos, selectType, issues, images } = this.state
     return (
       <div className='sidebar'>
@@ -76,7 +72,7 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
               {owner}
             </span>
             <Tooltip title='Logout' mouseEnterDelay={0.25}>
-              <Icon onClick={this.logout} type='logout' style={{fontSize: '12px'}} className='ml5' />
+              <Icon onClick={logout} type='logout' style={{fontSize: '12px'}} className='ml5' />
             </Tooltip>
           </span>
         </div>

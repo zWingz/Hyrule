@@ -3,7 +3,7 @@ import * as qs from 'qs'
 import { GITHUB_APP } from '../config'
 import { getWin } from '../global'
 import { default as fetch } from 'node-fetch'
-import { setToken } from '../store';
+import { setToken } from '../store'
 let authWindow: BrowserWindow
 export function registerAuthListener(win: BrowserWindow) {
   ipcMain.on('open-auth-window', () => {
@@ -55,7 +55,7 @@ function handleOauth(event, url) {
         setToken(access_token)
         // Close the browser if code found or error
         getWin().webContents.send('set-access-token', access_token)
-        // authWindow.webContents.session.clearStorageData()
+        authWindow.webContents.session.clearStorageData()
         authWindow.destroy()
       }
     })

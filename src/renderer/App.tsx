@@ -15,14 +15,14 @@ import { Layout } from './pages/layout'
 import { Spin, Icon } from 'antd'
 import './utils/logger'
 import './style/index.less'
-import { DefaultHttpIns, Http } from './http';
-import { GitUser } from './http/types';
+import { DefaultHttpIns, Http } from './http'
+import { GitUser } from './http/types'
+import { Login } from './component/Login';
 
 type State = {
-  loaded: boolean,
+  loaded: boolean
   isLogin: boolean
 } & GitUser
-
 
 const antIcon = <Icon type='loading' style={{ fontSize: 32 }} spin />
 Spin.setDefaultIndicator(antIcon)
@@ -34,6 +34,7 @@ class App extends PureComponent<{}, State> {
   state: State = {
     ...cacheUser,
     loaded: false,
+    // isLogin: false,
     isLogin: !!token
   }
   componentDidMount() {
@@ -43,7 +44,7 @@ class App extends PureComponent<{}, State> {
     if (token) {
       this.valid(token)
     } else {
-      ipcRenderer.send('open-auth-window')
+      this.login()
     }
   }
   async valid(t) {
@@ -53,19 +54,24 @@ class App extends PureComponent<{}, State> {
     setCacheUser(user)
     this.setState({
       ...user,
-      loaded: true
+      loaded: true,
+      isLogin: true
     })
+  }
+  login() {
+    ipcRenderer.send('open-auth-window')
   }
   logout = () => {
     store.clear()
     this.setState({
-      loaded: false
+      loaded: false,
+      isLogin: false
     })
   }
   render() {
-    const { avatar, owner, loaded } = this.state
+    const { avatar, owner, loaded, isLogin } = this.state
     const { logout } = this
-    return (
+    return isLogin ? (
       <Provider value={{ avatar, owner, logout }}>
         <HashRouter>{loaded && <Layout />}</HashRouter>
         <Animate transitionName='fade'>
@@ -76,7 +82,7 @@ class App extends PureComponent<{}, State> {
           )}
         </Animate>
       </Provider>
-    )
+    ) : <Login requestLogin={this.login}/>
   }
 }
 

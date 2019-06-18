@@ -1,0 +1,33 @@
+.login {
+  &-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+  &-github {
+    border: 1px solid @border-color;
+    align-self: center;
+    .github-icon {
+      background: @blue-color;
+      color: #fff;
+      font-size: 108px;
+      border-bottom: 1px solid @border-color;
+      width: 200px;
+      height: 200px;
+    }
+  }
+  &-button {
+    background: @blue-color;
+    padding: 11px 0px 11px 12px;
+    border-color: @blue-color;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 200px;
+    color: #fff;
+    outline: none !important;
+    &:hover {
+      background: #266bd3;
+    }
+  }
+}

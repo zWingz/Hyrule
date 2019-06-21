@@ -13,7 +13,7 @@ export function setCacheRepos(
 }
 
 export function getCacheDefUploadRepo() {
-  return store.get('defUploadRep') as string || ''
+  return store.get('defUploadRep') as string || undefined
 }
 
 export function setCacheDefUploadRepo(repo) {

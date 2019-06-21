@@ -48,6 +48,11 @@ export function RepoWrapper<P = any>(
         ImageKit.setRepo(repo)
       }
     }
-    return <Page {...p} repo={repoInfo} />
+    useEffect(() => {
+      if(!repoInfo) {
+        p.history.replace('/')
+      }
+    }, [])
+    return repoInfo ? <Page {...p} repo={repoInfo} /> : null
   }
 }

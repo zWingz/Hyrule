@@ -15,7 +15,7 @@ import {
   setCacheDefUploadRepo,
   store
 } from 'src/renderer/utils/store'
-import { Spin, Select, Icon } from 'antd'
+import { Spin, Select, Icon, Tooltip } from 'antd'
 import { ImagesPageBase } from '../Images'
 import { empty } from 'src/renderer/utils/helper'
 import { ImageKit } from 'src/renderer/utils/imageKit'
@@ -51,7 +51,6 @@ class IssuesPageBase extends PureComponent<Prop, State> {
     }
     const repo = imagesRepo.filter(each => each.name === uploadRepo)[0]
     cache = repo
-    console.log(repo)
     return repo
   }
   constructor(p: Prop) {
@@ -136,18 +135,24 @@ class IssuesPageBase extends PureComponent<Prop, State> {
         <div className='page-container'>
           <div className='flex'>
             <div className='page-title mr-auto'>{this.props.repo.name}</div>
-            {uploadRepo && (
-              <div className='flex-center'>
-                <Icon
-                  type='menu-fold'
-                  className='mr10'
-                  onClick={this.onShowImageChange}
-                  style={{ fontSize: '22px' }}
-                />
+            <div className='flex-center'>
+              {uploadRepo && (
+                <Tooltip title='open images dashboard' mouseEnterDelay={0.3}>
+                  <Icon
+                    type='menu-fold'
+                    className='mr10'
+                    onClick={this.onShowImageChange}
+                    style={{ fontSize: '22px' }}
+                  />
+                </Tooltip>
+              )}
+              <Tooltip
+                title='Select a repo to upload image'
+                mouseEnterDelay={0.5}>
                 <Select
-                  placeholder='Select'
+                  placeholder='Select a upload repo'
                   value={uploadRepo}
-                  style={{ minWidth: '120px' }}
+                  style={{ minWidth: '180px' }}
                   onChange={this.onRepoSelectChange}>
                   {imagesRepo.map(each => (
                     <Option key={each.name} value={each.name}>
@@ -155,8 +160,8 @@ class IssuesPageBase extends PureComponent<Prop, State> {
                     </Option>
                   ))}
                 </Select>
-              </div>
-            )}
+              </Tooltip>
+            </div>
           </div>
           {loading && (
             <Spin delay={250} className='spin-loading absolute-full' />
@@ -175,10 +180,16 @@ class IssuesPageBase extends PureComponent<Prop, State> {
           <div
             className={cls('issues-images-container absolute-full', {
               hidden: !condition
-            })}
-            onClick={this.onShowImageChange}>
+            })}>
+            <div
+              className='issues-images-mask absolute-full'
+              onClick={this.onShowImageChange}
+            />
             <ImagesPageBase
-              className={cls('issues-images')}
+              onClose={this.onShowImageChange}
+              className={cls('issues-images', {
+                hidden: !condition
+              })}
               repo={this.uploadRepoInfo}
             />
           </div>

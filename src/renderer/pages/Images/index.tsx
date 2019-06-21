@@ -6,7 +6,8 @@ import {
   message as Message,
   Spin,
   Empty,
-  Switch
+  Switch,
+  Tooltip
 } from 'antd'
 import cls from 'classnames'
 import join from 'url-join'
@@ -28,6 +29,7 @@ import { GitRepo } from 'src/renderer/http/types'
 type Prop = {
   repo: GitRepo
   className?: string
+  onClose?: () => void
 }
 
 type State = {
@@ -123,7 +125,7 @@ export class ImagesPageBase extends PureComponent<Prop, State> {
         abortToken = abort
       })
       const { images, dir } = dataJson
-      if(!this._isMounted) return
+      if (!this._isMounted) return
       this.setState({
         // images: [],
         images: images.map(each => ({
@@ -327,14 +329,23 @@ export class ImagesPageBase extends PureComponent<Prop, State> {
       dragover,
       checkedToggle
     } = this.state
-    const { repo, className } = this.props
-    console.log(repo);
+    const { repo, className, onClose } = this.props
     const keys = Object.keys(dir)
     const empty = !images.length
     return (
       <div className={cls('page-container album-container', className)}>
         <div className='album-title flex align-center'>
           <div className='page-title mr-auto'>{repo.name}</div>
+          {onClose && (
+            <Tooltip title='close dashboard' mouseEnterDelay={0.3}>
+              <Icon
+                onClick={onClose}
+                className='mr10'
+                style={{ fontSize: '22px' }}
+                type='menu-unfold'
+              />
+            </Tooltip>
+          )}
           <Button
             icon='folder-add'
             className='mr10'

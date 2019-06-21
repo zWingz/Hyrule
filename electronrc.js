@@ -25,10 +25,10 @@ module.exports = {
     ]
   },
   mac: {
-    icon: 'build/icons/icon.icns'
+    icon: 'build/icons/icon.png'
   },
   win: {
-    icon: 'build/icons/icon.ico',
+    icon: 'build/icons/icon.png',
     target: 'nsis',
     legalTrademarks: 'Eyas Personal'
   },

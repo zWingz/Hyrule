@@ -39,6 +39,9 @@ class App extends PureComponent<{}, State> {
   }
   componentDidMount() {
     ipcRenderer.on('set-access-token', async (e, t) => {
+      this.setState({
+        isLogin: true
+      })
       this.valid(t)
     })
     if (token) {
@@ -62,11 +65,11 @@ class App extends PureComponent<{}, State> {
     ipcRenderer.send('open-auth-window')
   }
   logout = () => {
-    store.clear()
     this.setState({
       loaded: false,
       isLogin: false
     })
+    store.clear()
   }
   render() {
     const { avatar, owner, loaded, isLogin } = this.state

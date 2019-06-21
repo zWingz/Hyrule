@@ -91,7 +91,7 @@ export function createMenu() {
       role: 'help',
       submenu: [
         {
-          label: 'Learn More',
+          label: 'about',
           click() {
             shell.openExternal('https://github.com/zWingz/Hyrule')
           }

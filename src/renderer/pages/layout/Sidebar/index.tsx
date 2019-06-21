@@ -8,7 +8,7 @@ import { RepoSelectModal } from './RepoSelectModal'
 import { getCacheRepos, setCacheRepos, store } from '../../../utils/store'
 import { NavLink } from 'react-router-dom'
 import { openModal } from 'src/renderer/utils/helper'
-import { shell } from 'electron';
+import { shell } from 'electron'
 
 const TYPE_IMG = 'images'
 const TYPE_ISSUES = 'issues'
@@ -68,11 +68,14 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
         <div className='user-info'>
           <img src={avatar} className='user-avatar' />
           <span className='user-name'>
-            <span onClick={this.openExternal}>
-              {owner}
-            </span>
+            <span onClick={this.openExternal}>{owner}</span>
             <Tooltip title='Logout' mouseEnterDelay={0.25}>
-              <Icon onClick={logout} type='logout' style={{fontSize: '12px'}} className='ml5' />
+              <Icon
+                onClick={logout}
+                type='logout'
+                style={{ fontSize: '12px' }}
+                className='ml5'
+              />
             </Tooltip>
           </span>
         </div>
@@ -81,18 +84,22 @@ export class Sidebar extends PureComponent<{}, State, UserCtx> {
             <div className={`repo-group`} key={each}>
               <div className='repo-type'>{each}</div>
               <ul className='repo-list'>
-                {this.state[each].map((repo: GitRepo) => (
-                  <li className='repo-list-item' key={repo.id}>
-                    <NavLink
-                      to={{
-                        pathname: `/${each}/${repo.name}`,
-                        search: repo.private ? 'private' : ''
-                      }}
-                      activeClassName='nav-active'>
-                      {repo.name}
-                    </NavLink>
-                  </li>
-                ))}
+                {this.state[each].length ? (
+                  this.state[each].map((repo: GitRepo) => (
+                    <li className='repo-list-item' key={repo.id}>
+                      <NavLink
+                        to={{
+                          pathname: `/${each}/${repo.name}`,
+                          search: repo.private ? 'private' : ''
+                        }}
+                        activeClassName='nav-active'>
+                        {repo.name}
+                      </NavLink>
+                    </li>
+                  ))
+                ) : (
+                  <li className='repo-list-item'>Please add a repo</li>
+                )}
                 <li
                   className='repo-add'
                   onClick={() => this.openSelectRepo(each)}>

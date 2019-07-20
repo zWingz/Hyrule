@@ -10,7 +10,8 @@ import { pick } from 'src/renderer/utils/helper'
 import { IssuesKit } from 'src/renderer/utils/issuesKit'
 import {
   setCacheDraftIssue,
-  getCacheDraftIssue
+  getCacheDraftIssue,
+  deleteCacheDraftIssues
 } from 'src/renderer/utils/store'
 type Prop = RouteComponentProps<{
   number: string
@@ -58,7 +59,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
   constructor(p: Prop, context: GitIssue[]) {
     super(p)
     const { number: num } = p.match.params
-    this.isCreate === !!num
+    this.isCreate = !num
     if (num) {
       const issue = context.filter(each => each.number === +num)[0]
       if (issue) {
@@ -122,7 +123,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
     })
     const { number: num } = this.props.match.params
     const { title, body, labels = [] } = this.state
-    await IssuesKit.saveIssues(
+    const { id, number: newNum } = await IssuesKit.saveIssues(
       {
         title,
         body,
@@ -130,10 +131,16 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
       },
       num ? +num : false
     )
+    if(this.isCreate) {
+      this.props.history.replace(`./${newNum}`)
+    }
     this.setState({
       syncing: false,
-      draft: false
+      draft: false,
+      id
     })
+    deleteCacheDraftIssues(IssuesKit.http.repo, this.isCreate ? 'create' : id)
+    this.isCreate = false
     this.props.onUpdate()
     message.success('Sync succeed')
   }

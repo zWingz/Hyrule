@@ -4,4 +4,7 @@ class AbortError extends Error {
   }
 }
 
-export { AbortError }
+class AuthError extends Error {
+}
+
+export { AbortError, AuthError }

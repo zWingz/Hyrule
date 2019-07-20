@@ -43,6 +43,7 @@ export class Editor extends React.Component<Prop> {
       let { files } = e.clipboardData
       const { length } = files
       const file = files[length - 1]
+      if(!file) return
       const createRange = (end: monaco.Selection) => new monaco.Range(
         startSelection.startLineNumber,
         startSelection.startColumn,

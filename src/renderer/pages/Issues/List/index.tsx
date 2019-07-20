@@ -1,4 +1,9 @@
-import React, { useContext, useState, useLayoutEffect, useCallback } from 'react'
+import React, {
+  useContext,
+  useState,
+  useLayoutEffect,
+  useCallback
+} from 'react'
 import { GitIssue } from 'src/renderer/http/types'
 import { Preview } from '../Preview'
 import { IssuesContext } from '../Context'
@@ -16,6 +21,7 @@ let _lastSelected: GitIssue = null
 
 export function IssuesList(p: Prop) {
   const issues = useContext(IssuesContext)
+  const [deleteing, setDeleting] = useState<number[]>([])
   const [selected, setSelected] = useState<GitIssue>(() => {
     const first = issues[0]
     if (!_lastSelected) return first
@@ -28,8 +34,12 @@ export function IssuesList(p: Prop) {
     _lastSelected = issue
     setSelected(issue)
   }
-  const onCloseIssue = async issue => {
+  const onCloseIssue = async (issue: GitIssue) => {
+    const { id } = issue
+    setDeleting(prev => prev.concat([id]))
     await IssuesKit.closeIssue(issue)
+    // await new Promise(res => setTimeout(res, 1000))
+    setDeleting(prev => prev.filter(each => each !== id))
     message.success('Succeed to close issue')
     clear()
     p.onUpdate()
@@ -49,33 +59,40 @@ export function IssuesList(p: Prop) {
             to={`${p.match.url}/create`}
             className='issues-item-title flex align-center'>
             Create New
-            <Icon type='plus-circle' className='ml-auto'/>
+            <Icon type='plus-circle' className='ml-auto' />
           </Link>
         </div>
         {!!issues.length ? (
-          issues.map(each => (
-            <div
-              key={each.id}
-              className={cls('issues-item flex align-center', {
-                active: each.id === mid.id
-              })}
-              onClick={() => onClick(each)}>
-              <div className='flex-grow'>
-                <time className='issues-item-time'>
-                  {dayjs(each.created_at).format('YYYY-MM-DD hh:mm')}
-                </time>
-                <div className='issues-item-title'>{each.title}</div>
+          issues.map(each => {
+            const isDeleteing = deleteing.indexOf(each.id) !== -1
+            return (
+              <div
+                key={each.id}
+                className={cls('issues-item flex align-center', {
+                  active: each.id === mid.id
+                })}
+                onClick={() => onClick(each)}>
+                <div
+                  className='flex-grow'
+                  style={isDeleteing ? { filter: 'blur(1.5px)' } : {}}>
+                  <time className='issues-item-time'>
+                    {dayjs(each.created_at).format('YYYY-MM-DD hh:mm')}
+                  </time>
+                  <div className='issues-item-title'>{each.title}</div>
+                </div>
+                {!isDeleteing && (
+                  <Popconfirm
+                    className='issues-item-close'
+                    title='Are you sure close this issue?'
+                    onConfirm={() => onCloseIssue(each)}
+                    okText='Yes'
+                    cancelText='No'>
+                    <Icon type='close-circle' />
+                  </Popconfirm>
+                )}
               </div>
-              <Popconfirm
-                className='issues-item-close'
-                title='Are you sure close this issue?'
-                onConfirm={() => onCloseIssue(each)}
-                okText='Yes'
-                cancelText='No'>
-                <Icon type='close-circle' />
-              </Popconfirm>
-            </div>
-          ))
+            )
+          })
         ) : (
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
         )}

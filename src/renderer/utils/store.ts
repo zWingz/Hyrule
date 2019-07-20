@@ -55,5 +55,7 @@ export function getCacheDraftIssue(repo: string, id: number | 'create'): DraftIs
 export function setCacheDraftIssue(repo: string, id: number | 'create', draft: DraftIssue) {
   store.set(`draft.${repo}.${id}`, draft)
 }
-
+export function deleteCacheDraftIssues(repo: string, id: number | 'create') {
+  store.delete(`draft.${repo}.${id}`)
+}
 export { store }

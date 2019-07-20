@@ -18,8 +18,8 @@ class IssuesCache extends Cache<GitIssue[]> {
   }
   updateIssue(repo, issue: GitIssue) {
     const cache = this.get(repo)
-    const item = cache.filter(each => each.id === issue.id)
-    Object.assign(item, issue)
+    const item = cache.filter(each => each.id === issue.id)[0]
+    item && Object.assign(item, issue)
   }
 }
 
@@ -40,7 +40,7 @@ class Octo {
     return issues
   }
   async saveIssues(issue: CreateIssueParams, num?: number | false) {
-    let data
+    let data: GitIssue
     if (num) {
       data = await this.http.editIssue(num, issue)
       _cache.updateIssue(this.http.repo, data)
@@ -51,8 +51,8 @@ class Octo {
     return data
   }
   async closeIssue(issue: GitIssue) {
+    await this.http.closeIssue(issue.number)
     _cache.removeIssue(this.http.repo, issue)
-    return this.http.closeIssue(issue.number)
   }
 }
 

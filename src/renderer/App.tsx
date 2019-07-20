@@ -18,6 +18,7 @@ import './style/index.less'
 import { DefaultHttpIns, Http } from './http'
 import { GitUser } from './http/types'
 import { Login } from './component/Login';
+import { AuthError } from './http/Error';
 
 type State = {
   loaded: boolean
@@ -53,13 +54,21 @@ class App extends PureComponent<{}, State> {
   async valid(t) {
     setCacheToken(t)
     Http.setToken(t)
-    const user = await DefaultHttpIns.getUser()
-    setCacheUser(user)
-    this.setState({
-      ...user,
-      loaded: true,
-      isLogin: true
-    })
+    try {
+      const user = await DefaultHttpIns.getUser()
+      setCacheUser(user)
+      this.setState({
+        ...user,
+        loaded: true,
+        isLogin: true
+      })
+    } catch(e) {
+      if(e instanceof AuthError) {
+        this.login()
+        return
+      }
+      throw e
+    }
   }
   login() {
     ipcRenderer.send('open-auth-window')

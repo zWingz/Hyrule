@@ -1,4 +1,5 @@
 import { pick, pickArray } from '../utils/helper'
+import { message } from 'antd'
 import {
   RequestParams,
   GitBlob,
@@ -16,7 +17,7 @@ import {
 } from './types'
 import qs from 'qs'
 import join from 'url-join'
-import { AbortError } from './Error'
+import { AbortError, AuthError } from './Error'
 
 export class Http {
   static token = ''
@@ -116,7 +117,9 @@ export class Http {
             return
           }
           if (status === 401) {
-            rej(new Error('登录验证出错了, 请修改后重试!'))
+            const msg = 'Login fail!'
+            message.error(msg)
+            rej(new AuthError(msg))
           } else if (status === 409) {
             res(retry())
           } else if (status >= 300) {
@@ -173,7 +176,7 @@ export class Http {
     })
     return pickArray(data, ['name', 'id', 'description', 'private'])
   }
-  async getIssues({ page = 2, pageSize = 10 }: GetIssuesParams = {}) {
+  async getIssues({ page = 2, pageSize = 10 }: GetIssuesParams = {}): Promise<GitIssue[]> {
     const url = this.parseUrl(`/repos/:owner/:repo/issues`)
     return this.xhr({
       url

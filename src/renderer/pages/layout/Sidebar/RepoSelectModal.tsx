@@ -1,6 +1,6 @@
 import React, { PureComponent, useState, useEffect, useCallback } from 'react'
 import { GitRepo } from '../../../http/types'
-import { Modal, Checkbox } from 'antd'
+import { Modal, Checkbox, Input } from 'antd'
 
 const { Group } = Checkbox
 
@@ -20,9 +20,11 @@ interface Prop {
 
 export function RepoSelectModal(p: Prop) {
   const [v, setValue] = useState([])
+  const [filter, setFilter] = useState('')
   const { repos, disabled, value, onConfirm, visible, onCancel } = p
   const disabledKey = disabled.map(each => each.name)
-  const options = repos.map(each => ({
+  const reg = new RegExp(filter)
+  const options = repos.filter(each => reg.test(each.name)).map(each => ({
     name: each.name,
     disabled: disabledKey.includes(each.name)
   }))
@@ -39,17 +41,20 @@ export function RepoSelectModal(p: Prop) {
       onCancel={onCancel}
       onOk={onOk}
       destroyOnClose>
-      <Group value={v} onChange={setValue} className='repos-select'>
-        {options.map(each => (
-          <Checkbox
-            className='repos-select-item'
-            value={each.name}
-            key={each.name}
-            disabled={each.disabled}>
-            {each.name}
-          </Checkbox>
-        ))}
-      </Group>
+      <Input placeholder='filter' value={filter} onChange={e => setFilter(e.target.value)}/>
+      <div className='mt10' style={{overflow: 'auto', maxHeight: '237px'}}>
+        <Group value={v} onChange={setValue} className='repos-select'>
+          {options.map(each => (
+            <Checkbox
+              className='repos-select-item'
+              value={each.name}
+              key={each.name}
+              disabled={each.disabled}>
+              {each.name}
+            </Checkbox>
+          ))}
+        </Group>
+      </div>
     </Modal>
   )
 }

@@ -78,15 +78,15 @@
 }
 
 .repos-select {
-  display: flex !important;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
+  // display: flex !important;
+  // flex-wrap: wrap;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 3px;
   &-item {
-    width: 30%;
     white-space: nowrap;
     overflow: hidden;
-    margin-left: 0px !important;
-    margin-bottom: 10px;
     text-overflow: ellipsis;
+    margin: 0px !important;
   }
 }

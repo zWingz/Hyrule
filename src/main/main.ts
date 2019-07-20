@@ -33,7 +33,7 @@ function createWindow() {
     ...cacheSize,
     title: app.getName(),
     minHeight: 750,
-    minWidth: 1080,
+    minWidth: 1090,
     webPreferences,
     show: false,
     backgroundColor: '#2e2c29'

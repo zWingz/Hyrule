@@ -9,7 +9,7 @@ type WindowSize = {
 
 export function getCacheWindowSize() {
   return store.get('window.size') as WindowSize || {
-    width: 1080,
+    width: 1090,
     height: 750
   }
 }

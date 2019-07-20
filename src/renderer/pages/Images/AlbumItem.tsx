@@ -19,7 +19,7 @@ interface Prop {
   path: string
 }
 export function AlbumItem(props: Prop) {
-  const { item, onDelete: propDelete, className, path, ...rst } = props
+  const { item, onDelete: propDelete, className, path, isPrivate, ...rst } = props
   const [deleting, setDeleting] = useState(false)
   const onDelete = () => {
     if (deleting) return
@@ -39,6 +39,7 @@ export function AlbumItem(props: Prop) {
     jsx = (
       <Image
         {...rst}
+        isPrivate={isPrivate}
         src={f.url}
         sha={f.sha}
         repo={`${ImageKit.http.owner}/${ImageKit.http.repo}`}
@@ -48,8 +49,10 @@ export function AlbumItem(props: Prop) {
   return (
     <div className={className + (deleting ? ' blur' : '')}>
       <div className='album-images-action'>
-        <Icon type='copy' className='mr5' onClick={onCopy} />
-        <Icon type='delete' onClick={onDelete} />
+        {
+          !isPrivate && <Icon type='copy' className='mr5' title='copy to markdown' onClick={onCopy} />
+        }
+        <Icon type='delete' title='delete img' onClick={onDelete} />
       </div>
       {jsx}
     </div>

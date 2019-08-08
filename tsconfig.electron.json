@@ -2,10 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     // "lib": ["es7", "dom"],
-    "outDir": "./dist/main",
+    "outDir": "./dist/electron",
     "target": "es2016",
     "module": "commonjs",
-    "types": ["node"]
+    "types": ["node"],
+    "resolveJsonModule": true
   },
   "include": ["src/main/**/*.ts"],
   "exclude": ["node_modules"]

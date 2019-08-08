@@ -14,3 +14,8 @@ declare const isProduction: boolean
 declare type PlainObj = {
   [k: string]: any
 }
+
+declare module '*.json' {
+  const content: any
+  export default content
+}

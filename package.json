@@ -1,6 +1,6 @@
 {
   "name": "hyrule",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "./dist/electron/src/main/main.js",
   "license": "MIT",
   "scripts": {
@@ -19,7 +19,7 @@
   },
   "repository": {
     "url": "https://github.com/zWingz/Hyrule",
-    "type" : "git"
+    "type": "git"
   },
   "dependencies": {
     "consola": "^2.6.2",

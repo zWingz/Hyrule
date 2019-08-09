@@ -75,7 +75,7 @@ export function createMenu() {
     {
       label: 'Hyrule',
       submenu: [{
-        label: 'Open Ca12che',
+        label: 'Open Cache',
         click () {
           store.openInEditor()
         }

@@ -1,6 +1,7 @@
 import { app, Menu, shell } from 'electron'
 import * as Store from 'electron-store'
-import { getToken, setToken } from './store';
+import { getToken, setToken } from './store'
+import { checkUpdate } from './updater';
 const store = new Store()
 
 export function createMenu() {
@@ -91,10 +92,13 @@ export function createMenu() {
       role: 'help',
       submenu: [
         {
-          label: 'about',
+          label: 'About',
           click() {
             shell.openExternal('https://github.com/zWingz/Hyrule')
           }
+        }, {
+          label: 'Check Update',
+          click: checkUpdate
         }
       ]
     }

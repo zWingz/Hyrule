@@ -1,14 +1,14 @@
 {
   "name": "hyrule",
   "version": "1.1.1",
-  "main": "./dist/main/main.js",
+  "main": "./dist/electron/src/main/main.js",
   "license": "MIT",
   "scripts": {
     "dev:web": "node ./build/devServer.js",
     "build:web": "webpack --progress --hide-modules --colors --config=build/prod.conf.js",
     "dev:main": "yarn build:main --watch",
     "build:main": "tsc -p tsconfig.electron.json",
-    "dev:electron": "nodemon --watch ./dist/main --exec electron ./dist/main/main.js",
+    "dev:electron": "nodemon --watch ./dist/main --exec electron ./dist/electron/src/main/main.js",
     "build:package": "electron-builder --config ./electronrc.js -mwl",
     "lint": "tslint --fix --format codeFrame --project .",
     "build": "yarn build:web && yarn build:main && yarn build:package"
@@ -17,13 +17,18 @@
     "email": "zhengzwing@gmail.com",
     "name": "zWing"
   },
+  "repository": {
+    "url": "https://github.com/zWingz/Hyrule",
+    "type" : "git"
+  },
   "dependencies": {
     "consola": "^2.6.2",
     "electron-is-dev": "^1.1.0",
     "electron-store": "^3.2.0",
     "electron-util": "^0.11.0",
     "node-fetch": "^2.5.0",
-    "qs": "^6.7.0"
+    "qs": "^6.7.0",
+    "semver": "^6.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",

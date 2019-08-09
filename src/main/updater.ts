@@ -10,13 +10,13 @@ export async function checkUpdate() {
   const { version } = pkg
   const remotePkg = await fetch(url).then(r => r.json())
   const { version: remoteVersion } = remotePkg
-  const needUpdate = semver.gt(remoteVersion, version)
+  const needUpdate = !semver.gt(remoteVersion, version)
   if(needUpdate) {
     dialog.showMessageBox({
       type: 'info',
-      title: '发现新版本',
+      title: 'There are new version',
       buttons: ['Yes', 'No'],
-      message: `发现新版本${remoteVersion}，是否去下载最新的版本?`,
+      message: `Download the latest version(${remoteVersion}) now?`
     }, res => {
       if (res === 0) {
         shell.openExternal(downloadUrl)
@@ -26,7 +26,7 @@ export async function checkUpdate() {
   }
   dialog.showMessageBox({
     type: 'info',
-    title: '检查更新',
-    message: `目前为最新版本, 不需要更新！`
+    title: 'Check update',
+    message: `This is the latest version!`
   })
 }

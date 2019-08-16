@@ -51,7 +51,7 @@ function createWindow() {
       .catch(err => console.log('An error occurred: ', err))
     // win.webContents.openDevTools()
   } else {
-    win.loadFile(`${__dirname}/../renderer/index.html`)
+    win.loadFile(`${__dirname}/../../../renderer/index.html`)
   }
   setWebcontent(win.webContents)
   win.once('ready-to-show', () => {

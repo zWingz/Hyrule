@@ -45,6 +45,7 @@ export function Preview(p: Prop) {
     const { target } = e
     const { tagName } = target as HTMLElement
     if(tagName !== 'A') return
+    e.preventDefault()
     const { href } = target as HTMLAnchorElement
     shell.openExternal(href)
   }, [])

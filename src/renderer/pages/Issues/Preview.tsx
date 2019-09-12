@@ -1,6 +1,7 @@
-import React, { useLayoutEffect } from 'react'
+import React, { useLayoutEffect, useCallback } from 'react'
 import { parseMd } from 'src/renderer/utils/markdown'
 import './markdown.less'
+import { shell } from 'electron'
 type Prop = {
   content: string
   scrollLine?: number
@@ -40,8 +41,15 @@ export function Preview(p: Prop) {
       top: c
     })
   }, [scrollLine])
+  const onClick = useCallback<React.MouseEventHandler>((e) => {
+    const { target } = e
+    const { tagName } = target as HTMLElement
+    if(tagName !== 'A') return
+    const { href } = target as HTMLAnchorElement
+    shell.openExternal(href)
+  }, [])
   return (
-    <div id='markdown-preview' className='markdown-preview'>
+    <div id='markdown-preview' className='markdown-preview' onClick={onClick}>
       <div dangerouslySetInnerHTML={{ __html: parseMd(content) }} />
     </div>
   )

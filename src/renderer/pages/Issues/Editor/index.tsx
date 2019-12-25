@@ -17,6 +17,7 @@ type Prop = RouteComponentProps<{
   number: string
 }> & {
   onUpdate: () => void
+  onUpload: () => void
 }
 
 enum MODE_ENMU {
@@ -213,6 +214,7 @@ export class IssuesEditor extends React.PureComponent<Prop, State> {
             <UploadRepoContext.Consumer>
               {uploadRepo => (
                 <Editor
+                  onUpload={this.props.onUpload}
                   onSave={this.onSaveDraft}
                   getEditor={this.getEditor}
                   content={body}

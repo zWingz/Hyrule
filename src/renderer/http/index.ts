@@ -107,6 +107,7 @@ export class Http {
             }
           }
         }
+        xhr.onerror = rej
         xhr.onreadystatechange = function() {
           const { readyState, status, response } = xhr
           if (_abort) {

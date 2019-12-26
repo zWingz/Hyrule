@@ -3,12 +3,12 @@ import * as isDev from 'electron-is-dev'
 import { setWebcontent, logger } from './logger'
 import { setWin } from './global'
 import { registerAuthListener, registerStreamProtocol } from './register'
-import * as Consola from 'consola'
 import { getCacheWindowSize, setCacheWindowSize } from './store'
 import { createMenu } from './menu'
 
 if (isDev) {
-  (Consola as any).wrapAll()
+  const Consola = require('consola')
+  Consola.wrapAll()
   logger('Electron running in development')
 
   // try {

@@ -22,7 +22,6 @@
     "type": "git"
   },
   "dependencies": {
-    "consola": "^2.6.2",
     "electron-is-dev": "^1.1.0",
     "electron-store": "^3.2.0",
     "electron-util": "^0.11.0",
@@ -46,6 +45,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.5",
     "babel-plugin-import": "^1.11.0",
+    "consola": "^2.6.2",
     "classnames": "^2.2.6",
     "css-loader": "^2.1.1",
     "cssnano": "^4.1.10",

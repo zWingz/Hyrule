@@ -1,4 +1,3 @@
-import smver from 'semver'
 import fetch from 'node-fetch'
 import * as pkg from '../../package.json'
 import * as semver from 'semver'

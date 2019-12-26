@@ -5,7 +5,7 @@ module.exports = {
     output: 'package'
   },
   files: ['dist/**/*'],
-  // copyright: 'Copyright © 2019 zWing',
+  copyright: 'Copyright © 2019 zWing',
   asar: true,
   artifactName: '${productName}-${version}.${ext}',
   // compression: 'maximum',

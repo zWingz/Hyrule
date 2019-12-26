@@ -2,6 +2,7 @@ import React from 'react'
 import * as monaco from 'monaco-editor'
 import { debounce, readAsBase64 } from 'src/renderer/utils/helper'
 import { ImageKit } from 'src/renderer/utils/imageKit'
+import { message } from 'antd'
 type Prop = {
   content: string
   onChange: (arg: string) => void
@@ -9,6 +10,7 @@ type Prop = {
   uploadRepo: string
   getEditor: (ins: monaco.editor.IStandaloneCodeEditor) => void
   onSave: () => void
+  onUpload: () => void
 }
 const LINE_HEIGHT = 18
 const IMG_REGEXP = /(png|jpg|jpeg|gif)/i
@@ -44,6 +46,10 @@ export class Editor extends React.Component<Prop> {
       const { length } = files
       const file = files[length - 1]
       if(!file) return
+      if(!this.props.uploadRepo) {
+        message.error('Please select a repo to upload!')
+        return
+      }
       const createRange = (end: monaco.Selection) => new monaco.Range(
         startSelection.startLineNumber,
         startSelection.startColumn,
@@ -95,6 +101,7 @@ export class Editor extends React.Component<Prop> {
             ]
           )
           editor.setPosition(editor.getPosition())
+          this.props.onUpload()
         }
       })
     }
@@ -110,11 +117,11 @@ export class Editor extends React.Component<Prop> {
         minimap: {
           enabled: false
         },
-        wordWrap: 'wordWrapColumn',
+        wordWrap: 'bounded',
         lineNumbers: 'off',
         roundedSelection: false,
         // scrollBeyondLastLine: false,
-        theme: 'vs-dark'
+        theme: 'vs-dark',
       }
     )
     // this.editor.layout()

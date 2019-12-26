@@ -36,6 +36,7 @@ type State = {
 let cache: GitRepo = null
 
 class IssuesPageBase extends PureComponent<Prop, State> {
+  $img = React.createRef<ImagesPageBase>()
   state: State = {
     issues: [],
     loading: true,
@@ -107,6 +108,9 @@ class IssuesPageBase extends PureComponent<Prop, State> {
       this.init()
     }
   }
+  onUpload = () => {
+    this.$img.current.getImage()
+  }
   init() {
     this.setState({
       issues: []
@@ -120,7 +124,7 @@ class IssuesPageBase extends PureComponent<Prop, State> {
   render() {
     const { issues, loading } = this.state
     const CreateEditorPage = p => (
-      <IssuesEditor onUpdate={this.getIssues} {...p} />
+      <IssuesEditor onUpdate={this.getIssues} onUpload={this.onUpload} {...p} />
     )
     const CreateIssuesListPage = p => (
       <IssuesList onUpdate={this.getIssues} {...p} />
@@ -150,6 +154,7 @@ class IssuesPageBase extends PureComponent<Prop, State> {
                 title='Select a repo to upload image'
                 mouseEnterDelay={0.5}>
                 <Select
+                  className={!uploadRepo ? 'select-repo-warning' : ''}
                   placeholder='Select a upload repo'
                   value={uploadRepo}
                   style={{ minWidth: '180px' }}
@@ -186,6 +191,7 @@ class IssuesPageBase extends PureComponent<Prop, State> {
               onClick={this.onShowImageChange}
             />
             <ImagesPageBase
+              ref={this.$img}
               onClose={this.onShowImageChange}
               className={cls('issues-images', {
                 hidden: !condition

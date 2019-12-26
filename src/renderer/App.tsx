@@ -12,7 +12,7 @@ import {
 import { Provider } from './context/UserContext'
 import { HashRouter } from 'react-router-dom'
 import { Layout } from './pages/layout'
-import { Spin, Icon } from 'antd'
+import { Spin, Icon, message } from 'antd'
 import './utils/logger'
 import './style/index.less'
 import { DefaultHttpIns, Http } from './http'
@@ -63,11 +63,8 @@ class App extends PureComponent<{}, State> {
         isLogin: true
       })
     } catch(e) {
-      if(e instanceof AuthError) {
-        this.login()
-        return
-      }
-      throw e
+      message.error('Login fail, please try again!')
+      this.login()
     }
   }
   login() {

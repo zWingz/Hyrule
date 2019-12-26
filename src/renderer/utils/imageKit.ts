@@ -147,9 +147,6 @@ class Octo {
     })
     cache.delImg(path, arg)
   }
-  getUser() {
-    return this.http.getUser()
-  }
   parseUrl(path, fileName): string {
     const { repo, owner } = this.http
     return join(

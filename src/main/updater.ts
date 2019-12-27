@@ -16,8 +16,8 @@ export async function checkUpdate() {
       title: 'There are new version',
       buttons: ['Yes', 'No'],
       message: `Download the latest version(${remoteVersion}) now?`
-    }, res => {
-      if (res === 0) {
+    }).then(res => {
+      if (res.response === 0) {
         shell.openExternal(downloadUrl)
       }
     })

@@ -73,7 +73,7 @@
     "prismjs": "^1.16.0",
     "rc-animate": "^2.8.2",
     "react": "^16.8.6",
-    "react-dev-utils": "^9.0.0",
+    "react-dev-utils": "^11.0.4",
     "react-dom": "^16.8.6",
     "react-hot-loader": "^4.8.4",
     "react-router-dom": "^5.0.0",

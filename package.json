@@ -70,7 +70,7 @@
     "post-loader": "^2.0.0",
     "postcss-loader": "^3.0.0",
     "postcss-safe-parser": "^4.0.1",
-    "prismjs": "^1.16.0",
+    "prismjs": "^1.27.0",
     "rc-animate": "^2.8.2",
     "react": "^16.8.6",
     "react-dev-utils": "^9.0.0",
